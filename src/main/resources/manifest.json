@@ -16,5 +16,5 @@
   "Dependencies": {},
   "OptionalDependencies": {},
   "ServerVersion": "*",
-  "Main": "fr.arnaud.nexus.Main"
+  "Main": "fr.arnaud.nexus.Nexus"
 }
