@@ -12,12 +12,10 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 /**
- * Lightweight i18n system.
- *
- * Loads key=value pairs from /lang/{locale}.properties bundled in the jar.
- * Falls back to en_US if a key is missing in the active locale.
- *
- * Usage: I18n.t("flow.segment.lost")
+ * Lightweight internationalization (i18n) manager.
+ * <p>
+ * Loads translations from {@code /lang/{locale}.properties} files.
+ * If a key is missing in the primary locale, it falls back to en_US.
  */
 public final class I18n {
 
@@ -27,8 +25,12 @@ public final class I18n {
 
     private static JavaPlugin plugin;
 
-    private I18n() {}
+    private I18n() {
+    }
 
+    /**
+     * Initializes the i18n system with the active locale.
+     */
     public static void init(JavaPlugin pluginInstance) {
         plugin = pluginInstance;
         String locale = resolveLocale();
@@ -39,16 +41,14 @@ public final class I18n {
     }
 
     /**
-     * Returns the translated string for {@code key}.
-     * Falls back to the en_US value, then to the raw key if not found.
+     * Retrieves the translated string for a key. Returns the key if no translation exists.
      */
     public static String t(String key) {
         return translations.getOrDefault(key, fallback.getOrDefault(key, key));
     }
 
     /**
-     * Returns the translated string with simple positional replacements.
-     * Example: I18n.t("flow.gained", 2) where string is "Flow gained: {0}"
+     * Retrieves the translated string and replaces {0}, {1}, etc., with the provided arguments.
      */
     public static String t(String key, Object... args) {
         String value = t(key);
@@ -57,10 +57,6 @@ public final class I18n {
         }
         return value;
     }
-
-    // -------------------------------------------------------------------------
-    // Private helpers
-    // -------------------------------------------------------------------------
 
     private static String resolveLocale() {
         // TODO: Read from plugin config file once config API is stable.

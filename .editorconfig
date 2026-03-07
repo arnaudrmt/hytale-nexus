@@ -1,0 +1,10 @@
+[*]
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.java]
+# Ensures consistent Java formatting
+ij_java_align_multiline_parameters = true
+ij_java_align_multiline_chained_methods = true

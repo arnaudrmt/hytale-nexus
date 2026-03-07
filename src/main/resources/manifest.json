@@ -12,7 +12,7 @@
   ],
   "Website": "https://your-plugin-website.com",
   "DisabledByDefault": false,
-  "IncludesAssetPack": false,
+  "IncludesAssetPack": true,
   "Dependencies": {},
   "OptionalDependencies": {},
   "ServerVersion": "*",

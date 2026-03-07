@@ -1,0 +1,180 @@
+$Common = "Common.ui";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// NexusHud.ui — Project Nexus in-game HUD overlay.
+// Location: resources/Common/UI/Custom/NexusHud.ui
+// Requires: manifest.json -> "IncludesAssetPack": true
+//
+// Layout (GDD § Layout du HUD):
+//   Top-left    : Lucidity bar + Flow segments
+//   Bottom-left : Weapon slots (melee / ranged) + enchantments
+//   Top-right   : Dream Dust counter
+//
+// All #IDs referenced by NexusHud.java via UICommandBuilder.set("id", value).
+// ─────────────────────────────────────────────────────────────────────────────
+
+Group {
+    LayoutMode: Full;
+
+    // ── TOP-LEFT: Lucidity + Flow ─────────────────────────────────────────
+    Group #TopLeft {
+        Anchor: (Left: 20, Top: 20, Width: 200, Height: 80);
+        LayoutMode: Top;
+
+        // Lucidity label
+        Label #LucidityLabel {
+            Text: "LUCIDITY";
+            Style: (FontSize: 9, TextColor: #AAAAAA, RenderBold: true);
+            Anchor: (Top: 0, Height: 12);
+        }
+
+        // Lucidity bar (background track + foreground fill)
+        Group #LucidityBarTrack {
+            Anchor: (Top: 3, Width: 180, Height: 14);
+            Background: #000000(0.5);
+
+            Group #LucidityBarFill {
+                LayoutMode: Left;
+                Anchor: (Left: 0, Top: 0, Width: 180, Height: 14);
+                Background: #22CC44(0.85);
+            }
+
+            Label #LucidityText {
+                Text: "100%";
+                Style: (FontSize: 9, TextColor: #FFFFFF, RenderBold: true, HorizontalAlignment: Center);
+                Anchor: (Top: 0, Height: 14);
+            }
+        }
+
+        // Flow segments row
+        Group #FlowRow {
+            Anchor: (Top: 5, Height: 12);
+            LayoutMode: Left;
+
+            Group #FlowSeg0 { Anchor: (Left: 0, Width: 18, Height: 10); Background: #333333; }
+            Group #FlowSeg1 { Anchor: (Left: 3, Width: 18, Height: 10); Background: #333333; }
+            Group #FlowSeg2 { Anchor: (Left: 3, Width: 18, Height: 10); Background: #333333; }
+            Group #FlowSeg3 { Anchor: (Left: 3, Width: 18, Height: 10); Background: #333333; }
+            Group #FlowSeg4 { Anchor: (Left: 3, Width: 18, Height: 10); Background: #333333; }
+            Group #FlowSeg5 { Anchor: (Left: 3, Width: 18, Height: 10); Background: #333333; }
+            Group #FlowSeg6 { Anchor: (Left: 3, Width: 18, Height: 10); Background: #333333; }
+            Group #FlowSeg7 { Anchor: (Left: 3, Width: 18, Height: 10); Background: #333333; }
+        }
+
+        // Switch Ready label — hidden by default, shown when Flow is full
+        Label #SwitchReadyLabel {
+            Text: "SWITCH READY";
+            Style: (FontSize: 10, TextColor: #FFCC00, RenderBold: true);
+            Anchor: (Top: 4, Height: 14);
+            Visible: false;
+        }
+    }
+
+    // ── BOTTOM-LEFT: Weapon slots ─────────────────────────────────────────
+    Group #BottomLeft {
+        Anchor: (Left: 20, Bottom: 30, Width: 260, Height: 80);
+        LayoutMode: Top;
+
+        // Melee slot
+        Group #MeleeSlot {
+            Anchor: (Top: 0, Height: 36);
+            LayoutMode: Top;
+
+            Group #MeleeHeader {
+                Anchor: (Top: 0, Height: 18);
+                LayoutMode: Left;
+
+                Label {
+                    Text: "[MELEE]";
+                    Style: (FontSize: 9, TextColor: #888888);
+                    Anchor: (Left: 0, Width: 52, Height: 18);
+                }
+                Label #MeleeWeaponName {
+                    Text: "-";
+                    Style: (FontSize: 11, TextColor: #FFFFFF, RenderBold: true);
+                    Anchor: (Left: 4, Height: 18);
+                }
+                Label #MeleeRefinement {
+                    Text: "";
+                    Style: (FontSize: 9, TextColor: #FFAA00);
+                    Anchor: (Left: 4, Height: 18);
+                }
+                Group #MeleeCoreGem {
+                    Anchor: (Left: 4, Width: 10, Height: 10);
+                    Background: #444444;
+                }
+            }
+
+            Group #MeleeEnchants {
+                Anchor: (Left: 8, Top: 2, Height: 14);
+                LayoutMode: Left;
+
+                Label #MeleeEnchant0 { Text: ""; Style: (FontSize: 8, TextColor: #666666); Anchor: (Left: 0, Height: 14); }
+                Label #MeleeEnchant1 { Text: ""; Style: (FontSize: 8, TextColor: #666666); Anchor: (Left: 8, Height: 14); }
+                Label #MeleeEnchant2 { Text: ""; Style: (FontSize: 8, TextColor: #666666); Anchor: (Left: 8, Height: 14); }
+            }
+        }
+
+        // Ranged slot
+        Group #RangedSlot {
+            Anchor: (Top: 4, Height: 36);
+            LayoutMode: Top;
+
+            Group #RangedHeader {
+                Anchor: (Top: 0, Height: 18);
+                LayoutMode: Left;
+
+                Label {
+                    Text: "[RANGED]";
+                    Style: (FontSize: 9, TextColor: #888888);
+                    Anchor: (Left: 0, Width: 58, Height: 18);
+                }
+                Label #RangedWeaponName {
+                    Text: "-";
+                    Style: (FontSize: 11, TextColor: #FFFFFF, RenderBold: true);
+                    Anchor: (Left: 4, Height: 18);
+                }
+                Label #RangedRefinement {
+                    Text: "";
+                    Style: (FontSize: 9, TextColor: #FFAA00);
+                    Anchor: (Left: 4, Height: 18);
+                }
+                Group #RangedCoreGem {
+                    Anchor: (Left: 4, Width: 10, Height: 10);
+                    Background: #444444;
+                }
+            }
+
+            Group #RangedEnchants {
+                Anchor: (Left: 8, Top: 2, Height: 14);
+                LayoutMode: Left;
+
+                Label #RangedEnchant0 { Text: ""; Style: (FontSize: 8, TextColor: #666666); Anchor: (Left: 0, Height: 14); }
+                Label #RangedEnchant1 { Text: ""; Style: (FontSize: 8, TextColor: #666666); Anchor: (Left: 8, Height: 14); }
+                Label #RangedEnchant2 { Text: ""; Style: (FontSize: 8, TextColor: #666666); Anchor: (Left: 8, Height: 14); }
+            }
+        }
+    }
+
+    // ── TOP-RIGHT: Dream Dust counter ─────────────────────────────────────
+    Group #TopRight {
+        Anchor: (Right: 20, Top: 20, Width: 140, Height: 24);
+        LayoutMode: Left;
+
+        Label {
+            Text: "+";
+            Style: (FontSize: 14, TextColor: #55DDFF, RenderBold: true);
+            Anchor: (Left: 0, Width: 18, Height: 24);
+        }
+        Label #DustAmount {
+            Text: "0";
+            Style: (FontSize: 13, TextColor: #FFFFFF, RenderBold: true);
+            Anchor: (Left: 2, Height: 24);
+        }
+        Label {
+            Text: " DUST";
+            Style: (FontSize: 9, TextColor: #888888);
+            Anchor: (Left: 3, Height: 24);
+        }
+    }
+}

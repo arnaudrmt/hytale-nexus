@@ -8,81 +8,40 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import javax.annotation.Nullable;
 
 /**
- * ECS component representing a player's Lucidity (Oniric Stability / survival bar).
- *
- * GDD refs:
- *  - Replaces standard health portrait (§ Fiche Joueur / Condition de Survie).
- *  - Zero → "The Awakening" (run ends, loot lost, score displayed).
- *  - Gained by killing mobs and purifying Gaia Totems.
- *  - Coop: shared collective bar is managed externally in CoopSessionData.
- *  - Higher lucidity = higher final score multiplier.
- *
- * NOTE: The native Hytale EntityStatMap / DefaultEntityStatTypes#getHealth() still
- * drives actual damage calculation; lucidity is an additional mod layer on top.
+ * Tracks a player's Lucidity, a survival metric that determines run status.
+ * <p>
+ * When Lucidity reaches zero, the player triggers "The Awakening."
+ * Lucidity also acts as a multiplier for the final run score.
  */
 public final class LucidityComponent implements Component<EntityStore> {
 
-    // -------------------------------------------------------------------------
-    // ComponentType — injected once at plugin setup
-    // -------------------------------------------------------------------------
-
-    @Nullable
-    private static ComponentType<EntityStore, LucidityComponent> componentType;
-
-    public static @NonNullDecl ComponentType<EntityStore, LucidityComponent> getComponentType() {
-        if (componentType == null) {
-            throw new IllegalStateException("LucidityComponent not yet registered.");
-        }
-        return componentType;
-    }
-
-    public static void setComponentType(@Nullable ComponentType<EntityStore, LucidityComponent> type) {
-        componentType = type;
-    }
-
-    // -------------------------------------------------------------------------
-    // Constants
-    // -------------------------------------------------------------------------
-
     public static final float DEFAULT_MAX = 100f;
 
-    /** Drain rate per second when a co-op partner is in Unstable Sleep. */
+    /**
+     * Drain rate per second when a co-op partner is in Unstable Sleep.
+     */
     public static final float COOP_DRAIN_RATE_PER_SECOND = 2.5f;
-
-    // -------------------------------------------------------------------------
-    // State
-    // -------------------------------------------------------------------------
 
     private float current;
     private float max;
-
-    /** Whether this player is currently in Unstable Sleep (co-op only). */
     private boolean unstableSleep;
 
-    // -------------------------------------------------------------------------
-    // Constructor
-    // -------------------------------------------------------------------------
-
     public LucidityComponent() {
-        this.current      = DEFAULT_MAX;
-        this.max          = DEFAULT_MAX;
+        this.current = DEFAULT_MAX;
+        this.max = DEFAULT_MAX;
         this.unstableSleep = false;
     }
 
     private LucidityComponent(float current, float max, boolean unstableSleep) {
-        this.current      = current;
-        this.max          = max;
+        this.current = current;
+        this.max = max;
         this.unstableSleep = unstableSleep;
     }
 
-    // -------------------------------------------------------------------------
-    // Mutations
-    // -------------------------------------------------------------------------
+    // --- Mutations ---
 
     /**
-     * Adds lucidity. Clamps to max.
-     *
-     * @return amount actually gained.
+     * @return amount actually gained, clamped to max.
      */
     public float gain(float amount) {
         float before = current;
@@ -91,9 +50,9 @@ public final class LucidityComponent implements Component<EntityStore> {
     }
 
     /**
-     * Reduces lucidity by {@code amount}.
+     * Reduces lucidity.
      *
-     * @return true if lucidity just reached zero ("The Awakening").
+     * @return true if lucidity reached zero.
      */
     public boolean drain(float amount) {
         current = Math.max(0f, current - amount);
@@ -104,33 +63,58 @@ public final class LucidityComponent implements Component<EntityStore> {
         this.unstableSleep = state;
     }
 
-    // -------------------------------------------------------------------------
-    // Queries
-    // -------------------------------------------------------------------------
+    // --- Queries & Accessors ---
 
-    public boolean isDepleted() { return current <= 0f; }
-    public boolean isUnstableSleep() { return unstableSleep; }
-    public float getCurrent() { return current; }
-    public float getMax() { return max; }
+    public boolean isDepleted() {
+        return current <= 0f;
+    }
 
-    /** Returns lucidity as a [0.0, 1.0] fraction for HUD rendering. */
-    public float getNormalized() { return max > 0 ? current / max : 0f; }
+    public boolean isUnstableSleep() {
+        return unstableSleep;
+    }
+
+    public float getCurrent() {
+        return current;
+    }
+
+    public float getMax() {
+        return max;
+    }
 
     /**
-     * Score multiplier: linearly scales from 1.0x at 0 lucidity to 3.0x at max.
-     * Higher lucidity → better final score (GDD: "Plus la Lucidité est haute...").
+     * @return normalized value [0.0, 1.0] for HUD rendering.
+     */
+    public float getNormalized() {
+        return max > 0 ? current / max : 0f;
+    }
+
+    /**
+     * Calculates the score multiplier: linearly scales 1.0x to 3.0x
+     * based on current lucidity.
      */
     public float getScoreMultiplier() {
         return 1.0f + (getNormalized() * 2.0f);
     }
 
-    // -------------------------------------------------------------------------
-    // ECS contract
-    // -------------------------------------------------------------------------
+    // --- ECS Boilerplate ---
 
+    @Nullable
+    private static ComponentType<EntityStore, LucidityComponent> componentType;
 
     @NonNullDecl
+    public static ComponentType<EntityStore, LucidityComponent> getComponentType() {
+        if (componentType == null) {
+            throw new IllegalStateException("LucidityComponent not yet registered.");
+        }
+        return componentType;
+    }
+
+    public static void setComponentType(@Nullable ComponentType<EntityStore, LucidityComponent> type) {
+        componentType = type;
+    }
+
     @Override
+    @NonNullDecl
     public LucidityComponent clone() {
         return new LucidityComponent(current, max, unstableSleep);
     }
