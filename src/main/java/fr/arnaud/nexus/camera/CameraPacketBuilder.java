@@ -10,7 +10,7 @@ import com.hypixel.hytale.protocol.packets.camera.SetServerCamera;
 public final class CameraPacketBuilder {
 
     // --- Camera geometry constants ---
-    private static final float ISO_YAW_RAD = (float) Math.toRadians(225.0);
+    public static final float ISO_YAW_RAD = (float) Math.toRadians(225.0);
     private static final float ISO_PITCH_RAD = (float) Math.toRadians(-45.0);
 
     // --- Lerp speeds for positional and rotational smoothing
@@ -24,6 +24,11 @@ public final class CameraPacketBuilder {
 
     /**
      * Builds the packet for the default Isometric view.
+     * <p>
+     * IMPORTANT: {@code movementForceRotation} must match the camera yaw so the
+     * client remaps WASD axes relative to the camera, not the player's body yaw.
+     * Without this, pressing S when the character faces the camera moves them in
+     * the wrong direction (controls appear flipped at ±180° body yaw).
      */
     public static SetServerCamera buildIso(CameraComponent cam) {
         ServerCameraSettings s = new ServerCameraSettings();
@@ -33,14 +38,18 @@ public final class CameraPacketBuilder {
         s.rotationType = RotationType.Custom;
         s.rotation = new Direction(ISO_YAW_RAD, ISO_PITCH_RAD, 0f);
 
-        /**
+        // Align WASD input axes to the fixed camera yaw so movement is always
+        // camera-relative, regardless of the player's current body orientation.
+        s.movementForceRotation = new Direction(ISO_YAW_RAD, 0f, 0f);
+
+        /*
          * LocalPlayerYawOrientation restricts the entity to horizontal look only,
          * which prevents the camera from snapping to vertical aim while in ISO.
          */
         s.applyLookType = ApplyLookType.LocalPlayerLookOrientation;
         s.allowPitchControls = false;
 
-        s.mouseInputTargetType = MouseInputTargetType.None;
+        s.mouseInputTargetType = MouseInputTargetType.Any;
         s.mouseInputType = MouseInputType.LookAtTarget;
         s.sendMouseMotion = true;
         s.displayReticle = false;

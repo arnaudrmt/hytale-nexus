@@ -10,7 +10,9 @@ import com.hypixel.hytale.protocol.packets.camera.SetServerCamera;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.Nexus;
+import fr.arnaud.nexus.component.PlayerBodyComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
@@ -31,16 +33,17 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
 
     @Override
     public void tick(float deltaSeconds, int index, ArchetypeChunk<EntityStore> chunk,
-                     Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
+                     @NotNull Store<EntityStore> store, @NotNull CommandBuffer<EntityStore> commandBuffer) {
 
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
         CameraComponent cam = chunk.getComponent(index, CameraComponent.getComponentType());
         PlayerRef pr = chunk.getComponent(index, PlayerRef.getComponentType());
 
+
         if (cam == null || pr == null) return;
 
         switch (cam.getMode()) {
-            case ISO_RUN -> handleIsoMode(pr, cam, ref, commandBuffer);
+            case ISO_RUN -> handleIsoMode(pr, cam, ref, commandBuffer, chunk, index);
             case GLIMPSE_TRANSITION -> handleEntryTransition(deltaSeconds, pr, cam, ref, commandBuffer);
             case GLIMPSE_ACTIVE -> handleGlimpseActive(pr, cam, ref, commandBuffer);
             case GLIMPSE_EXIT_TRANSITION -> handleExitTransition(deltaSeconds, pr, cam, ref, commandBuffer);
@@ -49,8 +52,10 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
 
     // --- Private Tick Handlers ---
 
-    private void handleIsoMode(PlayerRef pr, CameraComponent cam, Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd) {
-        if (cam.isPacketDirty()) {
+    private void handleIsoMode(PlayerRef pr, CameraComponent cam, Ref<EntityStore> ref,
+                               CommandBuffer<EntityStore> cmd,
+                               ArchetypeChunk<EntityStore> chunk, int index) {
+        if (cam.isPacketDirty() || isPlayerMoving(chunk, index)) {
             sendPacket(pr, CameraPacketBuilder.buildIso(cam));
             cam.clearPacketDirty();
             persistCam(cmd, ref, cam);
@@ -140,6 +145,11 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
 
     private static void persistCam(CommandBuffer<EntityStore> cmd, Ref<EntityStore> ref, CameraComponent cam) {
         cmd.run(s -> s.putComponent(ref, CameraComponent.getComponentType(), cam));
+    }
+
+    private static boolean isPlayerMoving(ArchetypeChunk<EntityStore> chunk, int index) {
+        PlayerBodyComponent body = chunk.getComponent(index, PlayerBodyComponent.getComponentType());
+        return body != null && body.getLocomotionState() != PlayerBodyComponent.LocomotionState.IDLE;
     }
 
     private static void sendPacket(PlayerRef pr, SetServerCamera packet) {

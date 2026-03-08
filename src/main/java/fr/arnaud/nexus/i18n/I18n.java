@@ -15,11 +15,15 @@ import java.util.logging.Level;
  * Lightweight internationalization (i18n) manager.
  * <p>
  * Loads translations from {@code /lang/{locale}.properties} files.
- * If a key is missing in the primary locale, it falls back to en_US.
+ * Active locale is read from {@code /config.properties}; falls back to {@code en_US}.
+ * If a key is missing in the primary locale, it falls back to {@code en_US}.
  */
 public final class I18n {
 
     private static final String DEFAULT_LOCALE = "en_US";
+    private static final String CONFIG_PATH = "/config.properties";
+    private static final String LOCALE_KEY = "locale";
+
     private static final Map<String, String> translations = new HashMap<>();
     private static final Map<String, String> fallback = new HashMap<>();
 
@@ -28,9 +32,6 @@ public final class I18n {
     private I18n() {
     }
 
-    /**
-     * Initializes the i18n system with the active locale.
-     */
     public static void init(JavaPlugin pluginInstance) {
         plugin = pluginInstance;
         String locale = resolveLocale();
@@ -41,14 +42,14 @@ public final class I18n {
     }
 
     /**
-     * Retrieves the translated string for a key. Returns the key if no translation exists.
+     * Returns the translated string for {@code key}, or the key itself if absent.
      */
     public static String t(String key) {
         return translations.getOrDefault(key, fallback.getOrDefault(key, key));
     }
 
     /**
-     * Retrieves the translated string and replaces {0}, {1}, etc., with the provided arguments.
+     * Returns the translated string with {@code {0}}, {@code {1}} … placeholders replaced.
      */
     public static String t(String key, Object... args) {
         String value = t(key);
@@ -59,8 +60,19 @@ public final class I18n {
     }
 
     private static String resolveLocale() {
-        // TODO: Read from plugin config file once config API is stable.
-        return DEFAULT_LOCALE;
+        try (InputStream stream = I18n.class.getResourceAsStream(CONFIG_PATH)) {
+            if (stream == null) {
+                plugin.getLogger().at(Level.WARNING).log("Missing config file: " + CONFIG_PATH + " — defaulting to " + DEFAULT_LOCALE);
+                return DEFAULT_LOCALE;
+            }
+            Properties config = new Properties();
+            config.load(new InputStreamReader(stream, StandardCharsets.UTF_8));
+            String locale = config.getProperty(LOCALE_KEY, DEFAULT_LOCALE).trim();
+            return locale.isEmpty() ? DEFAULT_LOCALE : locale;
+        } catch (IOException e) {
+            plugin.getLogger().at(Level.SEVERE).log("Failed to read config file: " + CONFIG_PATH, e);
+            return DEFAULT_LOCALE;
+        }
     }
 
     private static void loadInto(String locale, Map<String, String> target) {

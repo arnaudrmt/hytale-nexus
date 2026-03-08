@@ -6,16 +6,12 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.camera.CameraComponent;
-import fr.arnaud.nexus.component.FlowComponent;
-import fr.arnaud.nexus.component.LucidityComponent;
+import fr.arnaud.nexus.component.CursorTargetComponent;
+import fr.arnaud.nexus.component.DashComponent;
 import fr.arnaud.nexus.component.PlayerBodyComponent;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-/**
- * Bootstraps all required Nexus ECS components onto a player entity
- * when they enter the world.
- */
 public final class PlayerSessionListener {
 
     private PlayerSessionListener() {
@@ -30,19 +26,18 @@ public final class PlayerSessionListener {
             if (ref == null || !ref.isValid()) return;
 
             Store<EntityStore> store = player.getWorld().getEntityStore().getStore();
-
-            // Guard against duplicate initialization (e.g., reconnects or world switches)
-            if (store.getComponent(ref, FlowComponent.getComponentType()) != null) return;
+            if (store.getComponent(ref, CameraComponent.getComponentType()) != null) return;
 
             bootstrapComponents(ref, store);
         });
     }
 
-    private static void bootstrapComponents(Ref<EntityStore> ref, Store<EntityStore> store) {
-        store.putComponent(ref, FlowComponent.getComponentType(), new FlowComponent());
-        store.putComponent(ref, LucidityComponent.getComponentType(), new LucidityComponent());
-        store.putComponent(ref, RunSessionComponent.getComponentType(), new RunSessionComponent());
+    private static void bootstrapComponents(@NonNullDecl Ref<EntityStore> ref,
+                                            @NonNullDecl Store<EntityStore> store) {
         store.putComponent(ref, CameraComponent.getComponentType(), new CameraComponent());
         store.putComponent(ref, PlayerBodyComponent.getComponentType(), new PlayerBodyComponent());
+        store.putComponent(ref, DashComponent.getComponentType(), new DashComponent());
+        store.putComponent(ref, RunSessionComponent.getComponentType(), new RunSessionComponent());
+        store.putComponent(ref, CursorTargetComponent.getComponentType(), new CursorTargetComponent());
     }
 }
