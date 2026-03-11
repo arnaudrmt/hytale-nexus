@@ -6,7 +6,9 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.camera.CameraComponent;
-import fr.arnaud.nexus.component.*;
+import fr.arnaud.nexus.component.CursorTargetComponent;
+import fr.arnaud.nexus.component.DashComponent;
+import fr.arnaud.nexus.component.PlayerBodyComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
@@ -44,6 +46,5 @@ public final class PlayerSessionListener {
         store.putComponent(ref, PlayerBodyComponent.getComponentType(), new PlayerBodyComponent());
         store.putComponent(ref, DashComponent.getComponentType(), new DashComponent());
         store.putComponent(ref, CursorTargetComponent.getComponentType(), new CursorTargetComponent());
-        store.putComponent(ref, SwitchStrikeComponent.getComponentType(), new SwitchStrikeComponent());
     }
 }

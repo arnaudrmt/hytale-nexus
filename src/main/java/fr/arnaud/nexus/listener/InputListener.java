@@ -12,7 +12,6 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.component.CursorTargetComponent;
 import fr.arnaud.nexus.system.DashSystem;
-import fr.arnaud.nexus.system.WeaponSwapSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
@@ -30,12 +29,9 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 public final class InputListener {
 
     private final DashSystem dashSystem;
-    private final WeaponSwapSystem weaponSwapSystem;
 
-    public InputListener(@NonNullDecl DashSystem dashSystem,
-                         @NonNullDecl WeaponSwapSystem weaponSwapSystem) {
+    public InputListener(@NonNullDecl DashSystem dashSystem) {
         this.dashSystem = dashSystem;
-        this.weaponSwapSystem = weaponSwapSystem;
     }
 
     public void onMouseButton(@NonNullDecl PlayerMouseButtonEvent event) {
@@ -70,10 +66,6 @@ public final class InputListener {
         if (button == MouseButtonType.Left && sprinting) {
             dashSystem.tryDash(player, ref, store);
             return;
-        }
-
-        if (button == MouseButtonType.Right) {
-            weaponSwapSystem.trySwap(player, ref, store);
         }
     }
 

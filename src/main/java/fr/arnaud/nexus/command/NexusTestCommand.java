@@ -4,25 +4,27 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
-import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
-import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes;
 import com.hypixel.hytale.server.core.command.system.basecommands.AbstractPlayerCommand;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.camera.CameraComponent;
-import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
- * Developer test command: /nexustest <mode>
+ * Developer command for inspecting live EntityStat values on the executing player.
+ * <p>
+ * Usage: {@code /nexusstats}
+ * <p>
+ * Dumps every stat index currently present in the player's {@link EntityStatMap}
+ * so that test weapons can be verified without needing a debugger.
+ * Remove before shipping.
  */
 public final class NexusTestCommand extends AbstractPlayerCommand {
 
-    private final RequiredArg<String> modeArg = this.withRequiredArg("mode", "Camera mode: iso, firstperson, entry, exit", ArgTypes.STRING);
-
     public NexusTestCommand() {
-        super("nexustest", "Test Nexus camera system");
+        super("nexusstats", "Dump all EntityStat values for the executing player");
     }
 
     @Override
@@ -32,45 +34,26 @@ public final class NexusTestCommand extends AbstractPlayerCommand {
                            @NonNullDecl PlayerRef playerRef,
                            @NonNullDecl World world) {
 
-        String mode = modeArg.get(context).toLowerCase();
-
-        // Ensure we are on the world thread before modifying components
         world.execute(() -> {
-            CameraComponent cam = store.getComponent(ref, CameraComponent.getComponentType());
-            if (cam == null) {
-                context.sendMessage(Message.raw("§cCameraComponent not found."));
+            EntityStatMap stats = store.getComponent(ref, EntityStatMap.getComponentType());
+
+            if (stats == null) {
+                context.sendMessage(Message.raw("§c[Nexus] No EntityStatMap found on this player."));
                 return;
             }
 
-            switch (mode) {
-                case "iso" -> {
-                    cam.completeGlimpseExit();
-                    playerRef.getPacketHandler().writeNoCache(CameraPacketBuilder.buildIso(cam));
-                    context.sendMessage(Message.raw("§aSwitched to ISO mode."));
-                }
-                case "firstperson" -> {
-                    cam.completeGlimpseEntry();
-                    playerRef.getPacketHandler().writeNoCache(CameraPacketBuilder.buildGlimpseActive());
-                    context.sendMessage(Message.raw("§aSwitched to First-Person mode."));
-                }
-                case "entry" -> {
-                    // Directly trigger the state change on the component itself
-                    if (cam.beginGlimpseEntry()) {
-                        context.sendMessage(Message.raw("§aPlaying entry transition..."));
-                    } else {
-                        context.sendMessage(Message.raw("§cCannot play entry (must be in ISO)."));
-                    }
-                }
-                case "exit" -> {
-                    // Directly trigger the state change on the component itself
-                    if (cam.beginGlimpseExit()) {
-                        context.sendMessage(Message.raw("§aPlaying exit transition..."));
-                    } else {
-                        context.sendMessage(Message.raw("§cCannot play exit (must be in Glimpse)."));
-                    }
-                }
-                default -> context.sendMessage(Message.raw("§cUnknown mode. Use: iso, firstperson, entry, exit"));
+            context.sendMessage(Message.raw("§e[Nexus] === EntityStatMap dump ==="));
+            for (int i = 0; i < stats.size(); i++) {
+                EntityStatValue statValue = stats.get(i);
+                if (statValue == null) continue;
+
+                String line = "§7  [" + i + "] §f" + statValue.getId()
+                    + " §7= §a" + statValue.get()
+                    + " §7(max: " + statValue.getMax() + ")";
+                context.sendMessage(Message.raw(line));
+                System.out.println(line);
             }
+            context.sendMessage(Message.raw("§e[Nexus] === End of dump ==="));
         });
     }
 }
