@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.core;
+package fr.arnaud.nexus.handler;
 
 import com.hypixel.hytale.assetstore.event.LoadedAssetsEvent;
 import com.hypixel.hytale.assetstore.map.IndexedLookupTableAssetMap;
@@ -9,6 +9,9 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap.Predicta
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.Nexus;
+
+import java.util.logging.Level;
 
 public final class FlowHandler {
 
@@ -19,6 +22,12 @@ public final class FlowHandler {
         IndexedLookupTableAssetMap<String, EntityStatType> map = event.getAssetMap();
         flowIndex = map.getIndex("Flow");
         flowCapacityIndex = map.getIndex("FlowSegmentCapacity");
+
+        if (flowIndex != Integer.MIN_VALUE) {
+            Nexus.get().getLogger().at(Level.INFO).log("SUCCESS: Flow.json loaded correctly! Index assigned: " + flowIndex);
+        } else {
+            Nexus.get().getLogger().at(Level.WARNING).log("FAIL: Could not find Flow.json in the asset registry.");
+        }
     }
 
     /**

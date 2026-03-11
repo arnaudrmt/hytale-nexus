@@ -1,5 +1,8 @@
 package fr.arnaud.nexus.component;
 
+import com.hypixel.hytale.codec.Codec;
+import com.hypixel.hytale.codec.KeyedCodec;
+import com.hypixel.hytale.codec.builder.BuilderCodec;
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -10,32 +13,34 @@ import javax.annotation.Nullable;
 /**
  * Tracks live run statistics for a player, used for score calculation.
  * <p>
- * Data includes kills, damage dealt/taken, and run-specific metrics.
- * See the <a href="https://github.com/YourRepo/Wiki/Scoring-Manual">Scoring Manual</a>
- * for detailed scoring formulas and game mode transition rules.
+ * Persisted per-world so that logging back in resumes the run exactly where
+ * the player left off. A fresh world instance naturally resets all values
+ * via a new {@link EntityStore}, so no explicit reset is required.
+ * <p>
+ * See the scoring manual wiki for formula details.
  */
 public final class RunSessionComponent implements Component<EntityStore> {
 
     public static final int KILL_BONUS = 50;
     public static final int SWITCH_STRIKE_BONUS = 200;
     public static final int DEATH_PENALTY = 100;
-    public static final float DREAM_DUST_DEATH_PENALTY_FRACTION = 0.25f;
 
     private long startTimeMs;
-    private boolean hardMode;
-    private float lucidityGained, totalDamageDealt, totalDamageTaken;
-    private int switchStrikesUsed, killCount, deathCount;
+    private float lucidityGained;
+    private float totalDamageDealt;
+    private float totalDamageTaken;
+    private int switchStrikesUsed;
+    private int killCount;
+    private int deathCount;
 
     public RunSessionComponent() {
-        resetRun();
-        this.hardMode = false;
+        startTimeMs = System.currentTimeMillis();
     }
 
-    private RunSessionComponent(long startTimeMs, boolean hardMode, float lucidityGained,
+    private RunSessionComponent(long startTimeMs, float lucidityGained,
                                 float totalDamageDealt, float totalDamageTaken,
                                 int switchStrikesUsed, int killCount, int deathCount) {
         this.startTimeMs = startTimeMs;
-        this.hardMode = hardMode;
         this.lucidityGained = lucidityGained;
         this.totalDamageDealt = totalDamageDealt;
         this.totalDamageTaken = totalDamageTaken;
@@ -44,18 +49,44 @@ public final class RunSessionComponent implements Component<EntityStore> {
         this.deathCount = deathCount;
     }
 
-    // --- Lifecycle ---
-
-    public void resetRun() {
-        startTimeMs = System.currentTimeMillis();
-        lucidityGained = totalDamageDealt = totalDamageTaken = 0f;
-        switchStrikesUsed = killCount = deathCount = 0;
-    }
-
-    public void startRun(boolean hardMode) {
-        this.hardMode = hardMode;
-        resetRun();
-    }
+    public static final BuilderCodec<RunSessionComponent> CODEC = BuilderCodec
+        .builder(RunSessionComponent.class, RunSessionComponent::new)
+        .append(
+            new KeyedCodec<>("StartTimeMs", Codec.LONG),
+            (c, v) -> c.startTimeMs = v,
+            c -> c.startTimeMs
+        ).add()
+        .append(
+            new KeyedCodec<>("LucidityGained", Codec.FLOAT),
+            (c, v) -> c.lucidityGained = v,
+            c -> c.lucidityGained
+        ).add()
+        .append(
+            new KeyedCodec<>("TotalDamageDealt", Codec.FLOAT),
+            (c, v) -> c.totalDamageDealt = v,
+            c -> c.totalDamageDealt
+        ).add()
+        .append(
+            new KeyedCodec<>("TotalDamageTaken", Codec.FLOAT),
+            (c, v) -> c.totalDamageTaken = v,
+            c -> c.totalDamageTaken
+        ).add()
+        .append(
+            new KeyedCodec<>("SwitchStrikesUsed", Codec.INTEGER),
+            (c, v) -> c.switchStrikesUsed = v,
+            c -> c.switchStrikesUsed
+        ).add()
+        .append(
+            new KeyedCodec<>("KillCount", Codec.INTEGER),
+            (c, v) -> c.killCount = v,
+            c -> c.killCount
+        ).add()
+        .append(
+            new KeyedCodec<>("DeathCount", Codec.INTEGER),
+            (c, v) -> c.deathCount = v,
+            c -> c.deathCount
+        ).add()
+        .build();
 
     // --- Mutations ---
 
@@ -98,6 +129,30 @@ public final class RunSessionComponent implements Component<EntityStore> {
         return System.currentTimeMillis() - startTimeMs;
     }
 
+    public int getKillCount() {
+        return killCount;
+    }
+
+    public int getDeathCount() {
+        return deathCount;
+    }
+
+    public int getSwitchStrikesUsed() {
+        return switchStrikesUsed;
+    }
+
+    public float getLucidityGained() {
+        return lucidityGained;
+    }
+
+    public float getTotalDamageDealt() {
+        return totalDamageDealt;
+    }
+
+    public float getTotalDamageTaken() {
+        return totalDamageTaken;
+    }
+
     // --- ECS Boilerplate ---
 
     @Nullable
@@ -120,7 +175,7 @@ public final class RunSessionComponent implements Component<EntityStore> {
     @NonNullDecl
     public RunSessionComponent clone() {
         return new RunSessionComponent(
-            startTimeMs, hardMode, lucidityGained,
+            startTimeMs, lucidityGained,
             totalDamageDealt, totalDamageTaken,
             switchStrikesUsed, killCount, deathCount);
     }

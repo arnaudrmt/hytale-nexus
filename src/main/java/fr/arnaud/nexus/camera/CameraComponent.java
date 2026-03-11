@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
  * <p>
  * Manages the transitions between the default Isometric view (ISO)
  * and the First-person view (referred to internally as "Glimpse").
- * Note: Networking updates are driven by the `packetDirty` flag.
+ * Networking updates are driven by the {@code packetDirty} flag.
  */
 public final class CameraComponent implements Component<EntityStore> {
 
@@ -143,8 +143,6 @@ public final class CameraComponent implements Component<EntityStore> {
             if (mode == CameraMode.ISO_RUN) packetDirty = true;
         }
     }
-
-    // --- Getters & Setters ---
 
     public CameraMode getMode() {
         return mode;

@@ -12,6 +12,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.component.CursorTargetComponent;
 import fr.arnaud.nexus.system.DashSystem;
+import fr.arnaud.nexus.system.WeaponSwapSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
@@ -19,13 +20,22 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
  * Resolves the cursor target then routes to the appropriate system.
  * Uses direct store writes — no CommandBuffer — since this runs inside
  * {@code world.execute()}, not inside a ticking system.
+ * <p>
+ * Input routing table:
+ * <ul>
+ *   <li>Left + sprinting  → dash</li>
+ *   <li>Right             → weapon swap (second ability); also confirms a pending Switch Strike</li>
+ * </ul>
  */
 public final class InputListener {
 
     private final DashSystem dashSystem;
+    private final WeaponSwapSystem weaponSwapSystem;
 
-    public InputListener(@NonNullDecl DashSystem dashSystem) {
+    public InputListener(@NonNullDecl DashSystem dashSystem,
+                         @NonNullDecl WeaponSwapSystem weaponSwapSystem) {
         this.dashSystem = dashSystem;
+        this.weaponSwapSystem = weaponSwapSystem;
     }
 
     public void onMouseButton(@NonNullDecl PlayerMouseButtonEvent event) {
@@ -50,18 +60,20 @@ public final class InputListener {
         });
     }
 
-    // ---
-
     private void routeInput(MouseButtonType button, Player player,
                             Ref<EntityStore> ref, Store<EntityStore> store) {
         MovementStatesComponent movStates = store.getComponent(ref, MovementStatesComponent.getComponentType());
         if (movStates == null) return;
 
-        boolean crouching = movStates.getMovementStates().crouching;
         boolean sprinting = movStates.getMovementStates().sprinting;
 
-        if (sprinting && button == MouseButtonType.Left) {
+        if (button == MouseButtonType.Left && sprinting) {
             dashSystem.tryDash(player, ref, store);
+            return;
+        }
+
+        if (button == MouseButtonType.Right) {
+            weaponSwapSystem.trySwap(player, ref, store);
         }
     }
 

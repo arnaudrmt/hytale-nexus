@@ -1,0 +1,23 @@
+{
+    "InitialValue": 100,
+    "Min": 0,
+    "Max": 100,
+    "Shared": false,
+    "ResetType": "MaxValue",
+    "Regenerating": [
+        {
+            "$Comment": "Player",
+            "Interval": 0.1,
+            "Amount": 10,
+            "RegenType": "Percentage",
+            "Conditions": [
+                {
+                    "Id": "Alive"
+                },
+                {
+                    "Id": "Player"
+                }
+            ]
+        }
+    ]
+}

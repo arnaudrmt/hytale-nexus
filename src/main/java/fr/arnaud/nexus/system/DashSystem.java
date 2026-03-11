@@ -9,8 +9,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.component.CursorTargetComponent;
 import fr.arnaud.nexus.component.DashComponent;
 import fr.arnaud.nexus.component.PlayerBodyComponent;
-import fr.arnaud.nexus.core.FlowHandler;
-import fr.arnaud.nexus.ui.hud.NexusHudSystem;
+import fr.arnaud.nexus.handler.FlowHandler;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.Objects;
@@ -48,7 +47,6 @@ public final class DashSystem {
         }
 
         store.putComponent(ref, DashComponent.getComponentType(), dash);
-        NexusHudSystem.notifyFlowChanged(player, ref, store);
     }
 
     // --- Direction resolution ---
