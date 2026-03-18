@@ -22,7 +22,7 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
  * <p>
  * Input routing table:
  * <ul>
- *   <li>Left + sprinting  → dash</li>
+ *   <li>Left + crouching  → dash</li>
  *   <li>Right             → weapon swap (second ability); also confirms a pending Switch Strike</li>
  * </ul>
  */
@@ -61,9 +61,9 @@ public final class InputListener {
         MovementStatesComponent movStates = store.getComponent(ref, MovementStatesComponent.getComponentType());
         if (movStates == null) return;
 
-        boolean sprinting = movStates.getMovementStates().sprinting;
+        boolean crouching = movStates.getMovementStates().crouching;
 
-        if (button == MouseButtonType.Left && sprinting) {
+        if (button == MouseButtonType.Left && crouching) {
             dashSystem.tryDash(player, ref, store);
             return;
         }

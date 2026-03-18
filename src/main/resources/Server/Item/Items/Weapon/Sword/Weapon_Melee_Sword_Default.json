@@ -1,5 +1,4 @@
 {
-    "Parent": "Template_Weapon_Sword",
     "TranslationProperties": {
         "Name": "server.items.Weapon_Sword_Wood.name"
     },
@@ -8,14 +7,71 @@
     "Icon": "Icons/ItemsGenerated/Weapon_Sword_Wood.png",
     "Quality": "Common",
     "ItemLevel": 1,
-    "MaxDurability": 120,
     "DurabilityLossOnHit": 0,
     "Interactions": {
+        "Ability1": {
+            "Interactions": [
+                {
+                    "Type": "StatsCondition",
+                    "Costs": {
+                        "FlowCapacity": 1
+                    },
+                    "Next": {
+                        "Type": "Parallel",
+                        "Interactions": [
+                            {
+                                "Interactions": [
+                                    {
+                                        "Type": "DamageEntity",
+                                        "DamageCalculator": {
+                                            "BaseDamage": {
+                                                "Physical": 10
+                                            }
+                                        },
+                                        "EntityStatsOnHit": [
+                                            {
+                                                "EntityStatId": "FlowCapacity",
+                                                "Amount": 1
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "Interactions": [
+                                    {
+                                        "Type": "ChangeStat",
+                                        "StatModifiers": {
+                                            "FlowCapacity": -1
+                                        },
+                                        "Entity": "Owner"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
         "Ability2": {
             "Interactions": [
                 {
                     "Type": "ChangeActiveSlot",
                     "TargetSlot": 1
+                }
+            ]
+        }
+    },
+    "InteractionVars": {
+        "Swing_Left_Damage": {
+            "Interactions": [
+                {
+                    "Type": "DamageEntity",
+                    "DamageCalculator": {
+                        "BaseDamage": {
+                            "Physical": 10
+                        }
+                    }
                 }
             ]
         }

@@ -1,7 +1,0 @@
-{
-    "InitialValue": 0.0,
-    "Min": 0.0,
-    "Max": 99.0,
-    "ResetBehavior": "InitialValue",
-    "HideFromTooltip": true
-}

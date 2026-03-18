@@ -1,0 +1,17 @@
+$Common = "Common.ui";
+
+Group {
+    LayoutMode: Full;
+
+    Group #FlowDebugPanel {
+        Anchor: (Left: 10, Top: 10, Width: 180, Height: 24);
+        Background: #000000AA;
+        LayoutMode: Top;
+
+        Label #FlowDebugLabel {
+            Text: "FLOW: --/--";
+            Style: (FontSize: 14, TextColor: #00E5FF);
+            Anchor: (Left: 8, Top: 4, Height: 14);
+        }
+    }
+}

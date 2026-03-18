@@ -9,20 +9,16 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import fr.arnaud.nexus.camera.CameraComponent;
 import fr.arnaud.nexus.camera.CameraSystem;
 import fr.arnaud.nexus.command.NexusTestCommand;
-import fr.arnaud.nexus.component.CursorTargetComponent;
-import fr.arnaud.nexus.component.DashComponent;
-import fr.arnaud.nexus.component.PlayerBodyComponent;
-import fr.arnaud.nexus.component.RunSessionComponent;
+import fr.arnaud.nexus.component.*;
 import fr.arnaud.nexus.handler.DreamDustHandler;
 import fr.arnaud.nexus.handler.FlowHandler;
 import fr.arnaud.nexus.handler.LucidityHandler;
 import fr.arnaud.nexus.i18n.I18n;
 import fr.arnaud.nexus.listener.InputListener;
 import fr.arnaud.nexus.listener.PlayerSessionListener;
-import fr.arnaud.nexus.system.DashSystem;
-import fr.arnaud.nexus.system.PlayerMovementSystem;
-import fr.arnaud.nexus.system.SlotLockSystem;
-import fr.arnaud.nexus.system.SwitchStrikeSystem;
+import fr.arnaud.nexus.listener.SwitchStrikePacketInterceptor;
+import fr.arnaud.nexus.system.*;
+import fr.arnaud.nexus.ui.hud.FlowDebugHudSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.logging.Level;
@@ -36,6 +32,9 @@ public final class Nexus extends JavaPlugin {
     private final DreamDustHandler dreamDustHandler = new DreamDustHandler();
     private final DashSystem dashSystem = new DashSystem(flowHandler);
     private final InputListener inputListener = new InputListener(dashSystem);
+    private final SwitchStrikeTriggerSystem switchStrikeTriggerSystem = new SwitchStrikeTriggerSystem();
+    private final SwitchStrikeExecutionSystem switchStrikeExecutionSystem = new SwitchStrikeExecutionSystem(flowHandler);
+    private final FlowDebugHudSystem flowDebugHudSystem = new FlowDebugHudSystem();
 
     public Nexus(@NonNullDecl JavaPluginInit init) {
         super(init);
@@ -85,6 +84,9 @@ public final class Nexus extends JavaPlugin {
         PlayerBodyComponent.setComponentType(registry.registerComponent(PlayerBodyComponent.class, PlayerBodyComponent::new));
         DashComponent.setComponentType(registry.registerComponent(DashComponent.class, DashComponent::new));
         CursorTargetComponent.setComponentType(registry.registerComponent(CursorTargetComponent.class, CursorTargetComponent::new));
+        SwitchStrikeComponent.setComponentType(
+            registry.registerComponent(SwitchStrikeComponent.class, SwitchStrikeComponent::new)
+        );
         RunSessionComponent.setComponentType(
             registry.registerComponent(RunSessionComponent.class, "Nexus_RunSession", RunSessionComponent.CODEC)
         );
@@ -94,8 +96,11 @@ public final class Nexus extends JavaPlugin {
         var entityRegistry = getEntityStoreRegistry();
         entityRegistry.registerSystem(new CameraSystem());
         entityRegistry.registerSystem(new PlayerMovementSystem());
-        new SwitchStrikeSystem(flowHandler);
+        entityRegistry.registerSystem(switchStrikeTriggerSystem);
+        entityRegistry.registerSystem(switchStrikeExecutionSystem);
+        entityRegistry.registerSystem(flowDebugHudSystem);
         new SlotLockSystem();
+        new SwitchStrikePacketInterceptor();
     }
 
     private void registerListeners() {
@@ -103,8 +108,11 @@ public final class Nexus extends JavaPlugin {
         events.register(LoadedAssetsEvent.class, EntityStatType.class, flowHandler::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, lucidityHandler::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, dreamDustHandler::onAssetsLoaded);
+        events.register(LoadedAssetsEvent.class, EntityStatType.class, switchStrikeTriggerSystem::onAssetsLoaded);
+        events.register(LoadedAssetsEvent.class, EntityStatType.class, switchStrikeExecutionSystem::onAssetsLoaded);
         events.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);
         events.registerGlobal(PlayerMouseButtonEvent.class, inputListener::onMouseButton);
+        events.registerGlobal(PlayerReadyEvent.class, FlowDebugHudSystem::onPlayerReady);
     }
 
     private void registerCommands() {

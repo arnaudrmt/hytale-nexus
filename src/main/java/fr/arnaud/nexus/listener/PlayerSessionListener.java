@@ -9,6 +9,7 @@ import fr.arnaud.nexus.camera.CameraComponent;
 import fr.arnaud.nexus.component.CursorTargetComponent;
 import fr.arnaud.nexus.component.DashComponent;
 import fr.arnaud.nexus.component.PlayerBodyComponent;
+import fr.arnaud.nexus.component.SwitchStrikeComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
@@ -46,5 +47,6 @@ public final class PlayerSessionListener {
         store.putComponent(ref, PlayerBodyComponent.getComponentType(), new PlayerBodyComponent());
         store.putComponent(ref, DashComponent.getComponentType(), new DashComponent());
         store.putComponent(ref, CursorTargetComponent.getComponentType(), new CursorTargetComponent());
+        store.putComponent(ref, SwitchStrikeComponent.getComponentType(), new SwitchStrikeComponent());
     }
 }

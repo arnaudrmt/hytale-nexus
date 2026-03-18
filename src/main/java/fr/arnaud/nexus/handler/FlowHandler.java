@@ -15,18 +15,18 @@ import java.util.logging.Level;
 
 public final class FlowHandler {
 
-    private int flowIndex = Integer.MIN_VALUE;
-    private int flowCapacityIndex = Integer.MIN_VALUE;
+    private static final float SEGMENTS_PER_KILL = 0.2f;
+    private static final float SEGMENTS_LOST_ON_HIT = 0.4f;
+
+    private int flowSegmentIndex = Integer.MIN_VALUE;
 
     public void onAssetsLoaded(LoadedAssetsEvent<String, EntityStatType, IndexedLookupTableAssetMap<String, EntityStatType>> event) {
-        IndexedLookupTableAssetMap<String, EntityStatType> map = event.getAssetMap();
-        flowIndex = map.getIndex("Flow");
-        flowCapacityIndex = map.getIndex("FlowSegmentCapacity");
+        flowSegmentIndex = event.getAssetMap().getIndex("FlowCapacity");
 
-        if (flowIndex != Integer.MIN_VALUE) {
-            Nexus.get().getLogger().at(Level.INFO).log("SUCCESS: Flow.json loaded correctly! Index assigned: " + flowIndex);
+        if (flowSegmentIndex != Integer.MIN_VALUE) {
+            Nexus.get().getLogger().at(Level.INFO).log("SUCCESS: FlowCapacity loaded. Index: " + flowSegmentIndex);
         } else {
-            Nexus.get().getLogger().at(Level.WARNING).log("FAIL: Could not find Flow.json in the asset registry.");
+            Nexus.get().getLogger().at(Level.WARNING).log("FAIL: FlowCapacity not found in asset registry.");
         }
     }
 
@@ -34,97 +34,85 @@ public final class FlowHandler {
      * Returns true once asset indices have been resolved. False means onAssetsLoaded never fired.
      */
     public boolean isReady() {
-        return flowIndex != Integer.MIN_VALUE && flowCapacityIndex != Integer.MIN_VALUE;
+        return flowSegmentIndex != Integer.MIN_VALUE;
     }
+
+    public int getFlowSegmentIndex() {
+        return flowSegmentIndex;
+    }
+
+    // --- Gameplay events ---
+
+    public void onKill(Ref<EntityStore> player, Store<EntityStore> store) {
+        addSegments(player, store, SEGMENTS_PER_KILL);
+    }
+
+    public void onHitReceived(Ref<EntityStore> player, Store<EntityStore> store) {
+        removeSegments(player, store, SEGMENTS_LOST_ON_HIT);
+    }
+
+    // --- Ability cost ---
 
     /**
-     * Index assigned by the Asset Editor — MIN_VALUE means unresolved.
+     * Attempts to spend {@code count} whole segments. Returns false without
+     * mutating state if the player cannot afford it.
      */
-    public int getFlowIndex() {
-        return flowIndex;
-    }
-
-    public int getFlowCapacityIndex() {
-        return flowCapacityIndex;
-    }
-
-    // --- Raw flow ---
-
-    public void addFlow(Ref<EntityStore> player, Store<EntityStore> store, float amount) {
-        addStat(player, store, flowIndex, amount);
-    }
-
-    public void removeFlow(Ref<EntityStore> player, Store<EntityStore> store, float amount) {
-        subtractStat(player, store, flowIndex, amount);
-    }
-
-    public void drainFlow(Ref<EntityStore> player, Store<EntityStore> store) {
-        minimizeStat(player, store, flowIndex);
-    }
-
-    // --- Segment operations ---
-
-    public void addSegments(Ref<EntityStore> player, Store<EntityStore> store, int count) {
-        addStat(player, store, flowIndex, count * segmentSize(player, store));
-    }
-
-    /**
-     * Drains {@code count} whole segments. Returns false without mutating state
-     * if the player does not have enough filled segments.
-     */
-    public boolean drainSegments(Ref<EntityStore> player, Store<EntityStore> store, int count) {
-        if (getFilledSegments(player, store) < count) return false;
-        subtractStat(player, store, flowIndex, count * segmentSize(player, store));
+    public boolean trySpendSegments(Ref<EntityStore> player, Store<EntityStore> store, float count) {
+        EntityStatValue segments = getStatValue(player, store);
+        if (segments == null || segments.get() < count) return false;
+        subtractStat(player, store, count);
         return true;
     }
 
     // --- Queries ---
 
-    public boolean isFull(Ref<EntityStore> player, Store<EntityStore> store) {
-        EntityStatValue flow = getStatValue(player, store, flowIndex);
-        return flow != null && flow.asPercentage() >= 1.0f;
+    public float getSegments(Ref<EntityStore> player, Store<EntityStore> store) {
+        EntityStatValue segments = getStatValue(player, store);
+        return segments != null ? segments.get() : 0f;
     }
 
     public int getFilledSegments(Ref<EntityStore> player, Store<EntityStore> store) {
-        EntityStatValue flow = getStatValue(player, store, flowIndex);
-        return flow != null ? (int) (flow.get() / segmentSize(player, store)) : 0;
+        return (int) getSegments(player, store);
     }
 
     public int getMaxSegments(Ref<EntityStore> player, Store<EntityStore> store) {
-        EntityStatValue capacity = getStatValue(player, store, flowCapacityIndex);
-        return capacity != null ? (int) capacity.get() : 3;
+        EntityStatValue segments = getStatValue(player, store);
+        return segments != null ? (int) segments.getMax() : 3;
     }
 
-    public float segmentSize(Ref<EntityStore> player, Store<EntityStore> store) {
-        return 100f / getMaxSegments(player, store);
+    public boolean isFull(Ref<EntityStore> player, Store<EntityStore> store) {
+        EntityStatValue segments = getStatValue(player, store);
+        return segments != null && segments.get() >= segments.getMax();
     }
 
     // --- Internals ---
 
-    private void addStat(Ref<EntityStore> ref, Store<EntityStore> store,
-                         int index, float amount) {
+    public void addSegments(Ref<EntityStore> ref, Store<EntityStore> store, float amount) {
         EntityStatMap stats = getStats(ref, store);
-        if (stats == null || index == Integer.MIN_VALUE) return;
-        stats.addStatValue(Predictable.SELF, index, amount);
+        if (stats == null || flowSegmentIndex == Integer.MIN_VALUE) return;
+        stats.addStatValue(Predictable.SELF, flowSegmentIndex, amount);
     }
 
-    private void subtractStat(Ref<EntityStore> ref, Store<EntityStore> store,
-                              int index, float amount) {
-        EntityStatMap stats = getStats(ref, store);
-        if (stats == null || index == Integer.MIN_VALUE) return;
-        stats.subtractStatValue(Predictable.SELF, index, amount);
+    public void removeSegments(Ref<EntityStore> player, Store<EntityStore> store, float amount) {
+        subtractStat(player, store, amount);
     }
 
-    private void minimizeStat(Ref<EntityStore> ref, Store<EntityStore> store, int index) {
-        EntityStatMap stats = getStats(ref, store);
-        if (stats == null || index == Integer.MIN_VALUE) return;
-        stats.minimizeStatValue(index);
+    public void drainFlow(Ref<EntityStore> player, Store<EntityStore> store) {
+        EntityStatMap stats = getStats(player, store);
+        if (stats == null || flowSegmentIndex == Integer.MIN_VALUE) return;
+        stats.minimizeStatValue(flowSegmentIndex);
     }
 
-    private EntityStatValue getStatValue(Ref<EntityStore> ref, Store<EntityStore> store, int index) {
+    private void subtractStat(Ref<EntityStore> ref, Store<EntityStore> store, float amount) {
         EntityStatMap stats = getStats(ref, store);
-        if (stats == null || index == Integer.MIN_VALUE) return null;
-        return stats.get(index);
+        if (stats == null || flowSegmentIndex == Integer.MIN_VALUE) return;
+        stats.subtractStatValue(Predictable.SELF, flowSegmentIndex, amount);
+    }
+
+    private EntityStatValue getStatValue(Ref<EntityStore> ref, Store<EntityStore> store) {
+        EntityStatMap stats = getStats(ref, store);
+        if (stats == null || flowSegmentIndex == Integer.MIN_VALUE) return null;
+        return stats.get(flowSegmentIndex);
     }
 
     private EntityStatMap getStats(Ref<EntityStore> ref, Store<EntityStore> store) {

@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public final class DashSystem {
 
-    private static final int FLOW_COST = 1;
+    private static final float FLOW_COST = 0.4f;
 
     private final FlowHandler flowHandler;
 
@@ -34,7 +34,7 @@ public final class DashSystem {
                         @NonNullDecl Store<EntityStore> store) {
         DashComponent dash = store.getComponent(ref, DashComponent.getComponentType());
         if (dash == null || !dash.isIdle()) return;
-        if (!flowHandler.drainSegments(ref, store, FLOW_COST)) return;
+        if (!flowHandler.trySpendSegments(ref, store, FLOW_COST)) return;
 
         TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
         if (transform == null) return;

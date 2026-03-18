@@ -1,0 +1,10 @@
+{
+  "Parent": "Skeleton",
+  "Texture": "NPC/Undead/Skeleton/Models/Model_Textures/White.png",
+  "DefaultAttachments": [
+    {
+      "Model": "NPC/Undead/Skeleton/Models/Attachments/Cosmetics/Head/Eyes/Eyes.blockymodel",
+      "Texture": "NPC/Undead/Skeleton/Models/Attachments/Cosmetics/Head/Eyes/Eyes_Blue.png"
+    }
+  ]
+}

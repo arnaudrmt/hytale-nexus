@@ -10,7 +10,6 @@ import com.hypixel.hytale.protocol.packets.inventory.SetActiveSlot;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.inventory.Inventory;
 import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
-import com.hypixel.hytale.server.core.io.adapter.PlayerPacketFilter;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
@@ -18,7 +17,7 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 public final class SlotLockSystem {
 
     public SlotLockSystem() {
-        PacketAdapters.registerInbound((PlayerPacketFilter) this::filterSlotSwitch);
+        PacketAdapters.registerInbound(this::filterSlotSwitch);
     }
 
     private boolean filterSlotSwitch(@NonNullDecl PlayerRef playerRef, @NonNullDecl Packet packet) {

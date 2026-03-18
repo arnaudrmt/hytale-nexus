@@ -8,16 +8,71 @@
     "Model": "Items/Weapons/Bow/Iron.blockymodel",
     "Texture": "Items/Weapons/Bow/Iron_Texture_Rusty.png",
     "ItemLevel": 1,
-    "MaxDurability": 120,
     "DurabilityLossOnHit": 0,
     "Interactions": {
         "Ability1": {
+            "Interactions": [
+                {
+                    "Type": "StatsCondition",
+                    "Costs": {
+                        "FlowCapacity": 1
+                    },
+                    "Next": {
+                        "Type": "Parallel",
+                        "Interactions": [
+                            {
+                                "Interactions": [
+                                    {
+                                        "Type": "DamageEntity",
+                                        "DamageCalculator": {
+                                            "BaseDamage": {
+                                                "Physical": 10
+                                            }
+                                        },
+                                        "EntityStatsOnHit": [
+                                            {
+                                                "EntityStatId": "FlowCapacity",
+                                                "Amount": 1
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "Interactions": [
+                                    {
+                                        "Type": "ChangeStat",
+                                        "StatModifiers": {
+                                            "FlowCapacity": -1
+                                        },
+                                        "Entity": "Owner"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
         },
         "Ability2": {
             "Interactions": [
                 {
                     "Type": "ChangeActiveSlot",
                     "TargetSlot": 0
+                }
+            ]
+        }
+    },
+    "InteractionVars": {
+        "Primary_Shoot_Damage_Strength_0": {
+            "Interactions": [
+                {
+                    "Parent": "Weapon_Shortbow_Primary_Shoot_Damage_Strength_0",
+                    "DamageCalculator": {
+                        "BaseDamage": {
+                            "Projectile": 10
+                        }
+                    }
                 }
             ]
         }
