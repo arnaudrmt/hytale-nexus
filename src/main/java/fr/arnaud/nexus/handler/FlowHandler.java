@@ -82,7 +82,7 @@ public final class FlowHandler {
 
     public boolean isFull(Ref<EntityStore> player, Store<EntityStore> store) {
         EntityStatValue segments = getStatValue(player, store);
-        return segments != null && segments.get() >= segments.getMax();
+        return segments != null && segments.get() >= segments.getMax() / 2;
     }
 
     // --- Internals ---

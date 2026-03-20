@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.entities.NPCEntity;
+import fr.arnaud.nexus.breach.BreachSequenceSystem;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.component.SwitchStrikeComponent;
 import fr.arnaud.nexus.component.SwitchStrikeComponent.State;
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
  * Add future Sentinel role IDs (filenames without extension) to {@link #BOSS_ROLE_IDS}.
  * <p>
  * Branching logic:
- * - Mini-boss AND melee→ranged → Faille sequence (stubbed, falls back to normal).
+ * - Mini-boss AND melee→ranged → Breach sequence.
  * - Everything else → normal path: drain flow, record strike, Phase C fires naturally.
  */
 public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<EntityStore> {
@@ -112,15 +113,14 @@ public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<Entit
         LOGGER.log(Level.INFO, "[SwitchStrike] STEP 3 OK — Flow check passed. Full flow confirmed.");
 
         boolean isMiniBoss = isBossEntity(switchStrike.getAbilityTarget(), store);
-        boolean isMeleeToRanged = switchStrike.wasSwapMeleeToRanged();
 
         LOGGER.log(Level.INFO,
             "[SwitchStrike] STEP 4 — Routing. isMiniBoss=" + isMiniBoss
-                + ", isMeleeToRanged=" + isMeleeToRanged + ".");
+                + ".");
 
-        if (isMiniBoss && isMeleeToRanged) {
-            LOGGER.log(Level.INFO, "[SwitchStrike] STEP 4 → Faille sequence branch (mini-boss + melee→ranged).");
-            executeFailleSequence(ref, switchStrike, store, cmd);
+        if (isMiniBoss) {
+            LOGGER.log(Level.INFO, "[SwitchStrike] STEP 4 → Breach sequence branch (mini-boss + melee→ranged).");
+            executeBreachSequence(ref, switchStrike, store, cmd);
         } else {
             LOGGER.log(Level.INFO, "[SwitchStrike] STEP 4 → Normal Switch Strike branch.");
             executeNormalSwitchStrike(ref, switchStrike, store, cmd);
@@ -157,6 +157,26 @@ public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<Entit
                 + "Phase C: player's next attack fires naturally.");
     }
 
+    private void executeBreachSequence(@NonNullDecl Ref<EntityStore> ref,
+                                       @NonNullDecl SwitchStrikeComponent switchStrike,
+                                       @NonNullDecl Store<EntityStore> store,
+                                       @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        Ref<EntityStore> bossRef = switchStrike.getAbilityTarget();
+
+        boolean started = BreachSequenceSystem.beginSequence(ref, bossRef, store, cmd);
+
+        if (started) {
+            flowHandler.drainFlow(ref, store);
+            switchStrike.closeWindow();
+            persist(ref, switchStrike, cmd);
+            LOGGER.log(Level.INFO, "[SwitchStrike] STEP 5 OK — Breach sequence started, flow drained.");
+        } else {
+            LOGGER.log(Level.WARNING,
+                "[SwitchStrike] STEP 5 WARN — BreachSequenceComponent missing or already active. Falling back.");
+            executeNormalSwitchStrike(ref, switchStrike, store, cmd);
+        }
+    }
+
     /**
      * Returns true if the target entity is a registered mini-boss role.
      * <p>
@@ -168,37 +188,16 @@ public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<Entit
      */
     private boolean isBossEntity(@Nullable Ref<EntityStore> target,
                                  @NonNullDecl Store<EntityStore> store) {
-        System.out.println(target == null);
         if (target == null || !target.isValid()) return false;
 
         NPCEntity npc = store.getComponent(target, NPCEntity.getComponentType());
         if (npc == null) return false;
 
         String roleId = npc.getNPCTypeId();
-        System.out.println(roleId);
         boolean isBoss = roleId != null && BOSS_ROLE_IDS.contains(roleId);
         LOGGER.log(Level.INFO,
             "[SwitchStrike] Boss check: roleId=" + roleId + ", isBoss=" + isBoss);
         return isBoss;
-    }
-
-    /**
-     * TODO: implement the Faille sequence —
-     *   1. Freeze time (set global time scale to 0.3)
-     *   2. Transition camera ISO → first-person (CameraSystem.beginGlimpse)
-     *   3. Spawn weak-point entities on the mini-boss
-     *   4. Open a 3-second aim window for the player
-     *   5. On weak-point hit or timeout: restore time, drain flow
-     * <p>
-     * Falls back to the normal path until implemented.
-     */
-    private void executeFailleSequence(@NonNullDecl Ref<EntityStore> ref,
-                                       @NonNullDecl SwitchStrikeComponent switchStrike,
-                                       @NonNullDecl Store<EntityStore> store,
-                                       @NonNullDecl CommandBuffer<EntityStore> cmd) {
-        LOGGER.log(Level.WARNING,
-            "[SwitchStrike] Faille sequence not yet implemented — falling back to normal Switch Strike.");
-        executeNormalSwitchStrike(ref, switchStrike, store, cmd);
     }
 
     private void persist(@NonNullDecl Ref<EntityStore> ref,

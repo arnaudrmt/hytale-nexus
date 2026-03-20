@@ -28,12 +28,12 @@
                                                 "Physical": 10
                                             }
                                         },
-                                        "EntityStatsOnHit": [
-                                            {
-                                                "EntityStatId": "FlowCapacity",
-                                                "Amount": 1
+                                        "Next": {
+                                            "Type": "ChangeStat",
+                                            "StatModifiers": {
+                                                "SwitchStrike_Trigger": 1
                                             }
-                                        ]
+                                        }
                                     }
                                 ]
                             },

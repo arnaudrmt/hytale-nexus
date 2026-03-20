@@ -17,11 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.logging.Level;
 
 /**
- * System that drives per-player camera state and synchronizes it with the client.
- * <p>
- * This system polls the {@link CameraComponent} each tick. It handles
- * interpolation for state transitions and dispatches {@link SetServerCamera}
- * packets to the player's packet handler.
+ * Drives per-player camera state and synchronizes it with the client each tick.
  */
 public final class CameraSystem extends EntityTickingSystem<EntityStore> {
 
@@ -34,11 +30,9 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
     @Override
     public void tick(float deltaSeconds, int index, ArchetypeChunk<EntityStore> chunk,
                      @NotNull Store<EntityStore> store, @NotNull CommandBuffer<EntityStore> commandBuffer) {
-
         Ref<EntityStore> ref = chunk.getReferenceTo(index);
         CameraComponent cam = chunk.getComponent(index, CameraComponent.getComponentType());
         PlayerRef pr = chunk.getComponent(index, PlayerRef.getComponentType());
-
 
         if (cam == null || pr == null) return;
 
@@ -50,8 +44,6 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    // --- Private Tick Handlers ---
-
     private void handleIsoMode(PlayerRef pr, CameraComponent cam, Ref<EntityStore> ref,
                                CommandBuffer<EntityStore> cmd,
                                ArchetypeChunk<EntityStore> chunk, int index) {
@@ -62,19 +54,22 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    private void handleEntryTransition(float delta, PlayerRef pr, CameraComponent cam, Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd) {
+    private void handleEntryTransition(float delta, PlayerRef pr, CameraComponent cam,
+                                       Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd) {
         float elapsed = cam.advanceEntry(delta);
         if (elapsed >= CameraComponent.ENTRY_TRANSITION_DURATION_SEC) {
             cam.completeGlimpseEntry();
             sendPacket(pr, CameraPacketBuilder.buildGlimpseActive());
         } else {
-            sendPacket(pr, CameraPacketBuilder.buildEntryTransition(cam.getEntryProgress(), cam.getEffectiveIsoDistance()));
+            sendPacket(pr, CameraPacketBuilder.buildEntryTransition(
+                cam.getEntryProgress(), cam.getEffectiveIsoDistance()));
         }
         cam.clearPacketDirty();
         persistCam(cmd, ref, cam);
     }
 
-    private void handleGlimpseActive(PlayerRef pr, CameraComponent cam, Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd) {
+    private void handleGlimpseActive(PlayerRef pr, CameraComponent cam,
+                                     Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd) {
         if (cam.isPacketDirty()) {
             sendPacket(pr, CameraPacketBuilder.buildGlimpseActive());
             cam.clearPacketDirty();
@@ -82,39 +77,55 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    private void handleExitTransition(float delta, PlayerRef pr, CameraComponent cam, Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd) {
+    private void handleExitTransition(float delta, PlayerRef pr, CameraComponent cam,
+                                      Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd) {
         float elapsed = cam.advanceExit(delta);
         if (elapsed >= CameraComponent.EXIT_TRANSITION_DURATION_SEC) {
             cam.completeGlimpseExit();
             sendPacket(pr, CameraPacketBuilder.buildIso(cam));
         } else {
-            sendPacket(pr, CameraPacketBuilder.buildExitTransition(cam.getExitProgress(), cam.getEffectiveIsoDistance()));
+            sendPacket(pr, CameraPacketBuilder.buildExitTransition(
+                cam.getExitProgress(), cam.getEffectiveIsoDistance()));
         }
         cam.clearPacketDirty();
         persistCam(cmd, ref, cam);
     }
 
-    // --- Static API for External Systems ---
+    // --- Static API ---
 
-    public static boolean requestGlimpseEntry(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
+    /**
+     * Begins the ISO → Glimpse entry transition and sends the t=0 packet immediately
+     * so the client starts interpolating on the same frame, not the next tick.
+     */
+    public static boolean requestGlimpseEntry(Ref<EntityStore> ref, Store<EntityStore> store,
+                                              CommandBuffer<EntityStore> cmd) {
         CameraComponent cam = store.getComponent(ref, CameraComponent.getComponentType());
-        if (cam != null && cam.beginGlimpseEntry()) {
-            cmd.run(s -> s.putComponent(ref, CameraComponent.getComponentType(), cam));
-            return true;
-        }
-        return false;
+        PlayerRef pr = store.getComponent(ref, PlayerRef.getComponentType());
+        if (cam == null || pr == null || !cam.beginGlimpseEntry()) return false;
+
+        sendPacket(pr, CameraPacketBuilder.buildEntryTransition(0f, cam.getEffectiveIsoDistance()));
+        cam.clearPacketDirty();
+        cmd.run(s -> s.putComponent(ref, CameraComponent.getComponentType(), cam));
+        return true;
     }
 
-    public static boolean requestGlimpseExit(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
+    /**
+     * Begins the Glimpse → ISO exit transition and sends the t=0 packet immediately.
+     */
+    public static boolean requestGlimpseExit(Ref<EntityStore> ref, Store<EntityStore> store,
+                                             CommandBuffer<EntityStore> cmd) {
         CameraComponent cam = store.getComponent(ref, CameraComponent.getComponentType());
-        if (cam != null && cam.beginGlimpseExit()) {
-            cmd.run(s -> s.putComponent(ref, CameraComponent.getComponentType(), cam));
-            return true;
-        }
-        return false;
+        PlayerRef pr = store.getComponent(ref, PlayerRef.getComponentType());
+        if (cam == null || pr == null || !cam.beginGlimpseExit()) return false;
+
+        sendPacket(pr, CameraPacketBuilder.buildExitTransition(0f, cam.getEffectiveIsoDistance()));
+        cam.clearPacketDirty();
+        cmd.run(s -> s.putComponent(ref, CameraComponent.getComponentType(), cam));
+        return true;
     }
 
-    public static void forceIso(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
+    public static void forceIso(Ref<EntityStore> ref, Store<EntityStore> store,
+                                CommandBuffer<EntityStore> cmd) {
         CameraComponent cam = store.getComponent(ref, CameraComponent.getComponentType());
         PlayerRef pr = store.getComponent(ref, PlayerRef.getComponentType());
         if (cam != null && pr != null) {
@@ -125,7 +136,8 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    public static void updateEncounterZoom(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd, boolean active) {
+    public static void updateEncounterZoom(Ref<EntityStore> ref, Store<EntityStore> store,
+                                           CommandBuffer<EntityStore> cmd, boolean active) {
         CameraComponent cam = store.getComponent(ref, CameraComponent.getComponentType());
         if (cam != null) {
             cam.setEncounterZoomOut(active);
@@ -133,7 +145,8 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    public static void updateSpeedFov(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd, float normalised) {
+    public static void updateSpeedFov(Ref<EntityStore> ref, Store<EntityStore> store,
+                                      CommandBuffer<EntityStore> cmd, float normalised) {
         CameraComponent cam = store.getComponent(ref, CameraComponent.getComponentType());
         if (cam != null) {
             cam.setSpeedFovBonus(normalised);
@@ -141,9 +154,8 @@ public final class CameraSystem extends EntityTickingSystem<EntityStore> {
         }
     }
 
-    // --- Internal Helpers ---
-
-    private static void persistCam(CommandBuffer<EntityStore> cmd, Ref<EntityStore> ref, CameraComponent cam) {
+    private static void persistCam(CommandBuffer<EntityStore> cmd, Ref<EntityStore> ref,
+                                   CameraComponent cam) {
         cmd.run(s -> s.putComponent(ref, CameraComponent.getComponentType(), cam));
     }
 

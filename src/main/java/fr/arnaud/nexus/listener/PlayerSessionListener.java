@@ -5,21 +5,20 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.breach.BreachSequenceComponent;
+import fr.arnaud.nexus.breach.BreachVisualComponent;
 import fr.arnaud.nexus.camera.CameraComponent;
-import fr.arnaud.nexus.component.CursorTargetComponent;
-import fr.arnaud.nexus.component.DashComponent;
-import fr.arnaud.nexus.component.PlayerBodyComponent;
-import fr.arnaud.nexus.component.SwitchStrikeComponent;
+import fr.arnaud.nexus.component.*;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
  * Handles player session lifecycle events.
  * <p>
  * Bootstraps ephemeral runtime components on join. Persistent components
- * ({@link fr.arnaud.nexus.component.RunSessionComponent},
- * {@link EquippedWeaponsComponent}, and all EntityStatMap stats) are restored
- * automatically by the engine from the world's save data. The idempotency
- * guard on {@link CameraComponent} prevents double-bootstrapping on reconnect.
+ * ({@link RunSessionComponent}, {@link EquippedWeaponsComponent}, and all
+ * EntityStatMap stats) are restored automatically by the engine from the
+ * world's save data. The idempotency guard on {@link CameraComponent} prevents
+ * double-bootstrapping on reconnect.
  */
 public final class PlayerSessionListener {
 
@@ -48,5 +47,11 @@ public final class PlayerSessionListener {
         store.putComponent(ref, DashComponent.getComponentType(), new DashComponent());
         store.putComponent(ref, CursorTargetComponent.getComponentType(), new CursorTargetComponent());
         store.putComponent(ref, SwitchStrikeComponent.getComponentType(), new SwitchStrikeComponent());
+        store.putComponent(ref, BreachSequenceComponent.getComponentType(), new BreachSequenceComponent());
+        store.putComponent(ref, BreachVisualComponent.getComponentType(), new BreachVisualComponent());
+
+        if (store.getComponent(ref, RunSessionComponent.getComponentType()) == null) {
+            store.putComponent(ref, RunSessionComponent.getComponentType(), new RunSessionComponent());
+        }
     }
 }

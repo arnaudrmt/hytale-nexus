@@ -26,6 +26,9 @@ import java.util.logging.Logger;
  * When the JSON writes to it via {@code EntityStatsOnHit Target:Self} on
  * an Ability1 hit, this system opens the Switch Strike window and consumes
  * the trigger immediately so it cannot re-fire on the same tick.
+ * <p>
+ * The hit target ref is sourced from {@link SwitchStrikeComponent#consumePendingTriggerTarget()},
+ * which is staged by {@link SwitchStrikeDamageInterceptor} earlier in the same tick.
  */
 public final class SwitchStrikeTriggerSystem extends EntityTickingSystem<EntityStore> {
 
@@ -90,7 +93,7 @@ public final class SwitchStrikeTriggerSystem extends EntityTickingSystem<EntityS
 
         stats.subtractStatValue(Predictable.ALL, triggerStatIndex, trigger.get());
         cmd.run(s -> s.putComponent(ref, EntityStatMap.getComponentType(), stats));
-        switchStrike.openWindow(null);
+        switchStrike.openWindow(switchStrike.consumePendingTriggerTarget());
 
         LOGGER.log(Level.INFO, "[SwitchStrike] STEP 1 OK — Window is now OPEN. Player has 1 second to swap.");
     }

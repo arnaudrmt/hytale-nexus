@@ -27,6 +27,14 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
     private boolean swapWasMeleeToRanged = false;
 
     /**
+     * Written by {@link fr.arnaud.nexus.system.SwitchStrikeDamageInterceptor} the moment
+     * Ability1 connects. Read and consumed by {@link fr.arnaud.nexus.system.SwitchStrikeTriggerSystem}
+     * when it opens the window, so the execution phase always has a valid target ref.
+     */
+    @Nullable
+    private Ref<EntityStore> pendingTriggerTarget;
+
+    /**
      * The entity hit by Ability1. Carried into the execution phase so we can
      * branch on whether the target is a mini-boss.
      */
@@ -71,6 +79,20 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
         return windowTimer > 0f;
     }
 
+    public void setPendingTriggerTarget(@Nullable Ref<EntityStore> target) {
+        pendingTriggerTarget = target;
+    }
+
+    /**
+     * Returns the staged hit target and clears it so it cannot be consumed twice.
+     */
+    @Nullable
+    public Ref<EntityStore> consumePendingTriggerTarget() {
+        Ref<EntityStore> t = pendingTriggerTarget;
+        pendingTriggerTarget = null;
+        return t;
+    }
+
     public State getState() {
         return state;
     }
@@ -111,6 +133,7 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
         c.windowTimer = this.windowTimer;
         c.pendingSwap = this.pendingSwap;
         c.swapWasMeleeToRanged = this.swapWasMeleeToRanged;
+        c.pendingTriggerTarget = this.pendingTriggerTarget;
         c.abilityTarget = this.abilityTarget;
         return c;
     }

@@ -6,6 +6,7 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import fr.arnaud.nexus.breach.*;
 import fr.arnaud.nexus.camera.CameraComponent;
 import fr.arnaud.nexus.camera.CameraSystem;
 import fr.arnaud.nexus.command.NexusTestCommand;
@@ -32,8 +33,11 @@ public final class Nexus extends JavaPlugin {
     private final DreamDustHandler dreamDustHandler = new DreamDustHandler();
     private final DashSystem dashSystem = new DashSystem(flowHandler);
     private final InputListener inputListener = new InputListener(dashSystem);
+    private final SwitchStrikeDamageInterceptor switchStrikeDamageInterceptor = new SwitchStrikeDamageInterceptor();
     private final SwitchStrikeTriggerSystem switchStrikeTriggerSystem = new SwitchStrikeTriggerSystem();
     private final SwitchStrikeExecutionSystem switchStrikeExecutionSystem = new SwitchStrikeExecutionSystem(flowHandler);
+    private final BreachSequenceSystem breachSequenceSystem = new BreachSequenceSystem();
+    private final BreachDamageInterceptor breachDamageInterceptor = new BreachDamageInterceptor();
     private final FlowDebugHudSystem flowDebugHudSystem = new FlowDebugHudSystem();
 
     public Nexus(@NonNullDecl JavaPluginInit init) {
@@ -85,19 +89,27 @@ public final class Nexus extends JavaPlugin {
         DashComponent.setComponentType(registry.registerComponent(DashComponent.class, DashComponent::new));
         CursorTargetComponent.setComponentType(registry.registerComponent(CursorTargetComponent.class, CursorTargetComponent::new));
         SwitchStrikeComponent.setComponentType(
-            registry.registerComponent(SwitchStrikeComponent.class, SwitchStrikeComponent::new)
-        );
+            registry.registerComponent(SwitchStrikeComponent.class, SwitchStrikeComponent::new));
+        BreachSequenceComponent.setComponentType(
+            registry.registerComponent(BreachSequenceComponent.class, BreachSequenceComponent::new));
+        BreachVisualComponent.setComponentType(
+            registry.registerComponent(BreachVisualComponent.class, BreachVisualComponent::new));
+        BreachComboComponent.setComponentType(
+            registry.registerComponent(BreachComboComponent.class, BreachComboComponent::new));
         RunSessionComponent.setComponentType(
-            registry.registerComponent(RunSessionComponent.class, "Nexus_RunSession", RunSessionComponent.CODEC)
-        );
+            registry.registerComponent(RunSessionComponent.class, "Nexus_RunSession", RunSessionComponent.CODEC));
     }
 
     private void registerSystems() {
         var entityRegistry = getEntityStoreRegistry();
         entityRegistry.registerSystem(new CameraSystem());
         entityRegistry.registerSystem(new PlayerMovementSystem());
+        entityRegistry.registerSystem(switchStrikeDamageInterceptor);
         entityRegistry.registerSystem(switchStrikeTriggerSystem);
         entityRegistry.registerSystem(switchStrikeExecutionSystem);
+        entityRegistry.registerSystem(breachSequenceSystem);
+        entityRegistry.registerSystem(breachDamageInterceptor);
+        entityRegistry.registerSystem(new BreachVisualSystem());
         entityRegistry.registerSystem(flowDebugHudSystem);
         new SlotLockSystem();
         new SwitchStrikePacketInterceptor();
