@@ -12,43 +12,60 @@
         "Ability1": {
             "Interactions": [
                 {
-                    "Type": "StatsCondition",
-                    "Costs": {
-                        "FlowCapacity": 1
+                    "Type": "Simple",
+                    "Effects": {
+                        "ItemAnimationId": "SwingLeft"
                     },
+                    "RunTime": 0.4,
                     "Next": {
-                        "Type": "Parallel",
-                        "Interactions": [
-                            {
-                                "Interactions": [
-                                    {
-                                        "Type": "DamageEntity",
-                                        "DamageCalculator": {
-                                            "BaseDamage": {
-                                                "Physical": 10
-                                            }
-                                        },
-                                        "Next": {
-                                            "Type": "ChangeStat",
-                                            "StatModifiers": {
-                                                "SwitchStrike_Trigger": 1
-                                            }
+                        "Type": "Selector",
+                        "RunTime": 0.111,
+                        "Selector": {
+                            "Id": "Horizontal",
+                            "Direction": "ToLeft",
+                            "TestLineOfSight": true,
+                            "ExtendTop": 0.5,
+                            "ExtendBottom": 0.5,
+                            "StartDistance": 0.1,
+                            "EndDistance": 3.5,
+                            "Length": 90,
+                            "RollOffset": 0,
+                            "YawStartOffset": -60
+                        },
+                        "HitEntity": {
+                            "Interactions": [
+                                {
+                                    "Type": "DamageEntity",
+                                    "DamageCalculator": {
+                                        "BaseDamage": {
+                                            "Physical": 5
                                         }
-                                    }
-                                ]
-                            },
-                            {
-                                "Interactions": [
-                                    {
-                                        "Type": "ChangeStat",
-                                        "StatModifiers": {
-                                            "FlowCapacity": -1
+                                    },
+                                    "EntityStatsOnHit": [
+                                        {
+                                            "EntityStatId": "SwitchStrike_Trigger",
+                                            "Amount": 1,
+                                            "Target": "Self"
+                                        }
+                                    ],
+                                    "DamageEffects": {
+                                        "Knockback": {
+                                            "Force": 1,
+                                            "RelativeX": -5,
+                                            "RelativeZ": -5,
+                                            "VelocityY": 5
                                         },
-                                        "Entity": "Owner"
+                                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
+                                        "LocalSoundEventId": "SFX_Sword_T2_Impact",
+                                        "WorldParticles": [
+                                            {
+                                                "SystemId": "Impact_Blade_01"
+                                            }
+                                        ]
                                     }
-                                ]
-                            }
-                        ]
+                                }
+                            ]
+                        }
                     }
                 }
             ]

@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.breach;
+package fr.arnaud.nexus.switchstrike;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -8,15 +8,14 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-/**
- * Intercepts damage dealt to a frozen boss during the Breach sequence.
- * Runs in the Filter Damage Group (before health is modified).
- * Cancels the event and folds the raw damage into the attacker's combo
- * accumulator using the formula: hit N contributes N × rawDamage.
- */
-public final class BreachDamageInterceptor extends DamageEventSystem {
+import java.util.Set;
+
+public final class SwitchStrikeBossHitSystem extends DamageEventSystem {
+
+    static final Set<String> BOSS_ROLE_IDS = Set.of("Nexus_TestBoss_NPC_Role");
 
     @NonNullDecl
     @Override
@@ -29,20 +28,26 @@ public final class BreachDamageInterceptor extends DamageEventSystem {
                        @NonNullDecl Store<EntityStore> store,
                        @NonNullDecl CommandBuffer<EntityStore> cmd,
                        @NonNullDecl Damage damage) {
-        Ref<EntityStore> targetRef = chunk.getReferenceTo(index);
-        if (store.getComponent(targetRef, FrozenComponent.getComponentType()) == null) return;
-
         if (!(damage.getSource() instanceof Damage.EntitySource entitySource)) return;
 
         Ref<EntityStore> attackerRef = entitySource.getRef();
         if (attackerRef == null || !attackerRef.isValid()) return;
 
-        BreachSequenceComponent sequence =
-            store.getComponent(attackerRef, BreachSequenceComponent.getComponentType());
-        if (sequence == null || sequence.getPhase() != BreachSequenceComponent.Phase.ACTIVE) return;
+        SwitchStrikeComponent switchStrike =
+            store.getComponent(attackerRef, SwitchStrikeComponent.getComponentType());
+        if (switchStrike == null) return;
 
-        sequence.registerHit(damage.getInitialAmount());
-        damage.setCancelled(true);
-        cmd.run(s -> s.putComponent(attackerRef, BreachSequenceComponent.getComponentType(), sequence));
+        Ref<EntityStore> targetRef = chunk.getReferenceTo(index);
+        NPCEntity npc = store.getComponent(targetRef, NPCEntity.getComponentType());
+        if (!isBoss(npc)) return;
+
+        switchStrike.markBossHit(targetRef);
+        cmd.run(s -> s.putComponent(attackerRef, SwitchStrikeComponent.getComponentType(), switchStrike));
+    }
+
+    private boolean isBoss(NPCEntity npc) {
+        if (npc == null) return false;
+        String roleId = npc.getNPCTypeId();
+        return roleId != null && BOSS_ROLE_IDS.contains(roleId);
     }
 }

@@ -1,0 +1,196 @@
+package fr.arnaud.nexus.switchstrike;
+
+import com.hypixel.hytale.component.ArchetypeChunk;
+import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.component.query.Query;
+import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
+import com.hypixel.hytale.server.core.modules.time.WorldTimeResource;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.breach.BreachSequenceComponent;
+import fr.arnaud.nexus.breach.FrozenComponent;
+import fr.arnaud.nexus.camera.CameraSystem;
+import fr.arnaud.nexus.component.RunSessionComponent;
+import fr.arnaud.nexus.handler.FlowHandler;
+import fr.arnaud.nexus.system.SlotLockSystem;
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * Drives the Switch Strike FSM from PENDING_OPEN through WINDOW_OPEN and into
+ * either the Breach sequence or the normal Switch Strike outcome.
+ */
+public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<EntityStore> {
+
+    private static final Logger LOGGER = Logger.getLogger(SwitchStrikeExecutionSystem.class.getName());
+
+    private final FlowHandler flowHandler;
+
+    public SwitchStrikeExecutionSystem(@NonNullDecl FlowHandler flowHandler) {
+        this.flowHandler = flowHandler;
+    }
+
+    @NonNullDecl
+    @Override
+    public Query<EntityStore> getQuery() {
+        return Query.and(
+            PlayerRef.getComponentType(),
+            SwitchStrikeComponent.getComponentType(),
+            EntityStatMap.getComponentType()
+        );
+    }
+
+    @Override
+    public void tick(float deltaSeconds, int index, ArchetypeChunk<EntityStore> chunk,
+                     @NonNullDecl Store<EntityStore> store,
+                     @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        Ref<EntityStore> ref = chunk.getReferenceTo(index);
+        SwitchStrikeComponent switchStrike =
+            chunk.getComponent(index, SwitchStrikeComponent.getComponentType());
+
+        if (switchStrike == null) return;
+
+        switchStrike.tickBossTimer(deltaSeconds);
+
+        switch (switchStrike.getState()) {
+            case PENDING_OPEN -> commitWindow(ref, switchStrike, cmd);
+            case WINDOW_OPEN -> tickOpenWindow(ref, switchStrike, deltaSeconds, store, cmd);
+            default -> persist(ref, switchStrike, cmd);
+        }
+    }
+
+    private void commitWindow(@NonNullDecl Ref<EntityStore> ref,
+                              @NonNullDecl SwitchStrikeComponent switchStrike,
+                              @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        switchStrike.commitOpenWindow();
+        persist(ref, switchStrike, cmd);
+    }
+
+    private void tickOpenWindow(@NonNullDecl Ref<EntityStore> ref,
+                                @NonNullDecl SwitchStrikeComponent switchStrike,
+                                float deltaSeconds,
+                                @NonNullDecl Store<EntityStore> store,
+                                @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        boolean windowAlive = switchStrike.tickWindow(deltaSeconds);
+
+        if (switchStrike.hasPendingSwap()) {
+            handleSwap(ref, switchStrike, store, cmd);
+        } else if (!windowAlive) {
+            unlockSlot(ref, store);
+            switchStrike.closeWindow();
+            persist(ref, switchStrike, cmd);
+        } else {
+            persist(ref, switchStrike, cmd);
+        }
+    }
+
+    private void handleSwap(@NonNullDecl Ref<EntityStore> ref,
+                            @NonNullDecl SwitchStrikeComponent switchStrike,
+                            @NonNullDecl Store<EntityStore> store,
+                            @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        if (flowHandler.getFilledSegments(ref, store) < 1) {
+            unlockSlot(ref, store);
+            switchStrike.closeWindow();
+            persist(ref, switchStrike, cmd);
+            return;
+        }
+
+        upgradeToHardLock(ref, store);
+
+        if (switchStrike.hasBossHitInWindow()) {
+            executeBreachSequence(ref, switchStrike, store, cmd);
+        } else {
+            executeNormalSwitchStrike(ref, switchStrike, store, cmd);
+        }
+    }
+
+    private void executeNormalSwitchStrike(@NonNullDecl Ref<EntityStore> ref,
+                                           @NonNullDecl SwitchStrikeComponent switchStrike,
+                                           @NonNullDecl Store<EntityStore> store,
+                                           @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        flowHandler.drainFlow(ref, store);
+        recordSwitchStrike(ref, store, cmd);
+        releaseSlot(ref, store);
+        switchStrike.closeWindow();
+        persist(ref, switchStrike, cmd);
+    }
+
+    /**
+     * Launches the Breach sequence. Flow is intentionally NOT drained here —
+     * {@link fr.arnaud.nexus.breach.BreachSequenceSystem} drains it on exit so
+     * the player retains full flow during the combo window.
+     * The slot lock is NOT released here for the same reason.
+     */
+    private void executeBreachSequence(@NonNullDecl Ref<EntityStore> ref,
+                                       @NonNullDecl SwitchStrikeComponent switchStrike,
+                                       @NonNullDecl Store<EntityStore> store,
+                                       @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        Ref<EntityStore> bossRef = switchStrike.getLastBossRef();
+        if (bossRef == null || !bossRef.isValid()) {
+            LOGGER.log(Level.WARNING, "[SwitchStrike] Breach launch aborted — boss ref invalid. Falling back.");
+            executeNormalSwitchStrike(ref, switchStrike, store, cmd);
+            return;
+        }
+
+        WorldTimeResource timeResource = store.getResource(WorldTimeResource.getResourceType());
+        float savedDayTime = timeResource != null ? timeResource.getDayProgress() : 0f;
+
+        cmd.run(s -> s.putComponent(ref, BreachSequenceComponent.getComponentType(),
+            BreachSequenceComponent.forBoss(bossRef, savedDayTime)));
+        cmd.run(s -> s.putComponent(bossRef, FrozenComponent.getComponentType(), new FrozenComponent()));
+
+        CameraSystem.requestGlimpseEntry(ref, store, cmd);
+        World.setTimeDilation(BreachSequenceComponent.TIME_DILATION_SLOW, store);
+
+        if (timeResource != null) {
+            World world = store.getExternalData().getWorld();
+            if (world != null) timeResource.setDayTime(0f, world, store);
+        }
+
+        switchStrike.closeWindow();
+        persist(ref, switchStrike, cmd);
+    }
+
+    private void recordSwitchStrike(@NonNullDecl Ref<EntityStore> ref,
+                                    @NonNullDecl Store<EntityStore> store,
+                                    @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        RunSessionComponent session = store.getComponent(ref, RunSessionComponent.getComponentType());
+        if (session == null) return;
+        session.incrementSwitchStrikes();
+        cmd.run(s -> s.putComponent(ref, RunSessionComponent.getComponentType(), session));
+    }
+
+    private void upgradeToHardLock(@NonNullDecl Ref<EntityStore> ref,
+                                   @NonNullDecl Store<EntityStore> store) {
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        if (playerRef != null) SlotLockSystem.hardLock(playerRef.getUuid());
+    }
+
+    private void unlockSlot(@NonNullDecl Ref<EntityStore> ref,
+                            @NonNullDecl Store<EntityStore> store) {
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        if (playerRef != null) SlotLockSystem.unlock(playerRef.getUuid());
+    }
+
+    /**
+     * Alias kept separate from {@link #unlockSlot} for call-site clarity —
+     * this path is the confirmed-success exit, not a failure/timeout cleanup.
+     */
+    public static void releaseSlot(@NonNullDecl Ref<EntityStore> ref,
+                                   @NonNullDecl Store<EntityStore> store) {
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        if (playerRef != null) SlotLockSystem.unlock(playerRef.getUuid());
+    }
+
+    private void persist(@NonNullDecl Ref<EntityStore> ref,
+                         @NonNullDecl SwitchStrikeComponent switchStrike,
+                         @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        cmd.run(s -> s.putComponent(ref, SwitchStrikeComponent.getComponentType(), switchStrike));
+    }
+}

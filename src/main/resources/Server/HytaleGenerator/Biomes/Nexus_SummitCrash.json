@@ -1,0 +1,176 @@
+{
+    "Name": "Nexus_SummitCrash",
+    "Terrain": {
+        "Type": "DAOTerrain",
+        "Density": {
+            "Type": "Sum",
+            "Skip": false,
+            "Inputs": [
+                {
+                    "Type": "CurveMapper",
+                    "Skip": false,
+                    "Curve": {
+                        "Type": "Manual",
+                        "Points": [
+                            {
+                                "In": -30,
+                                "Out": 1.0
+                            },
+                            {
+                                "In": 180,
+                                "Out": -1.0
+                            }
+                        ]
+                    },
+                    "Inputs": [
+                        {
+                            "Type": "BaseHeight",
+                            "Skip": false,
+                            "BaseHeightName": "Base",
+                            "Distance": true
+                        }
+                    ]
+                },
+                {
+                    "Type": "CurveMapper",
+                    "Skip": false,
+                    "Curve": {
+                        "Type": "Manual",
+                        "Points": [
+                            {
+                                "In": -1.0,
+                                "Out": -0.4
+                            },
+                            {
+                                "In": 0.0,
+                                "Out": 0.0
+                            },
+                            {
+                                "In": 1.0,
+                                "Out": 0.4
+                            }
+                        ]
+                    },
+                    "Inputs": [
+                        {
+                            "Type": "SimplexNoise2D",
+                            "Skip": false,
+                            "Lacunarity": 2.0,
+                            "Persistence": 0.5,
+                            "Octaves": 5,
+                            "Scale": 40,
+                            "Seed": "A"
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    "MaterialProvider": {
+        "Type": "Queue",
+        "Queue": [
+            {
+                "Type": "Solidity",
+                "Solid": {
+                    "Type": "Queue",
+                    "Queue": [
+                        {
+                            "Type": "Constant",
+                            "Material": {
+                                "Solid": "Rock_Stone"
+                            }
+                        },
+                        {
+                            "Type": "SpaceAndDepth",
+                            "LayerContext": "DEPTH_INTO_FLOOR",
+                            "MaxExpectedDepth": 4,
+                            "Layers": [
+                                {
+                                    "Type": "ConstantThickness",
+                                    "Thickness": 1,
+                                    "Material": {
+                                        "Type": "Constant",
+                                        "Material": {
+                                            "Solid": "Soil_Snow"
+                                        }
+                                    }
+                                },
+                                {
+                                    "Type": "ConstantThickness",
+                                    "Thickness": 3,
+                                    "Material": {
+                                        "Type": "Constant",
+                                        "Material": {
+                                            "Solid": "Rock_Stone"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "Empty": {
+                    "Type": "Constant",
+                    "Material": {
+                        "Solid": "Empty"
+                    }
+                }
+            }
+        ]
+    },
+    "Props": [],
+    "EnvironmentProvider": {
+        "Type": "DensityDelimited",
+        "Density": {
+            "Type": "CurveMapper",
+            "Skip": false,
+            "Curve": {
+                "Type": "Manual",
+                "Points": [
+                    {
+                        "In": -20,
+                        "Out": 1
+                    },
+                    {
+                        "In": -25,
+                        "Out": 0
+                    }
+                ]
+            },
+            "Inputs": [
+                {
+                    "Type": "BaseHeight",
+                    "Skip": false,
+                    "BaseHeightName": "Base",
+                    "Distance": true
+                }
+            ]
+        },
+        "Delimiters": [
+            {
+                "Environment": {
+                    "Type": "Constant",
+                    "Environment": "Zone1_Overground"
+                },
+                "Range": {
+                    "MinInclusive": 0.5,
+                    "MaxExclusive": 1.5
+                }
+            },
+            {
+                "Environment": {
+                    "Type": "Constant",
+                    "Environment": "Zone1_Underground"
+                },
+                "Range": {
+                    "MinInclusive": -0.5,
+                    "MaxExclusive": 0.5
+                }
+            }
+        ]
+    },
+    "TintProvider": {
+        "Type": "Constant",
+        "Color": "#C8D8E8"
+    }
+}

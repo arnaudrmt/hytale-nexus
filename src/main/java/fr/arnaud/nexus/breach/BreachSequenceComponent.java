@@ -7,125 +7,76 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
- * Per-player FSM state for the Breach Sequence (mini-boss Switch Strike).
- * Ephemeral — state is meaningless across sessions, no codec needed.
- * <p>
- * State machine:
- * <pre>
- *   IDLE ──begin()──► ENTERING ──camera ready──► ACTIVE ──hit/timeout──► EXITING ──done──► IDLE
- * </pre>
+ * Per-player state for an active Breach sequence.
+ *
+ * <p>Combo damage formula (GDD §IV.2):
+ * {@code total = Σ (hitIndex × baseDamage)} for hitIndex = 1..n
+ *
+ * <p>Timer note: {@link #tickWindow} receives raw server delta-seconds. During
+ * the ACTIVE phase, time dilation compresses the delta. Dividing by
+ * {@link #TIME_DILATION_SLOW} converts back to real-wall-clock seconds so the
+ * 5-second window is always 5 real seconds regardless of dilation.
  */
 public final class BreachSequenceComponent implements Component<EntityStore> {
 
-    public enum State {
-        IDLE,
-        ENTERING,
-        ACTIVE,
-        EXITING
-    }
+    public enum Phase {ENTRY, ACTIVE, EXIT}
 
-    public static final float AIM_WINDOW_SECONDS = 7.0f;
-    public static final float TIME_DILATION = 0.3f;
+    public static final float COMBO_WINDOW_SECONDS = 5.0f;
+    public static final float TIME_DILATION_SLOW = 0.3f;
+    public static final float TIME_DILATION_NORMAL = 1.0f;
+    public static final float EXIT_KNOCKBACK_FORCE = 5.0f;
 
     @Nullable
     private static ComponentType<EntityStore, BreachSequenceComponent> componentType;
 
-    private State state = State.IDLE;
-    private float aimTimer = 0f;
-    private boolean breachWasHit = false;
+    private Phase phase = Phase.ENTRY;
+    private float windowTimer = COMBO_WINDOW_SECONDS;
 
-    /**
-     * The mini-boss entity this sequence is targeting.
-     * Held so breach entities can be positioned around it on entry, and so
-     * the execution system can apply damage on a successful breach hit.
-     */
     @Nullable
     private Ref<EntityStore> bossRef;
 
-    /**
-     * Live refs to the spawned breach NPC entities.
-     * Populated by {@link BreachSpawner} on ENTERING → ACTIVE.
-     * Cleared on exit so surviving breaches can be despawned.
-     */
-    private final List<Ref<EntityStore>> activeBreachRefs = new ArrayList<>();
+    private float pendingDamage = 0f;
+    private int comboHitCount = 0;
+    private float savedDayTime = 0f;
 
     public BreachSequenceComponent() {
     }
 
-    /**
-     * Begins the sequence targeting the given mini-boss. Only valid from IDLE.
-     */
-    public boolean begin(@NonNullDecl Ref<EntityStore> boss) {
-        if (state != State.IDLE) return false;
-        state = State.ENTERING;
-        bossRef = boss;
-        aimTimer = AIM_WINDOW_SECONDS;
-        breachWasHit = false;
-        activeBreachRefs.clear();
-        return true;
+    public static BreachSequenceComponent forBoss(
+        @NonNullDecl Ref<EntityStore> bossRef, float currentDayTime) {
+        BreachSequenceComponent c = new BreachSequenceComponent();
+        c.bossRef = bossRef;
+        c.savedDayTime = currentDayTime;
+        return c;
     }
 
-    /**
-     * Called by {@link BreachSequenceSystem} once the camera entry transition
-     * completes. Advances state to ACTIVE immediately; breach refs arrive
-     * asynchronously via {@link #registerSpawnedRefs} once the deferred spawn runs.
-     */
-    public void onEnteringComplete() {
-        state = State.ACTIVE;
-        activeBreachRefs.clear();
+    public void advanceToActive() {
+        phase = Phase.ACTIVE;
+        windowTimer = COMBO_WINDOW_SECONDS;
     }
 
-    /**
-     * Called by {@link BreachSpawner} on the world thread
-     * after the deferred spawn completes, registering the live breach refs.
-     */
-    public void registerSpawnedRefs(@NonNullDecl List<Ref<EntityStore>> refs) {
-        activeBreachRefs.addAll(refs);
+    public void advanceToExit() {
+        phase = Phase.EXIT;
     }
 
-    /**
-     * Called when the player hits a breach or the aim window expires.
-     */
-    public void beginExit(boolean breachHit) {
-        if (state != State.ACTIVE) return;
-        state = State.EXITING;
-        breachWasHit = breachHit;
+    public void registerHit(float rawDamage) {
+        comboHitCount++;
+        pendingDamage += comboHitCount * rawDamage;
     }
 
-    /**
-     * Called by {@link BreachSequenceSystem} once the camera exit transition
-     * completes and the world speed is restored.
-     */
-    public void onExitComplete() {
-        state = State.IDLE;
-        bossRef = null;
-        aimTimer = 0f;
-        breachWasHit = false;
-        activeBreachRefs.clear();
+    public boolean tickWindow(float deltaSeconds) {
+        windowTimer -= deltaSeconds / TIME_DILATION_SLOW;
+        return windowTimer > 0f;
     }
 
-    /**
-     * Removes a breach ref once its entity has been destroyed (hit or despawned).
-     */
-    public void removeBreachRef(@NonNullDecl Ref<EntityStore> ref) {
-        activeBreachRefs.remove(ref);
+    public Phase getPhase() {
+        return phase;
     }
 
-    /**
-     * Advances the aim window timer. Returns true while the window is still alive.
-     */
-    public boolean tickAimWindow(float deltaSeconds) {
-        aimTimer -= deltaSeconds;
-        return aimTimer > 0f;
-    }
-
-    public State getState() {
-        return state;
+    public float getWindowTimer() {
+        return windowTimer;
     }
 
     @Nullable
@@ -133,16 +84,16 @@ public final class BreachSequenceComponent implements Component<EntityStore> {
         return bossRef;
     }
 
-    public boolean wasBreachHit() {
-        return breachWasHit;
+    public float getPendingDamage() {
+        return pendingDamage;
     }
 
-    public float getAimTimer() {
-        return aimTimer;
+    public int getComboHitCount() {
+        return comboHitCount;
     }
 
-    public List<Ref<EntityStore>> getActiveBreachRefs() {
-        return Collections.unmodifiableList(activeBreachRefs);
+    public float getSavedDayTime() {
+        return savedDayTime;
     }
 
     @NonNullDecl
@@ -160,11 +111,12 @@ public final class BreachSequenceComponent implements Component<EntityStore> {
     @NonNullDecl
     public BreachSequenceComponent clone() {
         BreachSequenceComponent c = new BreachSequenceComponent();
-        c.state = this.state;
-        c.aimTimer = this.aimTimer;
+        c.phase = this.phase;
+        c.windowTimer = this.windowTimer;
         c.bossRef = this.bossRef;
-        c.breachWasHit = this.breachWasHit;
-        c.activeBreachRefs.addAll(this.activeBreachRefs);
+        c.pendingDamage = this.pendingDamage;
+        c.comboHitCount = this.comboHitCount;
+        c.savedDayTime = this.savedDayTime;
         return c;
     }
 }
