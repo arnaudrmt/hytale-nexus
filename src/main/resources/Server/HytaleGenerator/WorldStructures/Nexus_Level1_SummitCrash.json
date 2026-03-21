@@ -1,0 +1,28 @@
+{
+    "Type": "NoiseRange",
+    "Biomes": [],
+    "DefaultBiome": "Nexus_SummitCrash",
+    "DefaultTransitionDistance": 16,
+    "MaxBiomeEdgeDistance": 16,
+    "Density": {
+        "Type": "Constant",
+        "Value": 0
+    },
+    "ContentFields": [
+        {
+            "Type": "BaseHeight",
+            "Name": "Base",
+            "Y": 100
+        },
+        {
+            "Type": "BaseHeight",
+            "Name": "Water",
+            "Y": 95
+        },
+        {
+            "Type": "BaseHeight",
+            "Name": "Bedrock",
+            "Y": 0
+        }
+    ]
+}

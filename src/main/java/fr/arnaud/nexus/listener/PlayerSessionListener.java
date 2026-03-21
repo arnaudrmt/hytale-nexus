@@ -9,7 +9,7 @@ import fr.arnaud.nexus.camera.CameraComponent;
 import fr.arnaud.nexus.component.CursorTargetComponent;
 import fr.arnaud.nexus.component.DashComponent;
 import fr.arnaud.nexus.component.PlayerBodyComponent;
-import fr.arnaud.nexus.component.SwitchStrikeComponent;
+import fr.arnaud.nexus.switchstrike.SwitchStrikeComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**

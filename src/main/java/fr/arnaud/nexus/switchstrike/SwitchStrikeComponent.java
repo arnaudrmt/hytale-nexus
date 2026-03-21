@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.component;
+package fr.arnaud.nexus.switchstrike;
 
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
@@ -9,12 +9,11 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import javax.annotation.Nullable;
 
 /**
- * Tracks the per-player FSM state for the Switch Strike mechanic.
- * Ephemeral — no codec needed, state is meaningless across sessions.
+ * Per-player FSM state for the Switch Strike mechanic. Ephemeral — no codec needed.
  */
 public final class SwitchStrikeComponent implements Component<EntityStore> {
 
-    public enum State {IDLE, WINDOW_OPEN}
+    public enum State {IDLE, PENDING_OPEN, WINDOW_OPEN}
 
     public static final float WINDOW_DURATION_SECONDS = 1.0f;
 
@@ -25,23 +24,23 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
     private float windowTimer = 0f;
     private boolean pendingSwap = false;
     private boolean swapWasMeleeToRanged = false;
+    private float bossHitTimer = 0f;
 
-    /**
-     * The entity hit by Ability1. Carried into the execution phase so we can
-     * branch on whether the target is a mini-boss.
-     */
     @Nullable
-    private Ref<EntityStore> abilityTarget;
+    private Ref<EntityStore> lastBossRef;
 
     public SwitchStrikeComponent() {
     }
 
-    public void openWindow(@Nullable Ref<EntityStore> target) {
-        state = State.WINDOW_OPEN;
-        windowTimer = WINDOW_DURATION_SECONDS;
+    public void requestOpenWindow() {
+        state = State.PENDING_OPEN;
         pendingSwap = false;
         swapWasMeleeToRanged = false;
-        abilityTarget = target;
+    }
+
+    public void commitOpenWindow() {
+        state = State.WINDOW_OPEN;
+        windowTimer = WINDOW_DURATION_SECONDS;
     }
 
     public void closeWindow() {
@@ -49,22 +48,29 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
         windowTimer = 0f;
         pendingSwap = false;
         swapWasMeleeToRanged = false;
-        abilityTarget = null;
     }
 
-    /**
-     * Called by the packet interceptor on the Netty thread.
-     * {@code meleeToRanged} is true when the player was on slot 0 (melee) and
-     * swapped to slot 1 (ranged). The ticking system reads both flags next tick.
-     */
+    public void markBossHit(@NonNullDecl Ref<EntityStore> bossRef) {
+        bossHitTimer = WINDOW_DURATION_SECONDS;
+        lastBossRef = bossRef;
+    }
+
+    public boolean hasBossHitInWindow() {
+        return bossHitTimer > 0f;
+    }
+
+    public void tickBossTimer(float deltaSeconds) {
+        if (bossHitTimer > 0f) {
+            bossHitTimer = Math.max(0f, bossHitTimer - deltaSeconds);
+            if (bossHitTimer == 0f) lastBossRef = null;
+        }
+    }
+
     public void signalSwap(boolean meleeToRanged) {
         pendingSwap = true;
         swapWasMeleeToRanged = meleeToRanged;
     }
 
-    /**
-     * Advances the window timer. Returns {@code true} while the window is still alive.
-     */
     public boolean tickWindow(float deltaSeconds) {
         if (state != State.WINDOW_OPEN) return false;
         windowTimer -= deltaSeconds;
@@ -88,8 +94,8 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
     }
 
     @Nullable
-    public Ref<EntityStore> getAbilityTarget() {
-        return abilityTarget;
+    public Ref<EntityStore> getLastBossRef() {
+        return lastBossRef;
     }
 
     @NonNullDecl
@@ -98,8 +104,7 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
         return componentType;
     }
 
-    public static void setComponentType(
-        @NonNullDecl ComponentType<EntityStore, SwitchStrikeComponent> type) {
+    public static void setComponentType(@NonNullDecl ComponentType<EntityStore, SwitchStrikeComponent> type) {
         componentType = type;
     }
 
@@ -111,7 +116,8 @@ public final class SwitchStrikeComponent implements Component<EntityStore> {
         c.windowTimer = this.windowTimer;
         c.pendingSwap = this.pendingSwap;
         c.swapWasMeleeToRanged = this.swapWasMeleeToRanged;
-        c.abilityTarget = this.abilityTarget;
+        c.bossHitTimer = this.bossHitTimer;
+        c.lastBossRef = this.lastBossRef;
         return c;
     }
 }

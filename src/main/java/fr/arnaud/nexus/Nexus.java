@@ -6,18 +6,27 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
+import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
+import fr.arnaud.nexus.breach.*;
 import fr.arnaud.nexus.camera.CameraComponent;
 import fr.arnaud.nexus.camera.CameraSystem;
 import fr.arnaud.nexus.command.NexusTestCommand;
-import fr.arnaud.nexus.component.*;
+import fr.arnaud.nexus.component.CursorTargetComponent;
+import fr.arnaud.nexus.component.DashComponent;
+import fr.arnaud.nexus.component.PlayerBodyComponent;
+import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.handler.DreamDustHandler;
 import fr.arnaud.nexus.handler.FlowHandler;
 import fr.arnaud.nexus.handler.LucidityHandler;
 import fr.arnaud.nexus.i18n.I18n;
+import fr.arnaud.nexus.level.LevelManager;
+import fr.arnaud.nexus.level.LevelWorldLoadSystem;
 import fr.arnaud.nexus.listener.InputListener;
 import fr.arnaud.nexus.listener.PlayerSessionListener;
-import fr.arnaud.nexus.listener.SwitchStrikePacketInterceptor;
-import fr.arnaud.nexus.system.*;
+import fr.arnaud.nexus.switchstrike.*;
+import fr.arnaud.nexus.system.DashSystem;
+import fr.arnaud.nexus.system.PlayerMovementSystem;
+import fr.arnaud.nexus.system.SlotLockSystem;
 import fr.arnaud.nexus.ui.hud.FlowDebugHudSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
@@ -30,6 +39,8 @@ public final class Nexus extends JavaPlugin {
     private final FlowHandler flowHandler = new FlowHandler();
     private final LucidityHandler lucidityHandler = new LucidityHandler();
     private final DreamDustHandler dreamDustHandler = new DreamDustHandler();
+    private final LevelManager levelManager = new LevelManager();
+    private final LevelWorldLoadSystem levelWorldLoadSystem = new LevelWorldLoadSystem();
     private final DashSystem dashSystem = new DashSystem(flowHandler);
     private final InputListener inputListener = new InputListener(dashSystem);
     private final SwitchStrikeTriggerSystem switchStrikeTriggerSystem = new SwitchStrikeTriggerSystem();
@@ -55,6 +66,10 @@ public final class Nexus extends JavaPlugin {
 
     public DreamDustHandler getDreamDustHandler() {
         return dreamDustHandler;
+    }
+
+    public LevelManager getLevelManager() {
+        return levelManager;
     }
 
     @Override
@@ -87,6 +102,12 @@ public final class Nexus extends JavaPlugin {
         SwitchStrikeComponent.setComponentType(
             registry.registerComponent(SwitchStrikeComponent.class, SwitchStrikeComponent::new)
         );
+        FrozenComponent.setComponentType(
+            registry.registerComponent(FrozenComponent.class, FrozenComponent::new)
+        );
+        BreachSequenceComponent.setComponentType(
+            registry.registerComponent(BreachSequenceComponent.class, BreachSequenceComponent::new)
+        );
         RunSessionComponent.setComponentType(
             registry.registerComponent(RunSessionComponent.class, "Nexus_RunSession", RunSessionComponent.CODEC)
         );
@@ -99,6 +120,11 @@ public final class Nexus extends JavaPlugin {
         entityRegistry.registerSystem(switchStrikeTriggerSystem);
         entityRegistry.registerSystem(switchStrikeExecutionSystem);
         entityRegistry.registerSystem(flowDebugHudSystem);
+        entityRegistry.registerSystem(new SwitchStrikeBossHitSystem());
+        entityRegistry.registerSystem(new BreachSequenceSystem(flowHandler));
+        entityRegistry.registerSystem(new BreachDamageInterceptor());
+        entityRegistry.registerSystem(new BreachFreezeSystem());
+        entityRegistry.registerSystem(new BreachFreezeAttackInterceptor());
         new SlotLockSystem();
         new SwitchStrikePacketInterceptor();
     }
@@ -109,10 +135,10 @@ public final class Nexus extends JavaPlugin {
         events.register(LoadedAssetsEvent.class, EntityStatType.class, lucidityHandler::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, dreamDustHandler::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, switchStrikeTriggerSystem::onAssetsLoaded);
-        events.register(LoadedAssetsEvent.class, EntityStatType.class, switchStrikeExecutionSystem::onAssetsLoaded);
         events.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);
         events.registerGlobal(PlayerMouseButtonEvent.class, inputListener::onMouseButton);
         events.registerGlobal(PlayerReadyEvent.class, FlowDebugHudSystem::onPlayerReady);
+        events.registerGlobal(StartWorldEvent.class, levelWorldLoadSystem::onWorldStart);
     }
 
     private void registerCommands() {

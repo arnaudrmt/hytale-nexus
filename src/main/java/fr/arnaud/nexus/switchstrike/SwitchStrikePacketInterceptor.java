@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.listener;
+package fr.arnaud.nexus.switchstrike;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
@@ -10,8 +10,7 @@ import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.component.SwitchStrikeComponent;
-import fr.arnaud.nexus.component.SwitchStrikeComponent.State;
+import fr.arnaud.nexus.switchstrike.SwitchStrikeComponent.State;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.logging.Level;

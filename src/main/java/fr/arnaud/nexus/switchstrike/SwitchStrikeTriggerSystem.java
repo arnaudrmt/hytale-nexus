@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.system;
+package fr.arnaud.nexus.switchstrike;
 
 import com.hypixel.hytale.assetstore.event.LoadedAssetsEvent;
 import com.hypixel.hytale.assetstore.map.IndexedLookupTableAssetMap;
@@ -14,18 +14,16 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.component.SwitchStrikeComponent;
-import fr.arnaud.nexus.component.SwitchStrikeComponent.State;
+import fr.arnaud.nexus.switchstrike.SwitchStrikeComponent.State;
+import fr.arnaud.nexus.system.SlotLockSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Watches the {@code SwitchStrike_Trigger} hidden stat on every player.
- * When the JSON writes to it via {@code EntityStatsOnHit Target:Self} on
- * an Ability1 hit, this system opens the Switch Strike window and consumes
- * the trigger immediately so it cannot re-fire on the same tick.
+ * Watches the {@code SwitchStrike_Trigger} hidden stat written by JSON Ability1 on hit.
+ * On detection, transitions the player to PENDING_OPEN and applies a soft slot lock.
  */
 public final class SwitchStrikeTriggerSystem extends EntityTickingSystem<EntityStore> {
 
@@ -37,14 +35,9 @@ public final class SwitchStrikeTriggerSystem extends EntityTickingSystem<EntityS
         LoadedAssetsEvent<String, EntityStatType,
             IndexedLookupTableAssetMap<String, EntityStatType>> event) {
         triggerStatIndex = event.getAssetMap().getIndex("SwitchStrike_Trigger");
-
-        if (triggerStatIndex != Integer.MIN_VALUE) {
-            LOGGER.log(Level.INFO,
-                "[SwitchStrike] STEP 0 — SwitchStrike_Trigger stat resolved. Index: " + triggerStatIndex);
-        } else {
+        if (triggerStatIndex == Integer.MIN_VALUE) {
             LOGGER.log(Level.SEVERE,
-                "[SwitchStrike] STEP 0 FAIL — SwitchStrike_Trigger stat not found in Asset registry. " +
-                    "The system will not function. Check that SwitchStrike_Trigger.json exists in the Asset Editor.");
+                "[SwitchStrike] SwitchStrike_Trigger stat not found — check Asset Editor.");
         }
     }
 
@@ -72,7 +65,8 @@ public final class SwitchStrikeTriggerSystem extends EntityTickingSystem<EntityS
         if (switchStrike == null || stats == null) return;
 
         if (switchStrike.getState() == State.IDLE) {
-            tryOpenWindow(ref, switchStrike, stats, cmd);
+            PlayerRef playerRef = chunk.getComponent(index, PlayerRef.getComponentType());
+            tryOpenWindow(ref, switchStrike, stats, playerRef, cmd);
         }
 
         cmd.run(s -> s.putComponent(ref, SwitchStrikeComponent.getComponentType(), switchStrike));
@@ -81,17 +75,17 @@ public final class SwitchStrikeTriggerSystem extends EntityTickingSystem<EntityS
     private void tryOpenWindow(@NonNullDecl Ref<EntityStore> ref,
                                @NonNullDecl SwitchStrikeComponent switchStrike,
                                @NonNullDecl EntityStatMap stats,
+                               @javax.annotation.Nullable PlayerRef playerRef,
                                @NonNullDecl CommandBuffer<EntityStore> cmd) {
         EntityStatValue trigger = stats.get(triggerStatIndex);
         if (trigger == null || trigger.get() <= 0f) return;
 
-        LOGGER.log(Level.INFO,
-            "[SwitchStrike] STEP 1 — Ability1 hit detected (trigger stat = " + trigger.get() + "). Opening 1s window.");
-
         stats.subtractStatValue(Predictable.ALL, triggerStatIndex, trigger.get());
         cmd.run(s -> s.putComponent(ref, EntityStatMap.getComponentType(), stats));
-        switchStrike.openWindow(null);
+        switchStrike.requestOpenWindow();
 
-        LOGGER.log(Level.INFO, "[SwitchStrike] STEP 1 OK — Window is now OPEN. Player has 1 second to swap.");
+        if (playerRef != null) {
+            SlotLockSystem.softLock(playerRef.getUuid());
+        }
     }
 }
