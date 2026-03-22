@@ -1,0 +1,25 @@
+{
+    "$NodeId": "BlockMask-nexus-summit-trees",
+    "ExportAs": "Nexus_SummitCrash_Trees",
+    "DontPlace": {
+        "Inclusive": true,
+        "Materials": []
+    },
+    "DontReplace": {
+        "Inclusive": false,
+        "Materials": [
+            {
+                "Solid": "Empty"
+            },
+            {
+                "Solid": "Soil_Gravel"
+            },
+            {
+                "Solid": "Rock_Stone"
+            },
+            {
+                "Solid": "Rock_Bedrock"
+            }
+        ]
+    }
+}

@@ -1,0 +1,29 @@
+{
+    "Type": "NoiseRange",
+    "DefaultBiome": "Nexus_SummitCrash",
+    "MaxBiomeEdgeDistance": 0,
+    "DefaultTransitionDistance": 32,
+    "Density": {
+        "Type": "Constant",
+        "Value": 1
+    },
+    "Framework": [
+        {
+            "Type": "DecimalConstants",
+            "Entries": [
+                {
+                    "Name": "Bedrock",
+                    "Value": 0
+                },
+                {
+                    "Name": "Base",
+                    "Value": 170
+                },
+                {
+                    "Name": "Water",
+                    "Value": 100
+                }
+            ]
+        }
+    ]
+}

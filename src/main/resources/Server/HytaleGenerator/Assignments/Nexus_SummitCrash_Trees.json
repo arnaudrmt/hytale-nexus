@@ -1,0 +1,226 @@
+{
+    "$NodeId": "Weighted.Assignments-nexus-summit-trees",
+    "Type": "Weighted",
+    "ExportAs": "Nexus_SummitCrash_Trees",
+    "Seed": "Nexus_Summit_Trees",
+    "SkipChance": 0.1,
+    "WeightedAssignments": [
+        {
+            "$NodeId": "WeightedAssignment-nexus-fir-a",
+            "Weight": 60,
+            "Assignments": {
+                "$NodeId": "Constant.Assignments-nexus-fir-a",
+                "Type": "Constant",
+                "Prop": {
+                    "$NodeId": "Union.Prop-nexus-fir-a",
+                    "Type": "Union",
+                    "Skip": false,
+                    "Props": [
+                        {
+                            "$NodeId": "Prefab.Prop-nexus-fir-main",
+                            "Type": "Prefab",
+                            "Skip": false,
+                            "WeightedPrefabPaths": [
+                                {
+                                    "$NodeId": "WeightedPath-nexus-fir-large",
+                                    "Path": "Trees/Fir/Stage_1",
+                                    "Weight": 40
+                                },
+                                {
+                                    "$NodeId": "WeightedPath-nexus-fir-medium",
+                                    "Path": "Trees/Fir/Stage_0",
+                                    "Weight": 60
+                                }
+                            ],
+                            "LegacyPath": false,
+                            "LoadEntities": true,
+                            "Directionality": {
+                                "$NodeId": "Random.Directionality-nexus-fir",
+                                "Type": "Random",
+                                "Seed": "Nexus_Summit_Trees",
+                                "Pattern": {
+                                    "$NodeId": "Floor.Pattern-nexus-fir",
+                                    "Type": "Floor",
+                                    "ExportAs": "Nexus_SummitCrash_TreePattern_Floor",
+                                    "Skip": false,
+                                    "Origin": {
+                                        "$NodeId": "BlockSet.Origin-nexus-fir",
+                                        "Type": "BlockSet",
+                                        "Skip": false,
+                                        "BlockSet": {
+                                            "$NodeId": "BlockMask.Origin-nexus-fir",
+                                            "Inclusive": true,
+                                            "Materials": [
+                                                {
+                                                    "$NodeId": "Material.Origin-nexus-fir",
+                                                    "Solid": "Empty"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "Floor": {
+                                        "$NodeId": "BlockSet.Floor-nexus-fir",
+                                        "Type": "BlockSet",
+                                        "Skip": false,
+                                        "BlockSet": {
+                                            "$NodeId": "BlockMask.Floor-nexus-fir",
+                                            "Inclusive": true,
+                                            "Materials": [
+                                                {
+                                                    "$NodeId": "Material.Floor-nexus-snow",
+                                                    "Solid": "Soil_Snow"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            },
+                            "Scanner": {
+                                "$NodeId": "ColumnLinear.Scanner-nexus-fir",
+                                "Type": "ColumnLinear",
+                                "Skip": false,
+                                "MaxY": 40,
+                                "MinY": 0,
+                                "RelativeToPosition": false,
+                                "BaseHeightName": "Base",
+                                "TopDownOrder": true,
+                                "ResultCap": 1
+                            },
+                            "MoldingDirection": "None",
+                            "MoldingChildren": false
+                        },
+                        {
+                            "$NodeId": "Cluster.Prop-nexus-fir",
+                            "Type": "Cluster",
+                            "Skip": false,
+                            "Range": 8,
+                            "Seed": "Nexus_Summit_Trees",
+                            "DistanceCurve": {
+                                "$NodeId": "ManualCurve-nexus-cluster",
+                                "Type": "Manual",
+                                "Points": [
+                                    {
+                                        "$NodeId": "CurvePoint-nexus-cluster-0",
+                                        "In": 7,
+                                        "Out": 0.005
+                                    },
+                                    {
+                                        "$NodeId": "CurvePoint-nexus-cluster-1",
+                                        "In": 8,
+                                        "Out": 0
+                                    }
+                                ]
+                            },
+                            "WeightedProps": [
+                                {
+                                    "$NodeId": "Weighted.Cluster-nexus-fir",
+                                    "Weight": 1,
+                                    "ColumnProp": {
+                                        "$NodeId": "Column.Prop-nexus-fir-stick",
+                                        "Type": "Column",
+                                        "Skip": false,
+                                        "ColumnBlocks": [
+                                            {
+                                                "$NodeId": "Block.Column-nexus-fir",
+                                                "Y": 0,
+                                                "Material": {
+                                                    "$NodeId": "Material.Column-nexus-fir",
+                                                    "Solid": "Wood_Sticks"
+                                                }
+                                            }
+                                        ],
+                                        "Directionality": {
+                                            "$NodeId": "Static.Directionality-nexus-fir",
+                                            "Type": "Static",
+                                            "Rotation": 0,
+                                            "Pattern": {
+                                                "$NodeId": "Imported.Pattern-nexus-fir",
+                                                "Type": "Imported",
+                                                "Skip": false,
+                                                "Name": "Nexus_SummitCrash_TreePattern_Floor"
+                                            }
+                                        },
+                                        "Scanner": {
+                                            "$NodeId": "ColumnLinear.Scanner-nexus-fir-cluster",
+                                            "Type": "ColumnLinear",
+                                            "Skip": false,
+                                            "MaxY": 5,
+                                            "MinY": -5,
+                                            "RelativeToPosition": true,
+                                            "BaseHeightName": "Base",
+                                            "TopDownOrder": true,
+                                            "ResultCap": 1
+                                        }
+                                    }
+                                }
+                            ],
+                            "Pattern": {
+                                "$NodeId": "Imported.Pattern-nexus-fir-cluster",
+                                "Type": "Imported",
+                                "Skip": false,
+                                "Name": "Nexus_SummitCrash_TreePattern_Floor"
+                            },
+                            "Scanner": {
+                                "$NodeId": "ColumnLinear.Scanner-nexus-fir-cluster-main",
+                                "Type": "ColumnLinear",
+                                "Skip": false,
+                                "MaxY": 40,
+                                "MinY": 0,
+                                "RelativeToPosition": false,
+                                "BaseHeightName": "Base",
+                                "TopDownOrder": true,
+                                "ResultCap": 1
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "$NodeId": "WeightedAssignment-nexus-fir-small",
+            "Weight": 40,
+            "Assignments": {
+                "$NodeId": "Constant.Assignments-nexus-fir-small",
+                "Type": "Constant",
+                "Prop": {
+                    "$NodeId": "Prefab.Prop-nexus-fir-small",
+                    "Type": "Prefab",
+                    "Skip": false,
+                    "WeightedPrefabPaths": [
+                        {
+                            "$NodeId": "WeightedPath-nexus-fir-small",
+                            "Path": "Trees/Fir/Stage_0",
+                            "Weight": 100
+                        }
+                    ],
+                    "LegacyPath": false,
+                    "LoadEntities": true,
+                    "Directionality": {
+                        "$NodeId": "Random.Directionality-nexus-fir-small",
+                        "Type": "Random",
+                        "Seed": "Nexus_Summit_Trees_B",
+                        "Pattern": {
+                            "$NodeId": "Imported.Pattern-nexus-fir-small",
+                            "Type": "Imported",
+                            "Skip": false,
+                            "Name": "Nexus_SummitCrash_TreePattern_Floor"
+                        }
+                    },
+                    "Scanner": {
+                        "$NodeId": "ColumnLinear.Scanner-nexus-fir-small",
+                        "Type": "ColumnLinear",
+                        "Skip": false,
+                        "MaxY": 40,
+                        "MinY": 0,
+                        "RelativeToPosition": false,
+                        "BaseHeightName": "Base",
+                        "TopDownOrder": true,
+                        "ResultCap": 1
+                    },
+                    "MoldingDirection": "None",
+                    "MoldingChildren": false
+                }
+            }
+        }
+    ]
+}
