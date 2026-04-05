@@ -106,7 +106,7 @@ public final class SlotLockSystem {
         Store<EntityStore> store = ref.getStore();
         store.getExternalData().getWorld().execute(() -> {
             Player player = store.getComponent(ref, Player.getComponentType());
-            player.getInventory().setActiveHotbarSlot((byte) slot);
+            player.getInventory().setActiveHotbarSlot(ref, (byte) slot, store);
 
             SetActiveSlot correction = new SetActiveSlot(Inventory.HOTBAR_SECTION_ID, slot);
             playerRef.getPacketHandler().write(correction);

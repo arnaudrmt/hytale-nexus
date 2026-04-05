@@ -12,9 +12,6 @@
             "Conditions": [
                 {
                     "Id": "Alive"
-                },
-                {
-                    "Id": "Player"
                 }
             ]
         }

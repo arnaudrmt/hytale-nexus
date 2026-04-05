@@ -1,5 +1,5 @@
 {
-  "$Comment": "This instanced world spawns a prototype Boreal1 region from the Hytale generator",
+  "$Comment": "This instanced world spawns a Default Flat world from the Hytale Generator prototype",
   "RequiredPlugins": {},
   "ChunkStorage": {
     "Type": "Hytale"
@@ -21,13 +21,13 @@
   "IsSavingPlayers": true,
   "WorldGen": {
     "Type": "HytaleGenerator",
-    "WorldStructure": "Nexus_SummitCrash"
+    "WorldStructure": "Nexus_Flat"
   },
   "SpawnProvider": {
     "Id": "Global",
     "SpawnPoint": {
       "X": 0.5,
-      "Y": 200,
+      "Y": 80,
       "Z": 0.5,
       "Pitch": 0,
       "Yaw": 180,

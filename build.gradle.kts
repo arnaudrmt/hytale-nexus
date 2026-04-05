@@ -12,6 +12,7 @@ repositories {
         name = "hytale"
         url = uri("https://maven.hytale.com/release")
     }
+
 }
 
 dependencies {
