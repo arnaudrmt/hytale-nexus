@@ -1,109 +1,84 @@
 package fr.arnaud.nexus.level;
 
-import com.hypixel.hytale.server.core.asset.AssetModule;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.Rotation;
-import com.hypixel.hytale.server.core.prefab.selection.buffer.BsonPrefabBufferDeserializer;
-import com.hypixel.hytale.server.core.prefab.selection.buffer.PrefabLoader;
-import com.hypixel.hytale.server.core.prefab.selection.buffer.impl.IPrefabBuffer;
+import com.hypixel.hytale.builtin.instances.InstancesPlugin;
+import com.hypixel.hytale.math.vector.Transform;
+import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
-import com.hypixel.hytale.server.core.util.PrefabUtil;
 import fr.arnaud.nexus.Nexus;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
-/**
- * Listens for {@link StartWorldEvent} and pastes the POI schematic for any
- * Nexus level world exactly once, when the world first starts.
- * <p>
- * The paste runs on the world thread via {@link World#execute} so that chunk
- * access is safe. Schematics are resolved using {@link PrefabLoader} with
- * dot-notation names and deserialized via {@link BsonPrefabBufferDeserializer}.
- * <p>
- * Registered as a global event listener in {@link fr.arnaud.nexus.Nexus#setup()}.
- */
 public final class LevelWorldLoadSystem {
 
-    private static final Random PASTE_RANDOM = new Random();
+    private static final String NEXUS_INSTANCE_TEMPLATE = "Nexus";
+    private static final String DEFAULT_WORLD_NAME = "default";
+    private static final String STARTING_LEVEL_ID = "level_1";
 
-    // TODO: confirm BsonPrefabBufferDeserializer constructor signature once its source is available.
-    // If the deserializer requires constructor arguments, instantiate it in the constructor
-    // of this class and store it as a final field instead.
-    private static final BsonPrefabBufferDeserializer DESERIALIZER = new BsonPrefabBufferDeserializer();
+    private volatile World nexusWorld;
+    private CompletableFuture<World> pendingNexusWorld;
 
-    public void onWorldStart(@Nonnull StartWorldEvent event) {
+    public void onWorldStart(StartWorldEvent event) {
         World world = event.getWorld();
-        String worldName = world.getName();
 
-        for (LevelId levelId : LevelId.values()) {
-            LevelDefinition definition = LevelRegistry.get(levelId);
-
-            if (!definition.instanceName().equalsIgnoreCase(worldName)) continue;
-            if (!definition.hasSchematic()) return;
-
-            world.execute(() -> pasteSchematic(definition, world));
+        if (world.getName().contains("Nexus")) {
+            if (pendingNexusWorld == null) {
+                nexusWorld = world;
+                pendingNexusWorld = CompletableFuture.completedFuture(world);
+                onNexusWorldReady(world);
+            }
             return;
         }
-    }
 
-    private void pasteSchematic(@Nonnull LevelDefinition definition, @Nonnull World world) {
-        IPrefabBuffer buffer = loadBuffer(definition);
-        if (buffer == null) return;
+        if (!DEFAULT_WORLD_NAME.equals(world.getName())) {
+            return;
+        }
 
-        // Store<EntityStore> implements ComponentAccessor<EntityStore>, so it can be
-        // passed directly to PrefabUtil.paste without any .access() wrapper.
-        PrefabUtil.paste(
-            buffer,
+        if (pendingNexusWorld != null) {
+            return;
+        }
+        
+        Transform returnPoint = new Transform(new Vector3d(0.5, 80.0, 0.5), Vector3f.FORWARD);
+
+        pendingNexusWorld = InstancesPlugin.get().spawnInstance(
+            NEXUS_INSTANCE_TEMPLATE,
             world,
-            definition.schematicOrigin(),
-            Rotation.None,
-            true,
-            PASTE_RANDOM,
-            world.getEntityStore().getStore()
+            returnPoint
         );
+
+        pendingNexusWorld.thenAccept(w -> {
+            if (nexusWorld == null) {
+                nexusWorld = w;
+                onNexusWorldReady(w);
+            }
+        });
     }
 
-    @Nullable
-    private IPrefabBuffer loadBuffer(@Nonnull LevelDefinition definition) {
-        // AssetModule.get().getBaseAssetPack().getRoot() is the non-deprecated replacement
-        // for the removed AssetUtil.getHytaleAssetsPath().
-        Path assetRoot = AssetModule.get().getBaseAssetPack().getRoot();
-        PrefabLoader loader = new PrefabLoader(assetRoot);
+    private void onNexusWorldReady(World world) {
+        LevelManager levelManager = Nexus.get().getLevelManager();
 
-        AtomicReference<IPrefabBuffer> result = new AtomicReference<>(null);
-
-        try {
-            loader.resolvePrefabs(definition.schematicName(), resolvedPath -> {
-                try {
-                    // TODO: confirm the second argument to deserialize() once
-                    // BsonPrefabBufferDeserializer.java is available. The interface signature is
-                    // deserialize(Path path, T context). Pass null if context is optional,
-                    // or the appropriate context object if required.
-                    IPrefabBuffer buffer = DESERIALIZER.deserialize(resolvedPath, null).newAccess();
-                    result.set(buffer);
-                } catch (Exception e) {
-                    throw new RuntimeException("Failed to deserialize prefab at: " + resolvedPath, e);
-                }
-            });
-        } catch (IOException | RuntimeException e) {
+        boolean loaded = levelManager.loadLevel(STARTING_LEVEL_ID);
+        if (!loaded) {
             Nexus.get().getLogger().at(Level.SEVERE)
-                 .log("Failed to load schematic '" + definition.schematicName()
-                     + "' for level " + definition.id() + ": " + e.getMessage());
-            return null;
+                 .log("Failed to load starting level config: " + STARTING_LEVEL_ID);
+            return;
         }
 
-        if (result.get() == null) {
-            Nexus.get().getLogger().at(Level.WARNING)
-                 .log("Schematic not found on disk: '" + definition.schematicName()
-                     + "' for level " + definition.id());
-        }
+        Nexus.get().getMobSpawnManager().onLevelLoaded(world, levelManager.getCurrentConfig());
 
-        return result.get();
+        Nexus.get().getLogger().at(Level.INFO)
+             .log("Level loaded: " + levelManager.getLevelName()
+                 + " | Difficulty: " + levelManager.getDifficulty()
+                 + " | Spawners: " + levelManager.getSpawners().size());
+    }
+
+    public World getNexusWorld() {
+        return nexusWorld;
+    }
+
+    public CompletableFuture<World> getPendingNexusWorld() {
+        return pendingNexusWorld;
     }
 }

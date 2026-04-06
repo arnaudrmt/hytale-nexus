@@ -1,20 +1,24 @@
 {
-  "Group": "nexus",
-  "Name": "Nexus",
-  "Version": "0.0.0",
-  "Description": "Description of your plugin",
-  "Authors": [
-    {
-      "Name": "Arnaud",
-      "Email": "your.email@example.com",
-      "Url": "https://your-website.com"
-    }
-  ],
-  "Website": "https://your-plugin-website.com",
-  "DisabledByDefault": false,
-  "IncludesAssetPack": true,
-  "Dependencies": {},
-  "OptionalDependencies": {},
-  "ServerVersion": "*",
-  "Main": "fr.arnaud.nexus.Nexus"
+    "Group": "nexus",
+    "Name": "Nexus",
+    "Version": "0.0.0",
+    "Description": "Description of your plugin",
+    "Authors": [
+        {
+            "Name": "Arnaud",
+            "Email": "your.email@example.com",
+            "Url": "https://your-website.com"
+        }
+    ],
+    "Website": "https://your-plugin-website.com",
+    "DisabledByDefault": false,
+    "IncludesAssetPack": true,
+    "Dependencies": {},
+    "OptionalDependencies": {},
+    "ServerVersion": "*",
+    "Main": "fr.arnaud.nexus.Nexus",
+    "Worlds": [
+        "default",
+        "Nexus"
+    ]
 }

@@ -1,63 +1,101 @@
 package fr.arnaud.nexus.level;
 
-import com.hypixel.hytale.math.vector.Transform;
-import com.hypixel.hytale.math.vector.Vector3d;
-import com.hypixel.hytale.server.core.universe.PlayerRef;
-import com.hypixel.hytale.server.core.universe.Universe;
-import com.hypixel.hytale.server.core.universe.world.World;
-import fr.arnaud.nexus.Nexus;
-
-import javax.annotation.Nonnull;
-import java.util.logging.Level;
+import java.util.List;
 
 /**
- * Handles transitions between Nexus level instances.
- * <p>
- * Call {@link #sendPlayerToLevel} to move a player to a specific level. The
- * method resolves the target {@link World} from {@link Universe}: it returns
- * the already-running world if present, or loads it from disk if it exists
- * but is not yet running. If the world is neither running nor on disk, a
- * warning is logged and the transfer is skipped.
- * <p>
- * POI schematic pasting is handled independently by {@link LevelWorldLoadSystem}
- * via {@code StartWorldEvent} — this class has no paste responsibility.
+ * Central authority for the current level's state.
+ *
+ * <p>All runtime queries go through this manager without specifying a level —
+ * it always answers for the level currently loaded. Call {@link #loadLevel(String)}
+ * at the start of each run to switch the active config.
+ *
+ * <p>Instantiated once in {@link fr.arnaud.nexus.Nexus} and accessible via
+ * {@link fr.arnaud.nexus.Nexus#getLevelManager()}.
  */
 public final class LevelManager {
 
-    public void sendPlayerToLevel(@Nonnull PlayerRef playerRef, @Nonnull LevelId levelId) {
-        LevelDefinition definition = LevelRegistry.get(levelId);
-        String instanceName = definition.instanceName();
+    private LevelConfig currentLevel;
 
-        resolveWorld(instanceName).thenAccept(world -> {
-            if (world == null) {
-                Nexus.get().getLogger().at(Level.WARNING)
-                     .log("Target world not found and could not be loaded for level: "
-                         + levelId + " (instance: " + instanceName + ")");
-                return;
-            }
-
-            Vector3d spawnPosition = new Vector3d(
-                definition.playerSpawn().x,
-                definition.playerSpawn().y,
-                definition.playerSpawn().z
-            );
-
-            world.addPlayer(playerRef, new Transform(spawnPosition));
-        });
+    public LevelManager() {
     }
 
-    private java.util.concurrent.CompletableFuture<World> resolveWorld(@Nonnull String instanceName) {
-        Universe universe = Universe.get();
+    // -------------------------------------------------------------------------
+    // Lifecycle
+    // -------------------------------------------------------------------------
 
-        World running = universe.getWorld(instanceName);
-        if (running != null) {
-            return java.util.concurrent.CompletableFuture.completedFuture(running);
+    /**
+     * Loads a level config by ID and makes it the active level.
+     *
+     * @param levelId the level identifier matching a file in {@code resources/levels/}
+     * @return {@code true} if the config was found and loaded successfully
+     */
+    public boolean loadLevel(String levelId) {
+        LevelConfig config = LevelConfigLoader.load(levelId);
+        if (config == null) return false;
+        this.currentLevel = config;
+        return true;
+    }
+
+    /**
+     * Directly sets the active config. Useful if you parsed the config yourself
+     * (e.g. inside {@link LevelWorldLoadSystem}) and want to hand it over.
+     */
+    public void setCurrentLevel(LevelConfig config) {
+        this.currentLevel = config;
+    }
+
+    /**
+     * Returns {@code true} if a level is currently loaded.
+     */
+    public boolean isLevelLoaded() {
+        return currentLevel != null;
+    }
+
+    /**
+     * Clears the current level. Call on run-end or player death.
+     */
+    public void unloadLevel() {
+        this.currentLevel = null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Getters — always for the current level, no level ID needed
+    // -------------------------------------------------------------------------
+
+    public String getLevelId() {
+        return require().getId();
+    }
+
+    public String getLevelName() {
+        return require().getName();
+    }
+
+    public float getDifficulty() {
+        return require().getDifficulty();
+    }
+
+    public LevelConfig.Position getSpawnPoint() {
+        return require().getSpawnPoint();
+    }
+
+    public LevelConfig.Position getFinishPoint() {
+        return require().getFinishPoint();
+    }
+
+    public List<LevelConfig.SpawnerConfig> getSpawners() {
+        return require().getSpawners();
+    }
+
+    public LevelConfig getCurrentConfig() {
+        return require();
+    }
+
+    // -------------------------------------------------------------------------
+
+    private LevelConfig require() {
+        if (currentLevel == null) {
+            throw new IllegalStateException("LevelManager: no level is currently loaded.");
         }
-
-        if (universe.isWorldLoadable(instanceName)) {
-            return universe.loadWorld(instanceName);
-        }
-
-        return java.util.concurrent.CompletableFuture.completedFuture(null);
+        return currentLevel;
     }
 }
