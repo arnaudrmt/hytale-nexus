@@ -1,18 +1,14 @@
 {
     "TranslationProperties": {
-        "Name": "server.items.Weapon_Staff_Bo_Wood.name"
+        "Name": "server.items.Weapon_Sword_Wood.name"
     },
-    "Categories": [
-        "Items.Weapons"
-    ],
+    "Model": "Items/Weapons/Sword/Wood.blockymodel",
+    "Texture": "Items/Weapons/Sword/Wood_Texture.png",
+    "Icon": "Icons/ItemsGenerated/Weapon_Sword_Wood.png",
     "Quality": "Common",
-    "ItemLevel": 40,
-    "Model": "Items/Weapons/Staff/Bo_Wood.blockymodel",
-    "Texture": "Items/Weapons/Staff/Bo_Wood_Texture.png",
-    "PlayerAnimationsId": "Staff",
+    "ItemLevel": 1,
+    "DurabilityLossOnHit": 0,
     "Interactions": {
-        "Primary": "Staff_Primary",
-        "Secondary": "Staff_Primary",
         "Ability1": {
             "Interactions": [
                 {
@@ -50,6 +46,21 @@
                                             "EntityStatId": "SwitchStrike_Trigger",
                                             "Amount": 1,
                                             "Target": "Self"
+                                        },
+                                        {
+                                            "EntityStatId": "Nexus_Trigger_Cleave",
+                                            "Amount": 1,
+                                            "Target": "Self"
+                                        },
+                                        {
+                                            "EntityStatId": "Nexus_Trigger_Shockwave",
+                                            "Amount": 1,
+                                            "Target": "Self"
+                                        },
+                                        {
+                                            "EntityStatId": "Nexus_Trigger_Aspiration",
+                                            "Amount": 1,
+                                            "Target": "Self"
                                         }
                                     ],
                                     "DamageEffects": {
@@ -81,84 +92,42 @@
                     "TargetSlot": 0
                 }
             ]
-        },
-        "Ability3": {
+        }
+    },
+    "InteractionVars": {
+        "Swing_Left_Damage": {
             "Interactions": [
                 {
-                    "Type": "Simple",
-                    "Effects": {
-                        "ItemAnimationId": "SwingLeft"
-                    },
-                    "RunTime": 0.4,
-                    "Next": {
-                        "Type": "Selector",
-                        "RunTime": 0.111,
-                        "Selector": {
-                            "Id": "Horizontal",
-                            "Direction": "ToLeft",
-                            "TestLineOfSight": true,
-                            "ExtendTop": 0.5,
-                            "ExtendBottom": 0.5,
-                            "StartDistance": 0.1,
-                            "EndDistance": 3.5,
-                            "Length": 90,
-                            "RollOffset": 0,
-                            "YawStartOffset": -60
-                        },
-                        "HitEntity": {
-                            "Interactions": [
-                                {
-                                    "Type": "DamageEntity",
-                                    "DamageCalculator": {
-                                        "BaseDamage": {
-                                            "Physical": 5
-                                        }
-                                    },
-                                    "DamageEffects": {
-                                        "Knockback": {
-                                            "Force": 1,
-                                            "RelativeX": -5,
-                                            "RelativeZ": -5,
-                                            "VelocityY": 5
-                                        },
-                                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
-                                        "LocalSoundEventId": "SFX_Sword_T2_Impact",
-                                        "WorldParticles": [
-                                            {
-                                                "SystemId": "Impact_Blade_01"
-                                            }
-                                        ]
-                                    }
-                                }
-                            ]
+                    "Type": "DamageEntity",
+                    "DamageCalculator": {
+                        "BaseDamage": {
+                            "Physical": 10
                         }
-                    }
+                    },
+                    "EntityStatsOnHit": [
+                        {
+                            "EntityStatId": "SwitchStrike_Trigger",
+                            "Amount": 1,
+                            "Target": "Self"
+                        },
+                        {
+                            "EntityStatId": "Nexus_Trigger_Cleave",
+                            "Amount": 1,
+                            "Target": "Self"
+                        },
+                        {
+                            "EntityStatId": "Nexus_Trigger_Shockwave",
+                            "Amount": 1,
+                            "Target": "Self"
+                        },
+                        {
+                            "EntityStatId": "Nexus_Trigger_Aspiration",
+                            "Amount": 1,
+                            "Target": "Self"
+                        }
+                    ]
                 }
             ]
         }
-    },
-    "IconProperties": {
-        "Scale": 0.28,
-        "Translation": [
-            -54,
-            -54
-        ],
-        "Rotation": [
-            45,
-            90,
-            0
-        ]
-    },
-    "Icon": "Icons/ItemsGenerated/Weapon_Staff_Bo_Wood.png",
-    "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
-    "Tags": {
-        "Type": [
-            "Weapon"
-        ],
-        "Family": [
-            "Staff"
-        ]
-    },
-    "Weapon": {},
-    "ItemSoundSetId": "ISS_Weapons_Wood"
+    }
 }

@@ -78,7 +78,7 @@ public final class PlayerSessionListener {
 
     private static void bootstrapComponents(@NonNullDecl Ref<EntityStore> ref,
                                             @NonNullDecl Store<EntityStore> store) {
-        store.putComponent(ref, CameraComponent.getComponentType(), new CameraComponent());
+        //store.putComponent(ref, CameraComponent.getComponentType(), new CameraComponent());
         store.putComponent(ref, PlayerBodyComponent.getComponentType(), new PlayerBodyComponent());
         store.putComponent(ref, DashComponent.getComponentType(), new DashComponent());
         store.putComponent(ref, CursorTargetComponent.getComponentType(), new CursorTargetComponent());

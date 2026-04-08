@@ -15,7 +15,6 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.switchstrike.SwitchStrikeComponent.State;
-import fr.arnaud.nexus.system.SlotLockSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.logging.Level;
@@ -83,9 +82,5 @@ public final class SwitchStrikeTriggerSystem extends EntityTickingSystem<EntityS
         stats.subtractStatValue(Predictable.ALL, triggerStatIndex, trigger.get());
         cmd.run(s -> s.putComponent(ref, EntityStatMap.getComponentType(), stats));
         switchStrike.requestOpenWindow();
-
-        if (playerRef != null) {
-            SlotLockSystem.softLock(playerRef.getUuid());
-        }
     }
 }

@@ -16,7 +16,6 @@ import fr.arnaud.nexus.camera.CameraComponent;
 import fr.arnaud.nexus.camera.CameraMode;
 import fr.arnaud.nexus.camera.CameraSystem;
 import fr.arnaud.nexus.handler.FlowHandler;
-import fr.arnaud.nexus.switchstrike.SwitchStrikeExecutionSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.logging.Level;
@@ -106,7 +105,6 @@ public final class BreachSequenceSystem extends EntityTickingSystem<EntityStore>
         restoreDayTime(sequence, store);
         CameraSystem.requestGlimpseExit(ref, store, cmd);
         flowHandler.drainFlow(ref, store);
-        SwitchStrikeExecutionSystem.releaseSlot(ref, store);
         cmd.run(s -> s.removeComponentIfExists(ref, BreachSequenceComponent.getComponentType()));
     }
 
@@ -163,7 +161,6 @@ public final class BreachSequenceSystem extends EntityTickingSystem<EntityStore>
         unfreezeBoss(sequence, cmd);
         restoreTimeDilation(store);
         CameraSystem.requestGlimpseExit(ref, store, cmd);
-        SwitchStrikeExecutionSystem.releaseSlot(ref, store);
         cmd.run(s -> s.removeComponentIfExists(ref, BreachSequenceComponent.getComponentType()));
     }
 

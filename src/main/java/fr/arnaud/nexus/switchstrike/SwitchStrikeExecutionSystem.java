@@ -16,7 +16,6 @@ import fr.arnaud.nexus.breach.FrozenComponent;
 import fr.arnaud.nexus.camera.CameraSystem;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.handler.FlowHandler;
-import fr.arnaud.nexus.system.SlotLockSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.logging.Level;
@@ -82,7 +81,6 @@ public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<Entit
         if (switchStrike.hasPendingSwap()) {
             handleSwap(ref, switchStrike, store, cmd);
         } else if (!windowAlive) {
-            unlockSlot(ref, store);
             switchStrike.closeWindow();
             persist(ref, switchStrike, cmd);
         } else {
@@ -95,13 +93,10 @@ public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<Entit
                             @NonNullDecl Store<EntityStore> store,
                             @NonNullDecl CommandBuffer<EntityStore> cmd) {
         if (flowHandler.getFilledSegments(ref, store) < 1) {
-            unlockSlot(ref, store);
             switchStrike.closeWindow();
             persist(ref, switchStrike, cmd);
             return;
         }
-
-        upgradeToHardLock(ref, store);
 
         if (switchStrike.hasBossHitInWindow()) {
             executeBreachSequence(ref, switchStrike, store, cmd);
@@ -116,7 +111,6 @@ public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<Entit
                                            @NonNullDecl CommandBuffer<EntityStore> cmd) {
         flowHandler.drainFlow(ref, store);
         recordSwitchStrike(ref, store, cmd);
-        releaseSlot(ref, store);
         switchStrike.closeWindow();
         persist(ref, switchStrike, cmd);
     }
@@ -164,28 +158,6 @@ public final class SwitchStrikeExecutionSystem extends EntityTickingSystem<Entit
         if (session == null) return;
         session.incrementSwitchStrikes();
         cmd.run(s -> s.putComponent(ref, RunSessionComponent.getComponentType(), session));
-    }
-
-    private void upgradeToHardLock(@NonNullDecl Ref<EntityStore> ref,
-                                   @NonNullDecl Store<EntityStore> store) {
-        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
-        if (playerRef != null) SlotLockSystem.hardLock(playerRef.getUuid());
-    }
-
-    private void unlockSlot(@NonNullDecl Ref<EntityStore> ref,
-                            @NonNullDecl Store<EntityStore> store) {
-        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
-        if (playerRef != null) SlotLockSystem.unlock(playerRef.getUuid());
-    }
-
-    /**
-     * Alias kept separate from {@link #unlockSlot} for call-site clarity —
-     * this path is the confirmed-success exit, not a failure/timeout cleanup.
-     */
-    public static void releaseSlot(@NonNullDecl Ref<EntityStore> ref,
-                                   @NonNullDecl Store<EntityStore> store) {
-        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
-        if (playerRef != null) SlotLockSystem.unlock(playerRef.getUuid());
     }
 
     private void persist(@NonNullDecl Ref<EntityStore> ref,
