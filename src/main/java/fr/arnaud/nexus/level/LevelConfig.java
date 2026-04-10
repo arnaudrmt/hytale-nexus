@@ -1,5 +1,6 @@
 package fr.arnaud.nexus.level;
 
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -85,30 +86,26 @@ public final class LevelConfig {
 
     public static final class SpawnerConfig {
         private final Position position;
-
-        /**
-         * Distance in blocks at which a player triggers this spawner.
-         */
         private final float triggerRadius;
-
-        /**
-         * Max radius in blocks for random mob scatter around the spawner position.
-         */
         private final float spawnRadius;
-
         private final List<WaveConfig> waves;
         private final List<MobEntry> mobs;
 
         /**
-         * @param waves may be {@code null} or empty — means no wave system, all mobs spawn at once
+         * Null when the spawner JSON omits the {@code lootChest} key — means no chest spawns.
          */
+        @Nullable
+        private final LootChestConfig lootChest;
+
         public SpawnerConfig(Position position, float triggerRadius, float spawnRadius,
-                             List<WaveConfig> waves, List<MobEntry> mobs) {
+                             List<WaveConfig> waves, List<MobEntry> mobs,
+                             @Nullable LootChestConfig lootChest) {
             this.position = position;
             this.triggerRadius = triggerRadius;
             this.spawnRadius = spawnRadius;
             this.waves = (waves == null || waves.isEmpty()) ? List.of() : List.copyOf(waves);
             this.mobs = List.copyOf(mobs);
+            this.lootChest = lootChest;
         }
 
         public Position getPosition() {
@@ -131,30 +128,28 @@ public final class LevelConfig {
             return waves;
         }
 
-        /**
-         * Returns {@code true} if this spawner uses a wave system.
-         */
+        @Nullable
+        public LootChestConfig getLootChest() {
+            return lootChest;
+        }
+
         public boolean hasWaves() {
             return !waves.isEmpty();
+        }
+
+        public boolean hasLootChest() {
+            return lootChest != null;
         }
     }
 
     // -------------------------------------------------------------------------
 
-    public enum WaveType {
-        TIME,
-        KILL
-    }
+    public enum WaveType {TIME, KILL}
 
     public static final class WaveConfig {
         private final int wave;
         private final WaveType type;
         private final float value;
-
-        /**
-         * Timeout before force-spawning this wave regardless of kill condition.
-         * Only meaningful when {@code type == KILL}. {@code 0} means no timeout.
-         */
         private final float timeout;
 
         public WaveConfig(int wave, WaveType type, float value, float timeout) {
@@ -173,16 +168,14 @@ public final class LevelConfig {
         }
 
         /**
-         * For {@code TIME}: seconds to wait after the previous wave spawned.
-         * For {@code KILL}: percentile (0.0–1.0) of the previous wave that must die before this one triggers.
+         * For {@code TIME}: seconds to wait. For {@code KILL}: kill percentile (0.0–1.0).
          */
         public float getValue() {
             return value;
         }
 
         /**
-         * Seconds before this wave force-spawns regardless of kill percentage.
-         * {@code 0} disables the timeout. Only applies to {@code KILL} type waves.
+         * Seconds before a KILL wave force-spawns. {@code 0} disables the timeout.
          */
         public float getTimeout() {
             return timeout;
@@ -195,25 +188,29 @@ public final class LevelConfig {
         private final String mobId;
         private final int minCount;
         private final int maxCount;
-
-        /**
-         * Seconds between each individual mob spawn within this entry.
-         * {@code 0} (or absent in JSON) spawns all at once.
-         */
         private final float spawnRate;
-
-        /**
-         * Wave index this mob belongs to. {@code 0} (or absent in JSON) means
-         * no wave system — spawn immediately with the spawner.
-         */
         private final int wave;
 
-        public MobEntry(String mobId, int minCount, int maxCount, float spawnRate, int wave) {
+        /**
+         * Minimum essence dust dropped when this mob dies. Rolled independently per kill.
+         */
+        private final int minEssence;
+
+        /**
+         * Maximum essence dust dropped when this mob dies. Rolled independently per kill.
+         */
+        private final int maxEssence;
+
+        public MobEntry(String mobId, int minCount, int maxCount,
+                        float spawnRate, int wave,
+                        int minEssence, int maxEssence) {
             this.mobId = mobId;
             this.minCount = minCount;
             this.maxCount = maxCount;
             this.spawnRate = spawnRate;
             this.wave = wave;
+            this.minEssence = minEssence;
+            this.maxEssence = maxEssence;
         }
 
         public String getMobId() {
@@ -236,11 +233,59 @@ public final class LevelConfig {
             return wave;
         }
 
-        /**
-         * Returns {@code true} if this mob belongs to a named wave.
-         */
+        public int getMinEssence() {
+            return minEssence;
+        }
+
+        public int getMaxEssence() {
+            return maxEssence;
+        }
+
         public boolean hasWave() {
             return wave > 0;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+
+    /**
+     * Loot table attached to a spawner. Evaluated once when the spawner's final wave ends.
+     * Each item rolls independently — a chest can contain any subset, including none.
+     * If all rolls fail, the highest-chance item is guaranteed as a fallback.
+     */
+    public static final class LootChestConfig {
+        private final List<LootChestItem> items;
+
+        public LootChestConfig(List<LootChestItem> items) {
+            this.items = List.copyOf(items);
+        }
+
+        public List<LootChestItem> getItems() {
+            return items;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+
+    public static final class LootChestItem {
+        private final String itemId;
+
+        /**
+         * Independent drop probability in [0.0, 1.0]. Each item is rolled separately.
+         */
+        private final float chance;
+
+        public LootChestItem(String itemId, float chance) {
+            this.itemId = itemId;
+            this.chance = chance;
+        }
+
+        public String getItemId() {
+            return itemId;
+        }
+
+        public float getChance() {
+            return chance;
         }
     }
 }

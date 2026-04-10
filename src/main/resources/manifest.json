@@ -16,7 +16,7 @@
     "Dependencies": {},
     "OptionalDependencies": {},
     "ServerVersion": "*",
-    "Main": "fr.arnaud.nexus.Nexus",
+    "Main": "fr.arnaud.nexus.core.Nexus",
     "Worlds": [
         "default",
         "Nexus"

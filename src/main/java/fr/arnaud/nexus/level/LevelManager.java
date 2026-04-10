@@ -1,5 +1,7 @@
 package fr.arnaud.nexus.level;
 
+import fr.arnaud.nexus.core.Nexus;
+
 import java.util.List;
 
 /**
@@ -9,8 +11,8 @@ import java.util.List;
  * it always answers for the level currently loaded. Call {@link #loadLevel(String)}
  * at the start of each run to switch the active config.
  *
- * <p>Instantiated once in {@link fr.arnaud.nexus.Nexus} and accessible via
- * {@link fr.arnaud.nexus.Nexus#getLevelManager()}.
+ * <p>Instantiated once in {@link Nexus} and accessible via
+ * {@link Nexus#getLevelManager()}.
  */
 public final class LevelManager {
 
@@ -38,7 +40,7 @@ public final class LevelManager {
 
     /**
      * Directly sets the active config. Useful if you parsed the config yourself
-     * (e.g. inside {@link LevelWorldLoadSystem}) and want to hand it over.
+     * (e.g. inside {@link NexusWorldLoadSystem}) and want to hand it over.
      */
     public void setCurrentLevel(LevelConfig config) {
         this.currentLevel = config;

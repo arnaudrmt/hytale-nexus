@@ -45,23 +45,45 @@
                     "minCount": 3,
                     "maxCount": 6,
                     "spawnRate": 0.5,
-                    "wave": 1
+                    "wave": 1,
+                    "minEssence": 5,
+                    "maxEssence": 15
                 },
                 {
                     "mobId": "Zombie",
                     "minCount": 1,
                     "maxCount": 2,
                     "spawnRate": 0.0,
-                    "wave": 2
+                    "wave": 2,
+                    "minEssence": 10,
+                    "maxEssence": 25
                 },
                 {
                     "mobId": "Dungeon_Skeleton_Sand_Mage",
                     "minCount": 1,
                     "maxCount": 2,
                     "spawnRate": 0.0,
-                    "wave": 3
+                    "wave": 3,
+                    "minEssence": 20,
+                    "maxEssence": 50
                 }
-            ]
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Sword_Iron",
+                        "chance": 0.50
+                    },
+                    {
+                        "itemId": "Potion_Health_Small",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bow_Wood",
+                        "chance": 0.30
+                    }
+                ]
+            }
         }
     ]
 }

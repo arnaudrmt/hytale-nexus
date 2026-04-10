@@ -27,7 +27,7 @@ public final class CameraPacketBuilder {
      * Without this, pressing S when the character faces the camera moves them in
      * the wrong direction (controls appear flipped at ±180° body yaw).
      */
-    public static SetServerCamera buildIso(CameraComponent cam) {
+    public static SetServerCamera buildIso(PlayerCameraComponent cam) {
         ServerCameraSettings s = new ServerCameraSettings();
 
         s.isFirstPerson = false;

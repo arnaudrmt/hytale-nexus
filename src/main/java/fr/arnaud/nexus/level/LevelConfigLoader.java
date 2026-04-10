@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import fr.arnaud.nexus.Nexus;
+import fr.arnaud.nexus.core.Nexus;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -87,11 +87,9 @@ public final class LevelConfigLoader {
 
     private static LevelConfig.SpawnerConfig parseSpawner(JsonObject obj) {
         LevelConfig.Position pos = parsePosition(obj.getAsJsonObject("position"));
-
         float triggerRadius = obj.get("triggerRadius").getAsFloat();
         float spawnRadius = obj.get("spawnRadius").getAsFloat();
 
-        // "waves" is optional — absent means no wave system for this spawner
         List<LevelConfig.WaveConfig> waves = new ArrayList<>();
         JsonArray wavesArray = obj.getAsJsonArray("waves");
         if (wavesArray != null) {
@@ -108,7 +106,14 @@ public final class LevelConfigLoader {
             }
         }
 
-        return new LevelConfig.SpawnerConfig(pos, triggerRadius, spawnRadius, waves, mobs);
+        // "lootChest" is optional — absent means no chest spawns for this spawner
+        LevelConfig.LootChestConfig lootChest = null;
+        JsonObject lootChestObj = obj.getAsJsonObject("lootChest");
+        if (lootChestObj != null) {
+            lootChest = parseLootChest(lootChestObj);
+        }
+
+        return new LevelConfig.SpawnerConfig(pos, triggerRadius, spawnRadius, waves, mobs, lootChest);
     }
 
     private static LevelConfig.WaveConfig parseWaveConfig(JsonObject obj) {
@@ -118,7 +123,6 @@ public final class LevelConfigLoader {
         String typeRaw = obj.get("type").getAsString().toUpperCase();
         LevelConfig.WaveType type = LevelConfig.WaveType.valueOf(typeRaw);
 
-        // "timeout" is optional — defaults to 0 (no timeout)
         float timeout = obj.has("timeout") ? obj.get("timeout").getAsFloat() : 0f;
 
         return new LevelConfig.WaveConfig(wave, type, value, timeout);
@@ -129,10 +133,27 @@ public final class LevelConfigLoader {
         int minCount = obj.get("minCount").getAsInt();
         int maxCount = obj.get("maxCount").getAsInt();
 
-        // "spawnRate" and "wave" are optional — default to 0
         float spawnRate = obj.has("spawnRate") ? obj.get("spawnRate").getAsFloat() : 0f;
         int wave = obj.has("wave") ? obj.get("wave").getAsInt() : 0;
 
-        return new LevelConfig.MobEntry(mobId, minCount, maxCount, spawnRate, wave);
+        // "minEssence" and "maxEssence" are optional — default to 0 (no essence drop)
+        int minEssence = obj.has("minEssence") ? obj.get("minEssence").getAsInt() : 0;
+        int maxEssence = obj.has("maxEssence") ? obj.get("maxEssence").getAsInt() : 0;
+
+        return new LevelConfig.MobEntry(mobId, minCount, maxCount, spawnRate, wave, minEssence, maxEssence);
+    }
+
+    private static LevelConfig.LootChestConfig parseLootChest(JsonObject obj) {
+        List<LevelConfig.LootChestItem> items = new ArrayList<>();
+        JsonArray itemsArray = obj.getAsJsonArray("items");
+        if (itemsArray != null) {
+            for (JsonElement el : itemsArray) {
+                JsonObject itemObj = el.getAsJsonObject();
+                String itemId = itemObj.get("itemId").getAsString();
+                float chance = itemObj.get("chance").getAsFloat();
+                items.add(new LevelConfig.LootChestItem(itemId, chance));
+            }
+        }
+        return new LevelConfig.LootChestConfig(items);
     }
 }
