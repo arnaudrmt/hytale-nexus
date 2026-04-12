@@ -19,6 +19,8 @@ import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import fr.arnaud.nexus.item.weapon.data.WeaponRarity;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
+import fr.arnaud.nexus.item.weapon.upgrade.UpgradeResult;
+import fr.arnaud.nexus.item.weapon.upgrade.WeaponUpgradeProvider;
 import org.bson.BsonDocument;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
@@ -156,12 +158,6 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
         Ref<EntityStore> ref,
         String slotArg
     ) {
-        WeaponInstanceComponent instance = store.getComponent(ref, WeaponInstanceComponent.getComponentType());
-        if (instance == null) {
-            context.sendMessage(Message.raw("§cNo weapon equipped."));
-            return;
-        }
-
         int slotIndex;
         try {
             slotIndex = Integer.parseInt(slotArg);
@@ -170,21 +166,29 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
             return;
         }
 
-        if (slotIndex < 0 || slotIndex >= instance.enchantmentSlots.size()) {
-            context.sendMessage(Message.raw("§cSlot " + slotIndex + " does not exist on this weapon."));
+        WeaponInstanceComponent instance = store.getComponent(
+            ref, WeaponInstanceComponent.getComponentType());
+        if (instance == null || slotIndex >= instance.enchantmentSlots.size()) {
+            context.sendMessage(Message.raw("§cSlot does not exist."));
             return;
         }
 
         EnchantmentSlot slot = instance.enchantmentSlots.get(slotIndex);
         if (slot.isUnlocked()) {
-            context.sendMessage(Message.raw("§cSlot " + slotIndex + " is already unlocked: §f" + slot.chosen()));
+            context.sendMessage(Message.raw("§cSlot " + slotIndex
+                + " already unlocked: §f" + slot.resolveActiveEnchantId()));
             return;
         }
 
-        EnchantmentSlot unlocked = slot.withChoice(slot.choiceA());
-        instance.enchantmentSlots.set(slotIndex, unlocked);
+        // Dev bypass — no Essence Dust check, directly pick choiceA
+        UpgradeResult result = WeaponUpgradeProvider.get()
+                                                    .unlockEnchantmentSlot(ref, slotIndex, slot.choiceA(), store);
 
-        context.sendMessage(Message.raw("§aDev-unlocked slot " + slotIndex + " with §f" + unlocked.chosen()));
+        context.sendMessage(result.success()
+            ? Message.raw("§aUnlocked slot " + slotIndex
+                          + " with §f" + slot.choiceA()
+                          + " §7(bypassed cost: " + result.essenceDustSpent() + " dust)")
+            : Message.raw("§c" + result.failureReason()));
     }
 
     private void handleForceEquip(

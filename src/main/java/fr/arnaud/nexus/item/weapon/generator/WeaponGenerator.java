@@ -36,12 +36,20 @@ public final class WeaponGenerator {
 
     private List<EnchantmentSlot> rollEnchantmentSlots(WeaponTag tag, WeaponRarity rarity) {
         List<EnchantmentSlot> slots = new ArrayList<>();
-        for (int i = 0; i < rarity.getEnchantmentSlots(); i++) {
-            List<EnchantmentDefinition> pool = poolService.getPoolForTag(tag, i + 1);
+        int slotCount = WeaponRarityTableLoader.getEnchantmentSlots(rarity);
+        for (int i = 0; i < slotCount; i++) {
+            List<EnchantmentDefinition> pool = poolService.getPoolForTag(tag, 1);
             if (pool.size() < 2) continue;
             EnchantmentDefinition choiceA = pool.get(random.nextInt(pool.size()));
             EnchantmentDefinition choiceB = drawDistinct(pool, choiceA);
-            slots.add(new EnchantmentSlot(i, choiceA.getEnchantmentId(), choiceB.getEnchantmentId(), null));
+            slots.add(new EnchantmentSlot(
+                i,
+                choiceA.getBaseFamily(),
+                choiceB.getBaseFamily(),
+                null,
+                null,
+                0
+            ));
         }
         return slots;
     }
@@ -50,7 +58,7 @@ public final class WeaponGenerator {
         EnchantmentDefinition pick;
         do {
             pick = pool.get(random.nextInt(pool.size()));
-        } while (pick.getEnchantmentId().equals(exclude.getEnchantmentId()));
+        } while (pick.getBaseFamily().equals(exclude.getBaseFamily()));
         return pick;
     }
 

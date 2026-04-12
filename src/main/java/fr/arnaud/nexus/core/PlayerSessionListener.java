@@ -8,6 +8,7 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -79,12 +80,20 @@ public final class PlayerSessionListener {
 
     private static void bootstrapComponents(@NonNullDecl Ref<EntityStore> ref,
                                             @NonNullDecl Store<EntityStore> store) {
-        store.putComponent(ref, PlayerCameraComponent.getComponentType(), new PlayerCameraComponent());
+        //store.putComponent(ref, PlayerCameraComponent.getComponentType(), new PlayerCameraComponent());
         store.putComponent(ref, PlayerBodyStateComponent.getComponentType(), new PlayerBodyStateComponent());
         store.putComponent(ref, PlayerDashComponent.getComponentType(), new PlayerDashComponent());
         store.putComponent(ref, PlayerCursorTargetComponent.getComponentType(), new PlayerCursorTargetComponent());
         store.putComponent(ref, SwitchStrikeComponent.getComponentType(), new SwitchStrikeComponent());
         store.putComponent(ref, PlayerOcclusionComponent.getComponentType(), new PlayerOcclusionComponent());
         store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), new PlayerHoverStateComponent());
+        if (store.getComponent(ref, InventoryComponent.Storage.getComponentType()) == null) {
+            store.putComponent(ref, InventoryComponent.Storage.getComponentType(),
+                new InventoryComponent.Storage(InventoryComponent.DEFAULT_STORAGE_CAPACITY));
+        }
+        if (store.getComponent(ref, InventoryComponent.Storage.getComponentType()) == null) {
+            InventoryComponent.Storage storage = new InventoryComponent.Storage(InventoryComponent.DEFAULT_STORAGE_CAPACITY);
+            store.putComponent(ref, InventoryComponent.Storage.getComponentType(), storage);
+        }
     }
 }

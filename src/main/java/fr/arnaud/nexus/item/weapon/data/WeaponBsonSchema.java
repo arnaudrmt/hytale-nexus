@@ -8,6 +8,8 @@ import java.util.List;
 public final class WeaponBsonSchema {
 
     private static final String KEY_RARITY = "nexus_rarity";
+    private static final String KEY_CHOSEN_BASE = "chosen_base";
+    private static final String KEY_CURRENT_LEVEL = "current_level";
     private static final String KEY_DAMAGE_MULTIPLIER = "nexus_damage_multiplier";
     private static final String KEY_WEAPON_TAG = "nexus_weapon_tag";
     private static final String KEY_ENCHANT_SLOTS = "nexus_enchant_slots";
@@ -59,6 +61,8 @@ public final class WeaponBsonSchema {
             entry.put(KEY_CHOICE_B, new BsonString(slot.choiceB()));
             if (slot.chosen() != null) {
                 entry.put(KEY_CHOSEN, new BsonString(slot.chosen()));
+                entry.put(KEY_CHOSEN_BASE, new BsonString(slot.chosenBase()));
+                entry.put(KEY_CURRENT_LEVEL, new org.bson.BsonInt32(slot.currentLevel()));
             }
             array.add(entry);
         }
@@ -76,10 +80,27 @@ public final class WeaponBsonSchema {
             String choiceA = slotDoc.getString(KEY_CHOICE_A).getValue();
             String choiceB = slotDoc.getString(KEY_CHOICE_B).getValue();
             String chosen = slotDoc.containsKey(KEY_CHOSEN)
-                ? slotDoc.getString(KEY_CHOSEN).getValue()
-                : null;
-            slots.add(new EnchantmentSlot(index, choiceA, choiceB, chosen));
+                ? slotDoc.getString(KEY_CHOSEN).getValue() : null;
+            String chosenBase = slotDoc.containsKey(KEY_CHOSEN_BASE)
+                ? slotDoc.getString(KEY_CHOSEN_BASE).getValue()
+                : (chosen != null ? stripLevelSuffix(chosen) : null);
+            int currentLevel = slotDoc.containsKey(KEY_CURRENT_LEVEL)
+                ? slotDoc.getInt32(KEY_CURRENT_LEVEL).getValue() : 1;
+            slots.add(new EnchantmentSlot(index, choiceA, choiceB,
+                chosen, chosenBase, currentLevel));
         }
         return slots;
+    }
+
+    private static String stripLevelSuffix(String enchantId) {
+        int lastUnderscore = enchantId.lastIndexOf('_');
+        if (lastUnderscore < 0) return enchantId;
+        String suffix = enchantId.substring(lastUnderscore + 1);
+        try {
+            Integer.parseInt(suffix);
+            return enchantId.substring(0, lastUnderscore);
+        } catch (NumberFormatException e) {
+            return enchantId;
+        }
     }
 }

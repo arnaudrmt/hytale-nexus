@@ -4,12 +4,14 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
-import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.modules.entitystats.modifier.Modifier;
 import com.hypixel.hytale.server.core.modules.entitystats.modifier.StaticModifier;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinitionLoader;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentHandler;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentLevelData;
 
 public final class StatModifierEnchantmentHandler implements EnchantmentHandler {
 
@@ -29,22 +31,24 @@ public final class StatModifierEnchantmentHandler implements EnchantmentHandler 
         EntityStatMap stats = store.getComponent(playerRef, EntityStatMap.getComponentType());
         if (stats == null) return;
 
-        for (EnchantmentDefinition.StatModifierEntry entry : definition.getStatModifiers()) {
-            int statIndex = EntityStatType.getAssetMap().getIndex(entry.statId());
-            if (statIndex < 0) continue;
+        EnchantmentLevelData data = definition.getDataForLevel(level);
+        if (data == null) return;
 
-            StaticModifier modifier = new StaticModifier(
-                Modifier.ModifierTarget.MAX,
-                toCalculationType(entry.type()),
-                entry.value()
-            );
-            stats.putModifier(
-                EntityStatMap.Predictable.NONE,
-                statIndex,
-                buildModifierKey(definition.getEnchantmentId(), entry.statId()),
-                modifier
-            );
-        }
+        int statIndex = loader().getWeaponDamageScaleIndex();
+        if (statIndex == Integer.MIN_VALUE) return;
+
+        float multiplier = data.get("Multiplier", 1.0f);
+        StaticModifier modifier = new StaticModifier(
+            Modifier.ModifierTarget.MAX,
+            StaticModifier.CalculationType.MULTIPLICATIVE,
+            multiplier
+        );
+        stats.putModifier(
+            EntityStatMap.Predictable.NONE,
+            statIndex,
+            buildModifierKey(definition.getEnchantmentId()),
+            modifier
+        );
     }
 
     @Override
@@ -57,26 +61,21 @@ public final class StatModifierEnchantmentHandler implements EnchantmentHandler 
         EntityStatMap stats = store.getComponent(playerRef, EntityStatMap.getComponentType());
         if (stats == null) return;
 
-        for (EnchantmentDefinition.StatModifierEntry entry : definition.getStatModifiers()) {
-            int statIndex = EntityStatType.getAssetMap().getIndex(entry.statId());
-            if (statIndex < 0) continue;
+        int statIndex = loader().getWeaponDamageScaleIndex();
+        if (statIndex == Integer.MIN_VALUE) return;
 
-            stats.removeModifier(
-                EntityStatMap.Predictable.NONE,
-                statIndex,
-                buildModifierKey(definition.getEnchantmentId(), entry.statId())
-            );
-        }
+        stats.removeModifier(
+            EntityStatMap.Predictable.NONE,
+            statIndex,
+            buildModifierKey(definition.getEnchantmentId())
+        );
     }
 
-    private StaticModifier.CalculationType toCalculationType(EnchantmentDefinition.ModifierType type) {
-        return switch (type) {
-            case ADD -> StaticModifier.CalculationType.ADDITIVE;
-            case MULTIPLY -> StaticModifier.CalculationType.MULTIPLICATIVE;
-        };
+    private String buildModifierKey(String enchantmentId) {
+        return "nexus_enchant_" + enchantmentId;
     }
 
-    private String buildModifierKey(String enchantmentId, String statId) {
-        return "nexus_enchant_" + enchantmentId + "_" + statId;
+    private EnchantmentDefinitionLoader loader() {
+        return Nexus.get().getEnchantmentDefinitionLoader();
     }
 }

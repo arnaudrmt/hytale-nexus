@@ -38,14 +38,18 @@ public final class WeaponEquipSystem {
         tearDownCurrentWeapon(playerRef, store);
         if (incomingStack == null || !isNexusWeapon(incomingStack)) return;
 
+        if (!playerRef.isValid()) return;
+
         BsonDocument doc = incomingStack.getMetadata();
         WeaponInstanceComponent instance = buildInstanceFromDocument(doc);
         applyDamageScaleModifier(playerRef, instance, store);
         initializeEnchantmentStates(instance);
 
-        store.getExternalData().getWorld().execute(() ->
-            store.putComponent(playerRef, WeaponInstanceComponent.getComponentType(), instance)
-        );
+        store.getExternalData().getWorld().execute(() -> {
+            if (playerRef.isValid()) {
+                store.putComponent(playerRef, WeaponInstanceComponent.getComponentType(), instance);
+            }
+        });
     }
 
     public void onWeaponUnequipped(Ref<EntityStore> playerRef, Store<EntityStore> store) {
@@ -53,6 +57,8 @@ public final class WeaponEquipSystem {
     }
 
     private void tearDownCurrentWeapon(Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        if (!playerRef.isValid()) return;
+
         WeaponInstanceComponent current = store.getComponent(
             playerRef, WeaponInstanceComponent.getComponentType()
         );
@@ -61,9 +67,11 @@ public final class WeaponEquipSystem {
         removeDamageScaleModifier(playerRef, store);
         deactivateAllEnchants(playerRef, current, store);
 
-        store.getExternalData().getWorld().execute(() ->
-            store.removeComponent(playerRef, WeaponInstanceComponent.getComponentType())
-        );
+        store.getExternalData().getWorld().execute(() -> {
+            if (playerRef.isValid()) {
+                store.removeComponent(playerRef, WeaponInstanceComponent.getComponentType());
+            }
+        });
     }
 
     private WeaponInstanceComponent buildInstanceFromDocument(BsonDocument doc) {
@@ -83,7 +91,7 @@ public final class WeaponEquipSystem {
         WeaponInstanceComponent instance,
         Store<EntityStore> store
     ) {
-        if (!loader.isReady()) return;
+        if (!loader.isReady() || !playerRef.isValid()) return;
         EntityStatMap stats = store.getComponent(playerRef, EntityStatMap.getComponentType());
         if (stats == null) return;
 
@@ -101,7 +109,7 @@ public final class WeaponEquipSystem {
     }
 
     private void removeDamageScaleModifier(Ref<EntityStore> playerRef, Store<EntityStore> store) {
-        if (!loader.isReady()) return;
+        if (!loader.isReady() || !playerRef.isValid()) return;
         EntityStatMap stats = store.getComponent(playerRef, EntityStatMap.getComponentType());
         if (stats == null) return;
 
@@ -132,14 +140,17 @@ public final class WeaponEquipSystem {
             if (!state.flowGateActive()) continue;
             EnchantmentHandler handler = EnchantmentRegistry.get().getHandler(state.enchantmentId());
             if (handler != null) {
-                store.getExternalData().getWorld().execute(() ->
-                    handler.onDeactivate(playerRef, state.level(), store, null)
-                );
+                store.getExternalData().getWorld().execute(() -> {
+                    if (playerRef.isValid()) {
+                        handler.onDeactivate(playerRef, state.level(), store, null);
+                    }
+                });
             }
         }
     }
 
     private boolean isNexusWeapon(ItemStack stack) {
+        if (stack == null) return false;
         BsonDocument doc = stack.getMetadata();
         return doc != null && doc.containsKey("nexus_rarity");
     }

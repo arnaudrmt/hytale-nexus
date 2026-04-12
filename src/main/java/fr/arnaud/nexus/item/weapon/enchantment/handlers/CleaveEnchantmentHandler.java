@@ -7,15 +7,11 @@ import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap.Predictable;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatValue;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentHandler;
-import fr.arnaud.nexus.item.weapon.enchantment.TriggerStatRegistry;
+import fr.arnaud.nexus.item.weapon.enchantment.*;
 
 import java.util.List;
 
 public final class CleaveEnchantmentHandler implements EnchantmentHandler {
-
-    private static final float[] CLEAVE_RADIUS_BY_LEVEL = {0f, 3.0f, 4.5f, 6.0f};
-    private static final float[] CLEAVE_DAMAGE_FRAC_BY_LEVEL = {0f, 0.40f, 0.55f, 0.70f};
 
     @Override
     public void onActivate(Ref<EntityStore> playerRef, int level, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
@@ -26,8 +22,13 @@ public final class CleaveEnchantmentHandler implements EnchantmentHandler {
     }
 
     public void execute(Ref<EntityStore> attackerRef, int level, CommandBuffer<EntityStore> cmd) {
-        float radius = CLEAVE_RADIUS_BY_LEVEL[level];
-        float damageFraction = CLEAVE_DAMAGE_FRAC_BY_LEVEL[level];
+        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition("Enchant_Cleave_" + level);
+        if (def == null) return;
+        EnchantmentLevelData data = def.getDataForLevel(level);
+        if (data == null) return;
+
+        float radius = data.get("Radius", 3.0f);
+        float damageFraction = data.get("DamageFraction", 0.4f);
         float attackerDamage = resolveAttackerDamage(attackerRef, cmd);
         float cleaveDamage = attackerDamage * damageFraction;
 

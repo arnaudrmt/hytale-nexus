@@ -46,6 +46,7 @@ public final class Nexus extends JavaPlugin {
     private final MobSpawnerManager mobSpawnerManager = new MobSpawnerManager();
 
     private final EnchantmentDefinitionLoader enchantmentDefinitionLoader = new EnchantmentDefinitionLoader();
+    private final EnchantmentPoolService enchantmentPoolService = new EnchantmentPoolService();
     private final EnchantmentTriggerSystem enchantmentTriggerSystem =
         new EnchantmentTriggerSystem(
             new CleaveEnchantmentHandler(),
@@ -56,7 +57,7 @@ public final class Nexus extends JavaPlugin {
             new BouncingProjectileEnchantmentHandler()
         );
 
-    private final WeaponGenerator weaponGenerator = new WeaponGenerator(new EnchantmentPoolService());
+    private final WeaponGenerator weaponGenerator = new WeaponGenerator(enchantmentPoolService);
     private final WeaponEquipSystem weaponEquipSystem = new WeaponEquipSystem(enchantmentDefinitionLoader);
 
     public Nexus(@NonNullDecl JavaPluginInit init) {
@@ -66,11 +67,9 @@ public final class Nexus extends JavaPlugin {
 
     @Override
     protected void setup() {
-        I18n.init(this);
 
         new NexusInitializer(this).init();
-
-        inventoryPacketInterceptor.register();
+        
         getLogger().at(Level.INFO).log(I18n.t("plugin.loaded"));
     }
 
@@ -139,6 +138,10 @@ public final class Nexus extends JavaPlugin {
 
     public EnchantmentDefinitionLoader getEnchantmentDefinitionLoader() {
         return enchantmentDefinitionLoader;
+    }
+
+    public EnchantmentPoolService getEnchantmentPoolService() {
+        return enchantmentPoolService;
     }
 
     public EnchantmentTriggerSystem getEnchantmentTriggerSystem() {

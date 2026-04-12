@@ -6,16 +6,11 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap.Predictable;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentHandler;
-import fr.arnaud.nexus.item.weapon.enchantment.TriggerStatRegistry;
+import fr.arnaud.nexus.item.weapon.enchantment.*;
 
 import java.util.List;
 
 public final class ShockwaveEnchantmentHandler implements EnchantmentHandler {
-
-    private static final float[] SHOCKWAVE_RADIUS_BY_LEVEL = {0f, 4.0f, 5.5f, 7.0f};
-    private static final float[] SHOCKWAVE_DAMAGE_BY_LEVEL = {0f, 8.0f, 14.0f, 22.0f};
-    private static final float[] SHOCKWAVE_FORCE_BY_LEVEL = {0f, 5.0f, 7.0f, 10.0f};
 
     @Override
     public void onActivate(Ref<EntityStore> playerRef, int level, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
@@ -26,9 +21,14 @@ public final class ShockwaveEnchantmentHandler implements EnchantmentHandler {
     }
 
     public void execute(Ref<EntityStore> attackerRef, int level, CommandBuffer<EntityStore> cmd) {
-        float radius = SHOCKWAVE_RADIUS_BY_LEVEL[level];
-        float damage = SHOCKWAVE_DAMAGE_BY_LEVEL[level];
-        float force = SHOCKWAVE_FORCE_BY_LEVEL[level];
+        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition("Enchant_Shockwave_" + level);
+        if (def == null) return;
+        EnchantmentLevelData data = def.getDataForLevel(level);
+        if (data == null) return;
+
+        float radius = data.get("Radius", 4.0f);
+        float damage = data.get("Damage", 8.0f);
+        float force = data.get("Force", 5.0f);
 
         List<Ref<EntityStore>> nearby = EnchantmentSpatialUtil.getEntitiesInRadius(attackerRef, radius, cmd);
         for (Ref<EntityStore> nearbyRef : nearby) {

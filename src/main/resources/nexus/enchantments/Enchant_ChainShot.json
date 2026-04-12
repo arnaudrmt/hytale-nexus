@@ -1,0 +1,23 @@
+{
+    "Id": "Enchant_ChainShot",
+    "CompatibleTag": "RANGED",
+    "BaseCost": 130,
+    "CostCurve": 2.0,
+    "Levels": [
+        {
+            "Level": 1,
+            "ChainCount": 1,
+            "DamageFraction": 0.35
+        },
+        {
+            "Level": 2,
+            "ChainCount": 2,
+            "DamageFraction": 0.50
+        },
+        {
+            "Level": 3,
+            "ChainCount": 2,
+            "DamageFraction": 0.65
+        }
+    ]
+}

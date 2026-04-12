@@ -1,0 +1,26 @@
+{
+    "Id": "Enchant_Bouncing",
+    "CompatibleTag": "RANGED",
+    "BaseCost": 120,
+    "CostCurve": 2.0,
+    "Levels": [
+        {
+            "Level": 1,
+            "BounceCount": 1,
+            "BounceChance": 0.40,
+            "DamageRetention": 0.70
+        },
+        {
+            "Level": 2,
+            "BounceCount": 2,
+            "BounceChance": 0.60,
+            "DamageRetention": 0.75
+        },
+        {
+            "Level": 3,
+            "BounceCount": 3,
+            "BounceChance": 0.80,
+            "DamageRetention": 0.80
+        }
+    ]
+}

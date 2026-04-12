@@ -51,7 +51,6 @@ public final class AdminStatsCommand extends AbstractPlayerCommand {
                     + " §7= §a" + statValue.get()
                     + " §7(max: " + statValue.getMax() + ")";
                 context.sendMessage(Message.raw(line));
-                System.out.println(line);
             }
             context.sendMessage(Message.raw("§e[Nexus] === End of dump ==="));
         });

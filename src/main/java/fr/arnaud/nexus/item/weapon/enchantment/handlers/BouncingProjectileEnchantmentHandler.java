@@ -6,8 +6,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
 import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap.Predictable;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentHandler;
-import fr.arnaud.nexus.item.weapon.enchantment.TriggerStatRegistry;
+import fr.arnaud.nexus.item.weapon.enchantment.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -17,8 +16,6 @@ import java.util.Optional;
 public final class BouncingProjectileEnchantmentHandler implements EnchantmentHandler {
 
     private static final float BOUNCE_SEARCH_RADIUS = 10.0f;
-    private static final int[] BOUNCE_COUNT_BY_LEVEL = {0, 1, 2, 3};
-    private static final float[] BOUNCE_RETENTION_BY_LEVEL = {0f, 0.70f, 0.75f, 0.80f};
 
     @Override
     public void onActivate(Ref<EntityStore> playerRef, int level, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
@@ -35,8 +32,15 @@ public final class BouncingProjectileEnchantmentHandler implements EnchantmentHa
         int level,
         CommandBuffer<EntityStore> cmd
     ) {
-        int bounces = BOUNCE_COUNT_BY_LEVEL[level];
-        float retention = BOUNCE_RETENTION_BY_LEVEL[level];
+        EnchantmentDefinition def = EnchantmentRegistry.get()
+                                                       .getDefinition("Enchant_Bouncing_" + level);
+        if (def == null) return;
+        EnchantmentLevelData data = def.getDataForLevel(level);
+        if (data == null) return;
+
+        int bounces = (int) data.get("BounceCount", 1);
+        float chance = data.get("BounceChance", 0.5f);
+        float retention = data.get("DamageRetention", 0.7f);
 
         List<Ref<EntityStore>> alreadyHit = new ArrayList<>();
         alreadyHit.add(attackerRef);
@@ -46,13 +50,14 @@ public final class BouncingProjectileEnchantmentHandler implements EnchantmentHa
         float currentDamage = originalDamage * retention;
 
         for (int bounce = 0; bounce < bounces; bounce++) {
-            Optional<Ref<EntityStore>> nextTarget = findNearestUnhit(currentSource, alreadyHit, cmd);
+            if (Math.random() > chance) break;
+            Optional<Ref<EntityStore>> nextTarget =
+                findNearestUnhit(currentSource, alreadyHit, cmd);
             if (nextTarget.isEmpty()) break;
 
             Ref<EntityStore> target = nextTarget.get();
             alreadyHit.add(target);
             applyFlatDamage(target, currentDamage, cmd);
-
             currentSource = target;
             currentDamage *= retention;
         }

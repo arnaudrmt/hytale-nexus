@@ -1,14 +1,11 @@
 package fr.arnaud.nexus.ui.inventory;
 
 import com.hypixel.hytale.builtin.crafting.component.BenchBlock;
-import com.hypixel.hytale.builtin.crafting.window.SimpleCraftingWindow;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.protocol.Packet;
 import com.hypixel.hytale.protocol.packets.window.ClientOpenWindow;
-import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
-import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
 import com.hypixel.hytale.server.core.io.adapter.PacketFilter;
 import com.hypixel.hytale.server.core.io.adapter.PlayerPacketFilter;
@@ -16,7 +13,6 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
-import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 public final class InventoryPacketInterceptor {
 
@@ -43,7 +39,8 @@ public final class InventoryPacketInterceptor {
     private boolean interceptClientOpenWindow(PlayerRef playerRef, Packet packet) {
         if (!(packet instanceof ClientOpenWindow openWindow)) return false;
 
-        Ref<EntityStore> ref = playerRef.getReference();
+
+        /*Ref<EntityStore> ref = playerRef.getReference();
         if (ref == null || !ref.isValid()) return false;
 
         World world = ref.getStore().getExternalData().getWorld();
@@ -56,8 +53,8 @@ public final class InventoryPacketInterceptor {
             BenchBlock benchBlock = resolveBenchBlock(world, STATION_X, STATION_Y, STATION_Z);
 
             SimpleCraftingWindow window = new SimpleCraftingWindow(STATION_X, STATION_Y, STATION_Z, 0, blockType, benchBlock);
-            //player.getPageManager().setPageWithWindows(ref, ref.getStore(), Page.Bench, true, window);
-        });
+            player.getPageManager().setPageWithWindows(ref, ref.getStore(), Page.Bench, true, window);
+        });*/
 
         return true;
     }

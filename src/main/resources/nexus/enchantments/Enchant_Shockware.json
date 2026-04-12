@@ -1,0 +1,26 @@
+{
+    "Id": "Enchant_Shockwave",
+    "CompatibleTag": "MELEE",
+    "BaseCost": 120,
+    "CostCurve": 1.5,
+    "Levels": [
+        {
+            "Level": 1,
+            "Radius": 4.0,
+            "Damage": 8.0,
+            "Force": 5.0
+        },
+        {
+            "Level": 2,
+            "Radius": 5.5,
+            "Damage": 14.0,
+            "Force": 7.0
+        },
+        {
+            "Level": 3,
+            "Radius": 7.0,
+            "Damage": 22.0,
+            "Force": 10.0
+        }
+    ]
+}

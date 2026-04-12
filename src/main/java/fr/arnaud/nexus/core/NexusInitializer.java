@@ -4,6 +4,7 @@ import com.hypixel.hytale.assetstore.event.LoadedAssetsEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseMotionEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
 import fr.arnaud.nexus.camera.CameraOcclusionSystem;
@@ -12,7 +13,7 @@ import fr.arnaud.nexus.camera.PlayerCameraSystem;
 import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
 import fr.arnaud.nexus.command.AdminStatsCommand;
 import fr.arnaud.nexus.command.AdminWeaponCommand;
-import fr.arnaud.nexus.command.OpenWeaponStationCommand;
+import fr.arnaud.nexus.command.OpenInventoryCommand;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.feature.breach.*;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
@@ -25,10 +26,12 @@ import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import fr.arnaud.nexus.input.hover.PlayerHoverStateComponent;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentConfigLoader;
 import fr.arnaud.nexus.item.weapon.enchantment.TriggerStatRegistry;
 import fr.arnaud.nexus.item.weapon.enchantment.handlers.BouncingProjectileEnchantmentHandler;
 import fr.arnaud.nexus.item.weapon.enchantment.handlers.ChainProjectileEnchantmentHandler;
 import fr.arnaud.nexus.item.weapon.enchantment.handlers.PiercingEnchantmentHandler;
+import fr.arnaud.nexus.item.weapon.generator.WeaponRarityTableLoader;
 import fr.arnaud.nexus.item.weapon.system.PlayerWeaponInitSystem;
 import fr.arnaud.nexus.item.weapon.system.RangedDamageInterceptor;
 import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
@@ -46,10 +49,18 @@ public final class NexusInitializer {
     }
 
     public void init() {
+        initializeLoaders();
         registerComponents();
         registerSystems();
         registerListeners();
         registerCommands();
+    }
+
+    private void initializeLoaders() {
+        I18n.init(plugin);
+
+        WeaponRarityTableLoader.load();
+        EnchantmentConfigLoader.load();
     }
 
     private void registerComponents() {
@@ -81,6 +92,8 @@ public final class NexusInitializer {
                 PlayerWeaponStateComponent.CODEC
             )
         );
+
+        registry.registerComponent(InventoryComponent.Storage.class, InventoryComponent.Storage::new);
     }
 
     private void registerSystems() {
@@ -128,8 +141,9 @@ public final class NexusInitializer {
         events.registerGlobal(PlayerMouseButtonEvent.class, plugin.getPlayerInputListener()::onMouseButton);
         events.registerGlobal(PlayerMouseMotionEvent.class, plugin.getPlayerMouseMotionListener()::onMouseMotion);
 
-        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getEnchantmentDefinitionLoader()::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, TriggerStatRegistry.get()::onAssetsLoaded);
+
+        plugin.getInventoryPacketInterceptor().register();
     }
 
     private void registerCommands() {
@@ -137,6 +151,6 @@ public final class NexusInitializer {
 
         registry.registerCommand(new AdminStatsCommand());
         registry.registerCommand(new AdminWeaponCommand());
-        registry.registerCommand(new OpenWeaponStationCommand());
+        registry.registerCommand(new OpenInventoryCommand());
     }
 }
