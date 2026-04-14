@@ -2,32 +2,25 @@ package fr.arnaud.nexus.item.weapon.system;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.asset.type.item.config.ItemQuality;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
-import com.hypixel.hytale.server.core.modules.entitystats.EntityStatMap;
-import com.hypixel.hytale.server.core.modules.entitystats.modifier.Modifier;
-import com.hypixel.hytale.server.core.modules.entitystats.modifier.StaticModifier;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
-import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent.ActiveEnchantmentState;
-import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinitionLoader;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentHandler;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
+import fr.arnaud.nexus.item.weapon.level.WeaponConfigCalculator;
+import fr.arnaud.nexus.item.weapon.stats.WeaponStatApplicator;
+import fr.arnaud.nexus.item.weapon.stats.WeaponStatBag;
+import fr.arnaud.nexus.item.weapon.stats.WeaponStatBagBuilder;
 import org.bson.BsonDocument;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class WeaponEquipSystem {
 
-    private static final String DAMAGE_SCALE_MODIFIER_KEY = "nexus_equipped_weapon_rarity_scale";
+    private final StatIndexResolver statResolver;
+    private final WeaponStatApplicator statApplicator;
 
-    private final EnchantmentDefinitionLoader loader;
-
-    public WeaponEquipSystem(EnchantmentDefinitionLoader loader) {
-        this.loader = loader;
+    public WeaponEquipSystem(StatIndexResolver statResolver) {
+        this.statResolver = statResolver;
+        this.statApplicator = new WeaponStatApplicator(statResolver);
     }
 
     public void onWeaponEquipped(
@@ -37,13 +30,13 @@ public final class WeaponEquipSystem {
     ) {
         tearDownCurrentWeapon(playerRef, store);
         if (incomingStack == null || !isNexusWeapon(incomingStack)) return;
-
         if (!playerRef.isValid()) return;
 
         BsonDocument doc = incomingStack.getMetadata();
         WeaponInstanceComponent instance = buildInstanceFromDocument(doc);
-        applyDamageScaleModifier(playerRef, instance, store);
-        initializeEnchantmentStates(instance);
+
+        WeaponStatBag bag = WeaponStatBagBuilder.build(instance);
+        statApplicator.apply(playerRef, bag, store);
 
         store.getExternalData().getWorld().execute(() -> {
             if (playerRef.isValid()) {
@@ -56,6 +49,21 @@ public final class WeaponEquipSystem {
         tearDownCurrentWeapon(playerRef, store);
     }
 
+    /**
+     * Called when an enchantment is unlocked or upgraded mid-session.
+     * Rebuilds and reapplies the stat bag so changes take effect immediately.
+     */
+    public void refreshStats(Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        if (!playerRef.isValid()) return;
+        WeaponInstanceComponent instance = store.getComponent(
+            playerRef, WeaponInstanceComponent.getComponentType()
+        );
+        if (instance == null) return;
+
+        WeaponStatBag bag = WeaponStatBagBuilder.build(instance);
+        statApplicator.apply(playerRef, bag, store);
+    }
+
     private void tearDownCurrentWeapon(Ref<EntityStore> playerRef, Store<EntityStore> store) {
         if (!playerRef.isValid()) return;
 
@@ -64,8 +72,7 @@ public final class WeaponEquipSystem {
         );
         if (current == null) return;
 
-        removeDamageScaleModifier(playerRef, store);
-        deactivateAllEnchants(playerRef, current, store);
+        statApplicator.remove(playerRef, store);
 
         store.getExternalData().getWorld().execute(() -> {
             if (playerRef.isValid()) {
@@ -76,82 +83,23 @@ public final class WeaponEquipSystem {
 
     private WeaponInstanceComponent buildInstanceFromDocument(BsonDocument doc) {
         WeaponInstanceComponent instance = new WeaponInstanceComponent();
-        instance.rarity = WeaponBsonSchema.readRarity(doc);
+        instance.quality = ItemQuality.getAssetMap().getAsset(WeaponBsonSchema.readQuality(doc));
+        instance.level = WeaponBsonSchema.readLevel(doc);
         instance.weaponTag = WeaponBsonSchema.readWeaponTag(doc);
-        instance.damageMultiplier = WeaponBsonSchema.readDamageMultiplier(doc);
         instance.enchantmentSlots = WeaponBsonSchema.readEnchantmentSlots(doc);
         instance.archetypeId = doc.containsKey("archetype_id")
             ? doc.getString("archetype_id").getValue()
             : "unknown";
+
+        instance.damageMultiplierCurve = WeaponConfigCalculator.calculateDamageMultiplier(doc);
+        instance.healthBoostCurve = WeaponConfigCalculator.calculateHealthBoost(doc);
+        instance.movementSpeedCurve = WeaponConfigCalculator.calculateMovementSpeedBoost(doc);
+
         return instance;
     }
 
-    private void applyDamageScaleModifier(
-        Ref<EntityStore> playerRef,
-        WeaponInstanceComponent instance,
-        Store<EntityStore> store
-    ) {
-        if (!loader.isReady() || !playerRef.isValid()) return;
-        EntityStatMap stats = store.getComponent(playerRef, EntityStatMap.getComponentType());
-        if (stats == null) return;
-
-        StaticModifier modifier = new StaticModifier(
-            Modifier.ModifierTarget.MAX,
-            StaticModifier.CalculationType.MULTIPLICATIVE,
-            instance.damageMultiplier
-        );
-        stats.putModifier(
-            EntityStatMap.Predictable.NONE,
-            loader.getWeaponDamageScaleIndex(),
-            DAMAGE_SCALE_MODIFIER_KEY,
-            modifier
-        );
-    }
-
-    private void removeDamageScaleModifier(Ref<EntityStore> playerRef, Store<EntityStore> store) {
-        if (!loader.isReady() || !playerRef.isValid()) return;
-        EntityStatMap stats = store.getComponent(playerRef, EntityStatMap.getComponentType());
-        if (stats == null) return;
-
-        stats.removeModifier(
-            EntityStatMap.Predictable.NONE,
-            loader.getWeaponDamageScaleIndex(),
-            DAMAGE_SCALE_MODIFIER_KEY
-        );
-    }
-
-    private void initializeEnchantmentStates(WeaponInstanceComponent instance) {
-        List<ActiveEnchantmentState> states = new ArrayList<>();
-        for (EnchantmentSlot slot : instance.enchantmentSlots) {
-            if (!slot.isUnlocked()) continue;
-            EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(slot.chosen());
-            if (def == null) continue;
-            states.add(new ActiveEnchantmentState(slot.chosen(), def.getLevel(), false));
-        }
-        instance.activeStates = states;
-    }
-
-    private void deactivateAllEnchants(
-        Ref<EntityStore> playerRef,
-        WeaponInstanceComponent instance,
-        Store<EntityStore> store
-    ) {
-        for (WeaponInstanceComponent.ActiveEnchantmentState state : instance.activeStates) {
-            if (!state.flowGateActive()) continue;
-            EnchantmentHandler handler = EnchantmentRegistry.get().getHandler(state.enchantmentId());
-            if (handler != null) {
-                store.getExternalData().getWorld().execute(() -> {
-                    if (playerRef.isValid()) {
-                        handler.onDeactivate(playerRef, state.level(), store, null);
-                    }
-                });
-            }
-        }
-    }
-
     private boolean isNexusWeapon(ItemStack stack) {
-        if (stack == null) return false;
         BsonDocument doc = stack.getMetadata();
-        return doc != null && doc.containsKey("nexus_rarity");
+        return doc != null && doc.containsKey("nexus_quality_id");
     }
 }

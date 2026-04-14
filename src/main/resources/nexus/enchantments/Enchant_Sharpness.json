@@ -1,0 +1,31 @@
+{
+    "Id": "Enchant_Sharpness",
+    "Name": "Sharpness",
+    "Description": "Increase the weapon's output damage.",
+    "Icon": "CharacterPanelStatIconHealth.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 80,
+    "CostCurve": 1.4,
+    "Levels": [
+        {
+            "Level": 1,
+            "DamageBonus": 0.08
+        },
+        {
+            "Level": 2,
+            "DamageBonus": 0.14
+        },
+        {
+            "Level": 3,
+            "DamageBonus": 0.20
+        },
+        {
+            "Level": 4,
+            "DamageBonus": 0.27
+        },
+        {
+            "Level": 5,
+            "DamageBonus": 0.35
+        }
+    ]
+}

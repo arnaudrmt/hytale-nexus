@@ -1,0 +1,31 @@
+{
+    "Id": "Enchant_Vampirism",
+    "Name": "Vampirism",
+    "Description": "Getting some health back on killing an ennemy.",
+    "Icon": "CharacterPanelStatIconHealth.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 120,
+    "CostCurve": 1.5,
+    "Levels": [
+        {
+            "Level": 1,
+            "HealRatio": 0.04
+        },
+        {
+            "Level": 2,
+            "HealRatio": 0.07
+        },
+        {
+            "Level": 3,
+            "HealRatio": 0.10
+        },
+        {
+            "Level": 4,
+            "HealRatio": 0.14
+        },
+        {
+            "Level": 5,
+            "HealRatio": 0.18
+        }
+    ]
+}

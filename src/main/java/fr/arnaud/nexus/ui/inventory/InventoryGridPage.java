@@ -49,7 +49,7 @@ public final class InventoryGridPage {
                         "SlotClick", "Storage:" + (slotOffset + i)),
                     false);
 
-                // Right click — cancel/drop current selection
+                // Right click — cancel selection
                 event.addEventBinding(CustomUIEventBindingType.RightClicking,
                     slotPath,
                     com.hypixel.hytale.server.core.ui.builder.EventData.of(

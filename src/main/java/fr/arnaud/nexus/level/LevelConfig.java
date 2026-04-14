@@ -201,9 +201,13 @@ public final class LevelConfig {
          */
         private final int maxEssence;
 
+        @Nullable
+        private final MobLootConfig lootTable;
+
         public MobEntry(String mobId, int minCount, int maxCount,
                         float spawnRate, int wave,
-                        int minEssence, int maxEssence) {
+                        int minEssence, int maxEssence,
+                        @Nullable MobLootConfig lootTable) {
             this.mobId = mobId;
             this.minCount = minCount;
             this.maxCount = maxCount;
@@ -211,6 +215,7 @@ public final class LevelConfig {
             this.wave = wave;
             this.minEssence = minEssence;
             this.maxEssence = maxEssence;
+            this.lootTable = lootTable;
         }
 
         public String getMobId() {
@@ -244,6 +249,15 @@ public final class LevelConfig {
         public boolean hasWave() {
             return wave > 0;
         }
+
+        @Nullable
+        public MobLootConfig getLootTable() {
+            return lootTable;
+        }
+
+        public boolean hasLootTable() {
+            return lootTable != null && !lootTable.getItems().isEmpty();
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -276,6 +290,36 @@ public final class LevelConfig {
         private final float chance;
 
         public LootChestItem(String itemId, float chance) {
+            this.itemId = itemId;
+            this.chance = chance;
+        }
+
+        public String getItemId() {
+            return itemId;
+        }
+
+        public float getChance() {
+            return chance;
+        }
+    }
+
+    public static final class MobLootConfig {
+        private final List<MobLootItem> items;
+
+        public MobLootConfig(List<MobLootItem> items) {
+            this.items = List.copyOf(items);
+        }
+
+        public List<MobLootItem> getItems() {
+            return items;
+        }
+    }
+
+    public static final class MobLootItem {
+        private final String itemId;
+        private final float chance;
+
+        public MobLootItem(String itemId, float chance) {
             this.itemId = itemId;
             this.chance = chance;
         }

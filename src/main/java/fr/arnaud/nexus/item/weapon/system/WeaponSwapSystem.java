@@ -79,8 +79,8 @@ public final class WeaponSwapSystem {
         BsonDocument doc
     ) {
         String archetypeId = tag == WeaponTag.MELEE
-            ? "Nexus_Weapon_Sword_Default"
-            : "Nexus_Weapon_Staff_Default";
+            ? "Nexus_Melee_Sword_Default"
+            : "Nexus_Ranged_Staff_Default";
         return new ItemStack(archetypeId, 1, doc);
     }
 }

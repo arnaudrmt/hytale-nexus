@@ -2,9 +2,9 @@ package fr.arnaud.nexus.item.weapon.component;
 
 import com.hypixel.hytale.component.Component;
 import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.asset.type.item.config.ItemQuality;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
-import fr.arnaud.nexus.item.weapon.data.WeaponRarity;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 
 import java.util.ArrayList;
@@ -15,15 +15,17 @@ public final class WeaponInstanceComponent implements Component<EntityStore> {
     private static ComponentType<EntityStore, WeaponInstanceComponent> componentType;
 
     public String archetypeId;
-    public WeaponRarity rarity;
+    public ItemQuality quality;
+    public int level;
     public WeaponTag weaponTag;
-    public float damageMultiplier;
     public List<EnchantmentSlot> enchantmentSlots;
-    public List<ActiveEnchantmentState> activeStates;
+
+    public double damageMultiplierCurve;
+    public double healthBoostCurve;
+    public double movementSpeedCurve;
 
     public WeaponInstanceComponent() {
         enchantmentSlots = new ArrayList<>();
-        activeStates = new ArrayList<>();
     }
 
     public static ComponentType<EntityStore, WeaponInstanceComponent> getComponentType() {
@@ -38,17 +40,13 @@ public final class WeaponInstanceComponent implements Component<EntityStore> {
     public WeaponInstanceComponent clone() {
         WeaponInstanceComponent c = new WeaponInstanceComponent();
         c.archetypeId = this.archetypeId;
-        c.rarity = this.rarity;
+        c.quality = this.quality;
+        c.level = this.level;
         c.weaponTag = this.weaponTag;
-        c.damageMultiplier = this.damageMultiplier;
         c.enchantmentSlots = new ArrayList<>(this.enchantmentSlots);
-        c.activeStates = new ArrayList<>(this.activeStates);
+        c.damageMultiplierCurve = this.damageMultiplierCurve;
+        c.healthBoostCurve = this.healthBoostCurve;
+        c.movementSpeedCurve = this.movementSpeedCurve;
         return c;
-    }
-
-    public record ActiveEnchantmentState(String enchantmentId, int level, boolean flowGateActive) {
-        public ActiveEnchantmentState withGateActive(boolean active) {
-            return new ActiveEnchantmentState(enchantmentId, level, active);
-        }
     }
 }

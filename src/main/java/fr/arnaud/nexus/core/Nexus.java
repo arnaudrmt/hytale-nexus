@@ -10,11 +10,11 @@ import fr.arnaud.nexus.feature.ressource.EssenceDustManager;
 import fr.arnaud.nexus.input.PlayerInputListener;
 import fr.arnaud.nexus.input.VoxelTargetResolver;
 import fr.arnaud.nexus.input.hover.PlayerMouseMotionListener;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinitionLoader;
-import fr.arnaud.nexus.item.weapon.enchantment.handlers.*;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDamageInterceptor;
 import fr.arnaud.nexus.item.weapon.generator.EnchantmentPoolService;
 import fr.arnaud.nexus.item.weapon.generator.WeaponGenerator;
-import fr.arnaud.nexus.item.weapon.system.EnchantmentTriggerSystem;
+import fr.arnaud.nexus.item.weapon.level.WeaponUpgradeService;
+import fr.arnaud.nexus.item.weapon.system.StatIndexResolver;
 import fr.arnaud.nexus.item.weapon.system.WeaponEquipSystem;
 import fr.arnaud.nexus.level.LevelManager;
 import fr.arnaud.nexus.level.NexusWorldLoadSystem;
@@ -45,20 +45,13 @@ public final class Nexus extends JavaPlugin {
     private final LevelManager levelManager = new LevelManager();
     private final MobSpawnerManager mobSpawnerManager = new MobSpawnerManager();
 
-    private final EnchantmentDefinitionLoader enchantmentDefinitionLoader = new EnchantmentDefinitionLoader();
     private final EnchantmentPoolService enchantmentPoolService = new EnchantmentPoolService();
-    private final EnchantmentTriggerSystem enchantmentTriggerSystem =
-        new EnchantmentTriggerSystem(
-            new CleaveEnchantmentHandler(),
-            new ShockwaveEnchantmentHandler(),
-            new AspirationEnchantmentHandler(),
-            new ChainProjectileEnchantmentHandler(),
-            new PiercingEnchantmentHandler(),
-            new BouncingProjectileEnchantmentHandler()
-        );
+    private final EnchantmentDamageInterceptor enchantmentDamageInterceptor = new EnchantmentDamageInterceptor();
 
+    private final StatIndexResolver statIndexResolver = new StatIndexResolver();
+    private final WeaponEquipSystem weaponEquipSystem = new WeaponEquipSystem(statIndexResolver);
     private final WeaponGenerator weaponGenerator = new WeaponGenerator(enchantmentPoolService);
-    private final WeaponEquipSystem weaponEquipSystem = new WeaponEquipSystem(enchantmentDefinitionLoader);
+    private final WeaponUpgradeService weaponUpgradeService = new WeaponUpgradeService(essenceDustManager);
 
     public Nexus(@NonNullDecl JavaPluginInit init) {
         super(init);
@@ -67,9 +60,7 @@ public final class Nexus extends JavaPlugin {
 
     @Override
     protected void setup() {
-
         new NexusInitializer(this).init();
-        
         getLogger().at(Level.INFO).log(I18n.t("plugin.loaded"));
     }
 
@@ -136,23 +127,27 @@ public final class Nexus extends JavaPlugin {
         return mobSpawnerManager;
     }
 
-    public EnchantmentDefinitionLoader getEnchantmentDefinitionLoader() {
-        return enchantmentDefinitionLoader;
-    }
-
     public EnchantmentPoolService getEnchantmentPoolService() {
         return enchantmentPoolService;
     }
 
-    public EnchantmentTriggerSystem getEnchantmentTriggerSystem() {
-        return enchantmentTriggerSystem;
+    public EnchantmentDamageInterceptor getEnchantmentDamageInterceptor() {
+        return enchantmentDamageInterceptor;
+    }
+
+    public StatIndexResolver getStatIndexResolver() {
+        return statIndexResolver;
+    }
+
+    public WeaponEquipSystem getWeaponEquipSystem() {
+        return weaponEquipSystem;
     }
 
     public WeaponGenerator getWeaponGenerator() {
         return weaponGenerator;
     }
 
-    public WeaponEquipSystem getWeaponEquipSystem() {
-        return weaponEquipSystem;
+    public WeaponUpgradeService getWeaponUpgradeService() {
+        return weaponUpgradeService;
     }
 }

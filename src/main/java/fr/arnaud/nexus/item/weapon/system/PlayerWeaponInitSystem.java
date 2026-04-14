@@ -3,13 +3,13 @@ package fr.arnaud.nexus.item.weapon.system;
 import com.hypixel.hytale.component.*;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefSystem;
+import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
-import fr.arnaud.nexus.item.weapon.data.WeaponRarity;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 import org.bson.BsonDocument;
 
@@ -45,18 +45,16 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         }
 
         PlayerWeaponStateComponent state = new PlayerWeaponStateComponent();
-        state.meleeDocument = Nexus.get().getWeaponGenerator()
-                                   .generate("Nexus_Weapon_Sword_Default", WeaponTag.MELEE, WeaponRarity.COMMON);
-        state.rangedDocument = Nexus.get().getWeaponGenerator()
-                                    .generate("Nexus_Weapon_Staff_Default", WeaponTag.RANGED, WeaponRarity.COMMON);
+        state.meleeDocument = generateDefaultWeapon("Nexus_Melee_Sword_Default");
+        state.rangedDocument = generateDefaultWeapon("Nexus_Ranged_Staff_Default");
         state.activeTag = WeaponTag.MELEE;
 
         cmd.run(s -> s.putComponent(ref, PlayerWeaponStateComponent.getComponentType(), state));
 
-        placeWeaponInSlot(ref, "Nexus_Weapon_Sword_Default", state.meleeDocument, store);
+        placeWeaponInSlot(ref, "Nexus_Melee_Sword_Default", state.meleeDocument, store);
         equipSystem.onWeaponEquipped(
             ref,
-            new ItemStack("Nexus_Weapon_Sword_Default", 1, state.meleeDocument),
+            new ItemStack("Nexus_Melee_Sword_Default", 1, state.meleeDocument),
             store
         );
     }
@@ -80,8 +78,8 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         if (activeDoc == null) return;
 
         String archetypeId = state.activeTag == WeaponTag.MELEE
-            ? "Nexus_Weapon_Sword_Default"
-            : "Nexus_Weapon_Staff_Default";
+            ? "Nexus_Melee_Sword_Default"
+            : "Nexus_Ranged_Staff_Default";
 
         placeWeaponInSlot(ref, archetypeId, activeDoc, store);
         equipSystem.onWeaponEquipped(
@@ -89,6 +87,11 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
             new ItemStack(archetypeId, 1, activeDoc),
             store
         );
+    }
+
+    private BsonDocument generateDefaultWeapon(String archetypeId) {
+        Item item = Item.getAssetMap().getAsset(archetypeId);
+        return Nexus.get().getWeaponGenerator().generateWeapon(item);
     }
 
     private void placeWeaponInSlot(

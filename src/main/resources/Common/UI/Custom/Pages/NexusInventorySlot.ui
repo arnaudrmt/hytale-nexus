@@ -17,7 +17,7 @@ ItemSlotButton {
   }
 
   Label #SlotAmount {
-    Anchor: (Right: 4, Top: 4);
+    Anchor: (Right: 4, Top: 50);
     HitTestVisible: false;
     Style: (FontSize: 14, RenderBold: true, TextColor: #ffffff, HorizontalAlignment: End);
   }

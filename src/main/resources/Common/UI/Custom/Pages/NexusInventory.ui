@@ -432,7 +432,7 @@ Group #Root {
               LayoutMode: Middle;
               FlexWeight: 1;
               @StatNameLabel {
-                Text: %client.inventory.character.stats.essencedust;
+                Text: "Essence";
               }
               @StatNameValueLabel #StatsEssence {}
             }
@@ -470,17 +470,545 @@ Group #Root {
 
         #Content {
           LayoutMode: Top;
+          Padding: (Full: 0);
 
-          Group #EnchantmentMeleePanel {
+          Group #EnchantmentPanel {
+            LayoutMode: Left;
+            FlexWeight: 1;
+            Anchor: (Vertical: 0);
 
-            Label {
-              Text: "Melee";
+            /* --- Template for Slot (Repeated for #First, #Second, #Third) --- */
+            Group #FirstEnchant {
+              Anchor: (Vertical: 0);
+              FlexWeight: 1;
+              Padding: (Horizontal: 5);
+
+              // STATE 1: LOCKED (Visible by default)
+              Group #LockedState {
+                Visible: false;
+                LayoutMode: Center;
+                Background: #000000(0.4);
+
+                Group {
+                  Anchor: (Height: 90, Width: 90);
+                  Background: (TexturePath: "Inventory/Backgrounds/CharacterPanelButton.png");
+
+                  Group {
+                    Anchor: (Height: 32, Width: 32);
+                    Background: "Inventory/Icons/IconLock.png";
+                  }
+                }
+              }
+
+              // STATE 2: CHOICE (Choose between two enchants)
+              Group #ChoiceState {
+                Visible: false;
+                LayoutMode: Top;
+                Padding: (Full: 20);
+
+                Group #ChoiceA {
+                  LayoutMode: Top;
+
+                  Label {
+                    Text: "LIFE STEAL";
+                    Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+                  }
+
+                  Label {
+                    Anchor: (Top: 15);
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Top: 15);
+                    @Text = "500 ESSENCES";
+                  }
+                }
+
+                Group { FlexWeight: 1; }
+
+                Group #ChoiceB {
+                  LayoutMode: Top;
+
+                  Label {
+                    Text: "LIFE STEAL";
+                    Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+                  }
+
+                  Label {
+                    Anchor: (Top: 15);
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Top: 15);
+                    @Text = "500 ESSENCES";
+                  }
+                }
+              }
+
+              // STATE 3: ACTIVE (Selected & Upgradeable)
+              Group #ActiveState {
+                Visible: true;
+                LayoutMode: Top;
+                Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                Padding: (Full: 20);
+
+                // Header: Icon and Title
+                Group {
+                  LayoutMode: Top;
+                  Anchor: (Height: 125);
+
+                  Group {
+                    LayoutMode: Left;
+                    Anchor: (Height: 50);
+
+                    Group #EnchantIcon {
+                      Anchor: (Width: 48, Height: 48);
+                      Background: "Inventory/Slots/SlotCommon.png";
+                      Group { Background: "Inventory/Icons/CharacterPanelStatIconHealth.png"; Anchor: (Full: 8); }
+                    }
+
+                    Group {
+                      LayoutMode: Middle;
+                      Anchor: (Left: 10);
+
+                      Label {
+                        Text: "LIFE STEAL I";
+                        Style: (FontSize: 14, RenderBold: true, TextColor: #ffffff);
+                      }
+
+                      Label {
+                        Text: "Level 1";
+                        Style: (FontSize: 12, TextColor: #878e9c);
+                      }
+                    }
+                  }
+
+                  Label {
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Anchor: (Top: 10);
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+                }
+
+                // Current Stats
+                Group #EnchantStatsBlock {
+                  LayoutMode: Top;
+                  Anchor: (Height: 125, Top: 15);
+
+                  Label {
+                    Text: "Stats";
+                    Anchor: (Top: 8);
+                    Style: (TextColor: #878e9c, FontSize: 16, RenderBold: true, RenderUppercase: true);
+                  }
+
+                  Group {
+                    LayoutMode: Left;
+                    Anchor: (Height: 50, Top: 5);
+
+                    Group {
+                      Anchor: (Left: 10);
+                      LayoutMode: Left;
+                      FlexWeight: 1;
+
+                      Label #WeaponDamageMultiplier {
+                        Style: (TextColor: #99c995, FontSize: 16, RenderBold: true);
+                        Text: "+10 ";
+                      }
+
+                      Label {
+                        Style: (TextColor: #ffffff, FontSize: 14);
+                        Text: "Bonus Health";
+                      }
+                    }
+                  }
+                }
+
+                // Upgrade Footer
+                Group {
+                  FlexWeight: 1;
+                  LayoutMode: Bottom;
+
+                  Group {
+                    LayoutMode: CenterMiddle;
+                    Anchor: (Bottom: 5);
+
+                    Group {
+                      Anchor: (Height: 38, Width: 38);
+                      Background: "Inventory/Icons/CharacterPanelStatIconMana.png";
+                    }
+
+                    Label {
+                      Text: "1 500";
+                      Style: (FontSize: 18, RenderBold: true, TextColor: #ffffff);
+                    }
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Bottom: 0);
+                    @Text = "UPGRADE";
+                  }
+                }
+              }
             }
-          }
 
-          Group #EnchantmentRangedPanel {
-            Label {
-              Text: "Ranged";
+              /* --- Second Slot --- */
+            Group #SecondEnchant {
+              Anchor: (Vertical: 0);
+              FlexWeight: 1;
+              Padding: (Horizontal: 5);
+
+              // STATE 1: LOCKED (Visible by default)
+              Group #LockedState {
+                Visible: false;
+                LayoutMode: Center;
+                Background: #000000(0.4);
+
+                Group {
+                  Anchor: (Height: 90, Width: 90);
+                  Background: (TexturePath: "Inventory/Backgrounds/CharacterPanelButton.png");
+
+                  Group {
+                    Anchor: (Height: 32, Width: 32);
+                    Background: "Inventory/Icons/IconLock.png";
+                  }
+                }
+              }
+
+              // STATE 2: CHOICE (Choose between two enchants)
+              Group #ChoiceState {
+                Visible: true;
+                LayoutMode: Top;
+                Padding: (Full: 20);
+
+                Group #ChoiceA {
+                  LayoutMode: Top;
+
+                  Label {
+                    Text: "LIFE STEAL";
+                    Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+                  }
+
+                  Label {
+                    Anchor: (Top: 15);
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Top: 15);
+                    @Text = "500 ESSENCES";
+                  }
+                }
+
+                Group { FlexWeight: 1; }
+
+                Group #ChoiceB {
+                  LayoutMode: Top;
+
+                  Label {
+                    Text: "LIFE STEAL";
+                    Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+                  }
+
+                  Label {
+                    Anchor: (Top: 15);
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Top: 15);
+                    @Text = "500 ESSENCES";
+                  }
+                }
+              }
+
+              // STATE 3: ACTIVE (Selected & Upgradeable)
+              Group #ActiveState {
+                Visible: false;
+                LayoutMode: Top;
+                Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                Padding: (Full: 20);
+
+                // Header: Icon and Title
+                Group {
+                  LayoutMode: Top;
+                  Anchor: (Height: 125);
+
+                  Group {
+                    LayoutMode: Left;
+                    Anchor: (Height: 50);
+
+                    Group #EnchantIcon {
+                      Anchor: (Width: 48, Height: 48);
+                      Background: "Inventory/Slots/SlotCommon.png";
+                      Group { Background: "Inventory/Icons/CharacterPanelStatIconHealth.png"; Anchor: (Full: 8); }
+                    }
+
+                    Group {
+                      LayoutMode: Middle;
+                      Anchor: (Left: 10);
+
+                      Label {
+                        Text: "LIFE STEAL I";
+                        Style: (FontSize: 14, RenderBold: true, TextColor: #ffffff);
+                      }
+
+                      Label {
+                        Text: "Level 1";
+                        Style: (FontSize: 12, TextColor: #878e9c);
+                      }
+                    }
+                  }
+
+                  Label {
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Anchor: (Top: 10);
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+                }
+
+                // Current Stats
+                Group #EnchantStatsBlock {
+                  LayoutMode: Top;
+                  Anchor: (Height: 125, Top: 15);
+
+                  Label {
+                    Text: "Stats";
+                    Anchor: (Top: 8);
+                    Style: (TextColor: #878e9c, FontSize: 16, RenderBold: true, RenderUppercase: true);
+                  }
+
+                  Group {
+                    LayoutMode: Left;
+                    Anchor: (Height: 50, Top: 5);
+
+                    Group {
+                      Anchor: (Left: 10);
+                      LayoutMode: Left;
+                      FlexWeight: 1;
+
+                      Label #WeaponDamageMultiplier {
+                        Style: (TextColor: #99c995, FontSize: 16, RenderBold: true);
+                        Text: "+10 ";
+                      }
+
+                      Label {
+                        Style: (TextColor: #ffffff, FontSize: 14);
+                        Text: "Bonus Health";
+                      }
+                    }
+                  }
+                }
+
+                // Upgrade Footer
+                Group {
+                  FlexWeight: 1;
+                  LayoutMode: Bottom;
+
+                  Group {
+                    LayoutMode: CenterMiddle;
+                    Anchor: (Bottom: 5);
+
+                    Group {
+                      Anchor: (Height: 38, Width: 38);
+                      Background: "Inventory/Icons/CharacterPanelStatIconMana.png";
+                    }
+
+                    Label {
+                      Text: "1 500";
+                      Style: (FontSize: 18, RenderBold: true, TextColor: #ffffff);
+                    }
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Bottom: 0);
+                    @Text = "UPGRADE";
+                  }
+                }
+              }
+            }
+
+              /* --- Third Slot --- */
+            Group #SecondEnchant {
+              Anchor: (Vertical: 0);
+              FlexWeight: 1;
+              Padding: (Horizontal: 5);
+
+              // STATE 1: LOCKED (Visible by default)
+              Group #LockedState {
+                Visible: true;
+                LayoutMode: Center;
+                Background: #000000(0.4);
+
+                Group {
+                  Anchor: (Height: 90, Width: 90);
+                  Background: (TexturePath: "Inventory/Backgrounds/CharacterPanelButton.png");
+
+                  Group {
+                    Anchor: (Height: 32, Width: 32);
+                    Background: "Inventory/Icons/IconLock.png";
+                  }
+                }
+              }
+
+              // STATE 2: CHOICE (Choose between two enchants)
+              Group #ChoiceState {
+                Visible: false;
+                LayoutMode: Top;
+                Padding: (Full: 20);
+
+                Group #ChoiceA {
+                  LayoutMode: Top;
+
+                  Label {
+                    Text: "LIFE STEAL";
+                    Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+                  }
+
+                  Label {
+                    Anchor: (Top: 15);
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Top: 15);
+                    @Text = "500 ESSENCES";
+                  }
+                }
+
+                Group { FlexWeight: 1; }
+
+                Group #ChoiceB {
+                  LayoutMode: Top;
+
+                  Label {
+                    Text: "LIFE STEAL";
+                    Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+                  }
+
+                  Label {
+                    Anchor: (Top: 15);
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Top: 15);
+                    @Text = "500 ESSENCES";
+                  }
+                }
+              }
+
+              // STATE 3: ACTIVE (Selected & Upgradeable)
+              Group #ActiveState {
+                Visible: false;
+                LayoutMode: Top;
+                Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                Padding: (Full: 20);
+
+                // Header: Icon and Title
+                Group {
+                  LayoutMode: Top;
+                  Anchor: (Height: 125);
+
+                  Group {
+                    LayoutMode: Left;
+                    Anchor: (Height: 50);
+
+                    Group #EnchantIcon {
+                      Anchor: (Width: 48, Height: 48);
+                      Background: "Inventory/Slots/SlotCommon.png";
+                      Group { Background: "Inventory/Icons/CharacterPanelStatIconHealth.png"; Anchor: (Full: 8); }
+                    }
+
+                    Group {
+                      LayoutMode: Middle;
+                      Anchor: (Left: 10);
+
+                      Label {
+                        Text: "LIFE STEAL I";
+                        Style: (FontSize: 14, RenderBold: true, TextColor: #ffffff);
+                      }
+
+                      Label {
+                        Text: "Level 1";
+                        Style: (FontSize: 12, TextColor: #878e9c);
+                      }
+                    }
+                  }
+
+                  Label {
+                    Text: "Heals the player for 5% of damage dealt to enemies.";
+                    Anchor: (Top: 10);
+                    Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+                  }
+                }
+
+                // Current Stats
+                Group #EnchantStatsBlock {
+                  LayoutMode: Top;
+                  Anchor: (Height: 125, Top: 15);
+
+                  Label {
+                    Text: "Stats";
+                    Anchor: (Top: 8);
+                    Style: (TextColor: #878e9c, FontSize: 16, RenderBold: true, RenderUppercase: true);
+                  }
+
+                  Group {
+                    LayoutMode: Left;
+                    Anchor: (Height: 50, Top: 5);
+
+                    Group {
+                      Anchor: (Left: 10);
+                      LayoutMode: Left;
+                      FlexWeight: 1;
+
+                      Label #WeaponDamageMultiplier {
+                        Style: (TextColor: #99c995, FontSize: 16, RenderBold: true);
+                        Text: "+10 ";
+                      }
+
+                      Label {
+                        Style: (TextColor: #ffffff, FontSize: 14);
+                        Text: "Bonus Health";
+                      }
+                    }
+                  }
+                }
+
+                // Upgrade Footer
+                Group {
+                  FlexWeight: 1;
+                  LayoutMode: Bottom;
+
+                  Group {
+                    LayoutMode: CenterMiddle;
+                    Anchor: (Bottom: 5);
+
+                    Group {
+                      Anchor: (Height: 38, Width: 38);
+                      Background: "Inventory/Icons/CharacterPanelStatIconMana.png";
+                    }
+
+                    Label {
+                      Text: "1 500";
+                      Style: (FontSize: 18, RenderBold: true, TextColor: #ffffff);
+                    }
+                  }
+
+                  $C.@TextButton #UpgradeEnchantButton {
+                    @Anchor = (Width: 180, Height: 15, Bottom: 0);
+                    @Text = "UPGRADE";
+                  }
+                }
+              }
             }
           }
         }
@@ -622,7 +1150,7 @@ Group #Root {
 
         $C.@TextButton #UpgradeButton {
           @Anchor = (Width: 180);
-          @Text = "Upgrade Rarity";
+          @Text = "Upgrade";
         }
       }
     }

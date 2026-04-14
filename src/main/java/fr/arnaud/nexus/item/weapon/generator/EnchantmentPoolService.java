@@ -9,11 +9,10 @@ import java.util.stream.Collectors;
 
 public final class EnchantmentPoolService {
 
-    public List<EnchantmentDefinition> getPoolForTag(WeaponTag tag, int level) {
+    public List<EnchantmentDefinition> getPoolForTag(WeaponTag tag) {
         return EnchantmentRegistry.get()
                                   .getAllDefinitions()
                                   .stream()
-                                  .filter(def -> def.getLevel() == level)
                                   .filter(def -> def.getCompatibleTag().isCompatibleWith(tag))
                                   .collect(Collectors.toList());
     }

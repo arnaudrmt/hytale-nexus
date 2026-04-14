@@ -1,0 +1,31 @@
+{
+    "Id": "Enchant_Swiftness",
+    "Name": "Swiftness",
+    "Description": "Increase your movement's speed.",
+    "Icon": "CharacterPanelStatIconHealth.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 75,
+    "CostCurve": 1.35,
+    "Levels": [
+        {
+            "Level": 1,
+            "MovementSpeedBoost": 0.03
+        },
+        {
+            "Level": 2,
+            "MovementSpeedBoost": 0.06
+        },
+        {
+            "Level": 3,
+            "MovementSpeedBoost": 0.09
+        },
+        {
+            "Level": 4,
+            "MovementSpeedBoost": 0.13
+        },
+        {
+            "Level": 5,
+            "MovementSpeedBoost": 0.18
+        }
+    ]
+}

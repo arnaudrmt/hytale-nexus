@@ -20,10 +20,11 @@ import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
-import fr.arnaud.nexus.item.weapon.upgrade.WeaponUpgradeProvider;
+import fr.arnaud.nexus.util.InventoryUtils;
 import org.bson.BsonDocument;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPage.EventData> {
 
@@ -62,24 +63,35 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         event.addEventBinding(CustomUIEventBindingType.Activating, "#RangedEquipButton",
             com.hypixel.hytale.server.core.ui.builder.EventData.of("EquipSlotClick", "Ranged"), false);
 
-        // Drop button
-        event.addEventBinding(CustomUIEventBindingType.Activating, "#DropItemButton",
-            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "Drop"), false);
-
         // Inventory grid bindings
         InventoryGridPage.appendSlotBindings(cmd, event, "#InventorySlotCards",
             InventoryGridPage.STORAGE_CAPACITY, 0);
         InventoryGridPage.appendSlotBindings(cmd, event, "#HotbarSlotCards",
             InventoryGridPage.HOTBAR_CAPACITY, InventoryGridPage.STORAGE_CAPACITY);
 
-        // Upgrade button
-        event.addEventBinding(CustomUIEventBindingType.Activating, "#UpgradeButton",
-            com.hypixel.hytale.server.core.ui.builder.EventData.of("Action", "Upgrade"), false);
-
         applyTabVisuals(cmd, activeTab);
         InventoryGridPage.populateSlotItems(cmd, ref, store);
         InventoryGridPage.populateEquipSlots(cmd, ref, store);
         WeaponStatsPage.populate(cmd, ref, store, activeTab);
+    }
+
+    private static void setEquipSlotIcon(@Nonnull UICommandBuilder cmd,
+                                         @Nonnull String iconSelector,
+                                         @Nullable BsonDocument doc,
+                                         @Nonnull WeaponTag tag) {
+        if (doc == null) {
+            cmd.setNull(iconSelector + ".ItemId");
+            return;
+        }
+
+        // Mirror WeaponStatsPage — archetype_id not stored in doc yet
+        String itemId = doc.containsKey("archetype_id")
+            ? doc.getString("archetype_id").getValue()
+            : (tag == WeaponTag.MELEE
+               ? "Nexus_Melee_Sword_Default"
+               : "Nexus_Ranged_Staff_Default");
+
+        cmd.set(iconSelector + ".ItemId", itemId);
     }
 
     @Override
@@ -95,17 +107,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             world.execute(() -> {
                 UICommandBuilder update = new UICommandBuilder();
                 applyTabVisuals(update, activeTab);
-                WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
-                sendUpdate(update, null, false);
-            });
-            return;
-        }
-
-        // ── Actions (Upgrade / Drop) ──────────────────────────────────────────
-        if ("Upgrade".equals(data.action)) {
-            world.execute(() -> {
-                WeaponUpgradeProvider.get().upgradeWeaponRarity(ref, ref.getStore());
-                UICommandBuilder update = new UICommandBuilder();
                 WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
                 sendUpdate(update, null, false);
             });
@@ -187,27 +188,41 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             isHotbar ? "Hotbar" : "Storage");
         if (container == null) return;
 
-        ItemStack stack = container.getItemStack(slotIndex);
-        if (stack == null || stack.isEmpty()) return;
+        ItemStack incomingStack = container.getItemStack(slotIndex);
+        if (incomingStack == null || incomingStack.isEmpty()) return;
 
-        BsonDocument doc = stack.getMetadata();
-        if (doc == null || !doc.containsKey("nexus_rarity")) return;
+        org.bson.BsonDocument incomingDoc = incomingStack.getMetadata();
+        if (incomingDoc == null || !incomingDoc.containsKey("nexus_rarity")) return;
 
-        WeaponTag itemTag = WeaponBsonSchema.readWeaponTag(doc);
+        WeaponTag itemTag = WeaponBsonSchema.readWeaponTag(incomingDoc);
         if (!itemTag.isCompatibleWith(targetTag)) return;
 
-        // Update the component document for this weapon type
         PlayerWeaponStateComponent weaponState = store.getComponent(
             ref, PlayerWeaponStateComponent.getComponentType());
         if (weaponState == null) return;
 
-        weaponState.setDocument(targetTag, doc.clone());
+        // ── Return the previously equipped weapon to inventory ────────────────
+        org.bson.BsonDocument oldDoc = targetTag == WeaponTag.MELEE
+            ? weaponState.meleeDocument
+            : weaponState.rangedDocument;
 
-        // If equipping the currently active tab's weapon, also update activeTag
-        // and call the equip system so stats/enchantments apply
+        if (oldDoc != null && oldDoc.containsKey("archetype_id")) {
+            ItemStack oldStack = new ItemStack(
+                oldDoc.getString("archetype_id").getValue(), 1, oldDoc.clone());
+            // tryAddToStorage drops it at player's feet if inventory is full
+            InventoryUtils.tryAddToStorage(ref, store, oldStack);
+        }
+
+        // ── Remove the incoming item from the source slot ─────────────────────
+        container.removeItemStackFromSlot(slotIndex, (short) 1);
+
+        // ── Store the new weapon document ─────────────────────────────────────
+        weaponState.setDocument(targetTag, incomingDoc.clone());
+
+        // ── Apply equip system if this is the active tab ──────────────────────
         if (targetTag == activeTab) {
             weaponState.activeTag = targetTag;
-            Nexus.get().getWeaponEquipSystem().onWeaponEquipped(ref, stack, store);
+            Nexus.get().getWeaponEquipSystem().onWeaponEquipped(ref, incomingStack, store);
         }
     }
 
@@ -218,9 +233,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
 
         cmd.set("#UpgradeTitleLabel.Text",
             isMelee ? "ENCHANTMENT STATION > MELEE" : "ENCHANTMENT STATION > RANGED");
-
-        cmd.set("#EnchantmentMeleePanel.Visible", isMelee);
-        cmd.set("#EnchantmentRangedPanel.Visible", !isMelee);
 
         cmd.set("#MeleeActive.Visible", isMelee);
         cmd.set("#MeleeDisabledButton.Visible", !isMelee);

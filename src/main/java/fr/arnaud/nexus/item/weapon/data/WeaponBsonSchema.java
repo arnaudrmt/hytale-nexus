@@ -7,35 +7,39 @@ import java.util.List;
 
 public final class WeaponBsonSchema {
 
-    private static final String KEY_RARITY = "nexus_rarity";
-    private static final String KEY_CHOSEN_BASE = "chosen_base";
-    private static final String KEY_CURRENT_LEVEL = "current_level";
-    private static final String KEY_DAMAGE_MULTIPLIER = "nexus_damage_multiplier";
+    private static final String KEY_LEVEL = "nexus_level";
     private static final String KEY_WEAPON_TAG = "nexus_weapon_tag";
+    private static final String KEY_QUALITY_VALUE = "nexus_quality_value";
+
     private static final String KEY_ENCHANT_SLOTS = "nexus_enchant_slots";
     private static final String KEY_SLOT_INDEX = "slot";
     private static final String KEY_CHOICE_A = "choice_a";
     private static final String KEY_CHOICE_B = "choice_b";
     private static final String KEY_CHOSEN = "chosen";
+    private static final String KEY_CHOSEN_BASE = "chosen_base";
+    private static final String KEY_CURRENT_LEVEL = "current_level";
 
     private WeaponBsonSchema() {
     }
 
-    public static void writeRarity(BsonDocument doc, WeaponRarity rarity) {
-        doc.put(KEY_RARITY, new BsonString(rarity.name()));
-        doc.put(KEY_DAMAGE_MULTIPLIER, new BsonDouble(rarity.getDamageMultiplier()));
+    public static void writeLevel(BsonDocument doc, int level) {
+        doc.put(KEY_LEVEL, new BsonInt32(level));
     }
 
-    public static WeaponRarity readRarity(BsonDocument doc) {
-        BsonValue value = doc.get(KEY_RARITY);
-        if (value == null || !value.isString()) return WeaponRarity.COMMON;
-        return WeaponRarity.fromBsonString(value.asString().getValue());
+    public static int readLevel(BsonDocument doc) {
+        BsonValue value = doc.get(KEY_LEVEL);
+        if (value == null || !value.isInt32()) return 1;
+        return value.asInt32().getValue();
     }
 
-    public static float readDamageMultiplier(BsonDocument doc) {
-        BsonValue value = doc.get(KEY_DAMAGE_MULTIPLIER);
-        if (value == null || !value.isDouble()) return 1.0f;
-        return (float) value.asDouble().getValue();
+    public static void writeQuality(BsonDocument doc, int quality) {
+        doc.put(KEY_QUALITY_VALUE, new BsonInt32(quality));
+    }
+
+    public static int readQuality(BsonDocument doc) {
+        BsonValue value = doc.get(KEY_QUALITY_VALUE);
+        if (value == null || !value.isInt32()) return 1;
+        return value.asInt32().getValue();
     }
 
     public static void writeWeaponTag(BsonDocument doc, WeaponTag tag) {
@@ -56,13 +60,12 @@ public final class WeaponBsonSchema {
         BsonArray array = new BsonArray();
         for (EnchantmentSlot slot : slots) {
             BsonDocument entry = new BsonDocument();
-            entry.put(KEY_SLOT_INDEX, new org.bson.BsonInt32(slot.slotIndex()));
+            entry.put(KEY_SLOT_INDEX, new BsonInt32(slot.slotIndex()));
             entry.put(KEY_CHOICE_A, new BsonString(slot.choiceA()));
             entry.put(KEY_CHOICE_B, new BsonString(slot.choiceB()));
             if (slot.chosen() != null) {
                 entry.put(KEY_CHOSEN, new BsonString(slot.chosen()));
-                entry.put(KEY_CHOSEN_BASE, new BsonString(slot.chosenBase()));
-                entry.put(KEY_CURRENT_LEVEL, new org.bson.BsonInt32(slot.currentLevel()));
+                entry.put(KEY_CURRENT_LEVEL, new BsonInt32(slot.currentLevel()));
             }
             array.add(entry);
         }
@@ -87,7 +90,7 @@ public final class WeaponBsonSchema {
             int currentLevel = slotDoc.containsKey(KEY_CURRENT_LEVEL)
                 ? slotDoc.getInt32(KEY_CURRENT_LEVEL).getValue() : 1;
             slots.add(new EnchantmentSlot(index, choiceA, choiceB,
-                chosen, chosenBase, currentLevel));
+                chosen, currentLevel));
         }
         return slots;
     }

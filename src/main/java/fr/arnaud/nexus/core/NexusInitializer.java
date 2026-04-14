@@ -5,6 +5,7 @@ import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseMotionEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
 import fr.arnaud.nexus.camera.CameraOcclusionSystem;
@@ -26,19 +27,17 @@ import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import fr.arnaud.nexus.input.hover.PlayerHoverStateComponent;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentConfigLoader;
-import fr.arnaud.nexus.item.weapon.enchantment.TriggerStatRegistry;
-import fr.arnaud.nexus.item.weapon.enchantment.handlers.BouncingProjectileEnchantmentHandler;
-import fr.arnaud.nexus.item.weapon.enchantment.handlers.ChainProjectileEnchantmentHandler;
-import fr.arnaud.nexus.item.weapon.enchantment.handlers.PiercingEnchantmentHandler;
-import fr.arnaud.nexus.item.weapon.generator.WeaponRarityTableLoader;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
+import fr.arnaud.nexus.item.weapon.enchantment.event.NexusEnchantBus;
+import fr.arnaud.nexus.item.weapon.enchantment.handlers.VampirismEnchantHandler;
+import fr.arnaud.nexus.item.weapon.stats.WeaponStatConfigLoader;
 import fr.arnaud.nexus.item.weapon.system.PlayerWeaponInitSystem;
-import fr.arnaud.nexus.item.weapon.system.RangedDamageInterceptor;
 import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
 import fr.arnaud.nexus.level.LevelProgressComponent;
 import fr.arnaud.nexus.spawner.SpawnerMobDeathSystem;
 import fr.arnaud.nexus.spawner.SpawnerProximitySystem;
 import fr.arnaud.nexus.spawner.SpawnerTagComponent;
+import fr.arnaud.nexus.system.NexusStoragePickupGuard;
 
 public final class NexusInitializer {
 
@@ -58,9 +57,11 @@ public final class NexusInitializer {
 
     private void initializeLoaders() {
         I18n.init(plugin);
+        WeaponStatConfigLoader.load();
 
-        WeaponRarityTableLoader.load();
-        EnchantmentConfigLoader.load();
+        EnchantmentRegistry.get().loadAll();
+
+        NexusEnchantBus.get().register("Enchant_Vampirism", new VampirismEnchantHandler());
     }
 
     private void registerComponents() {
@@ -108,7 +109,8 @@ public final class NexusInitializer {
         new SwitchStrikePacketInterceptor();
         registry.registerSystem(plugin.getSwitchStrikeTriggerSystem());
         registry.registerSystem(plugin.getSwitchStrikeExecutionSystem());
-        registry.registerSystem(plugin.getEnchantmentTriggerSystem());
+
+        registry.registerSystem(plugin.getEnchantmentDamageInterceptor());
 
         registry.registerSystem(new BreachSequenceSystem());
         registry.registerSystem(new BreachDamageInterceptor());
@@ -118,13 +120,11 @@ public final class NexusInitializer {
         registry.registerSystem(new SpawnerProximitySystem());
         registry.registerSystem(new SpawnerMobDeathSystem());
 
-        registry.registerSystem(new RangedDamageInterceptor(
-            new ChainProjectileEnchantmentHandler(),
-            new PiercingEnchantmentHandler(),
-            new BouncingProjectileEnchantmentHandler()
-        ));
-
         registry.registerSystem(new PlayerWeaponInitSystem(plugin.getWeaponEquipSystem()));
+
+        registry.registerSystem(new NexusStoragePickupGuard(
+            EntityModule.get().getPlayerSpatialResourceType()
+        ));
 
         new WeaponSwapSystem(plugin.getWeaponEquipSystem());
     }
@@ -137,11 +137,10 @@ public final class NexusInitializer {
 
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getEssenceDustManager()::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getSwitchStrikeTriggerSystem()::onAssetsLoaded);
+        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getStatIndexResolver()::onAssetsLoaded);
 
         events.registerGlobal(PlayerMouseButtonEvent.class, plugin.getPlayerInputListener()::onMouseButton);
         events.registerGlobal(PlayerMouseMotionEvent.class, plugin.getPlayerMouseMotionListener()::onMouseMotion);
-
-        events.register(LoadedAssetsEvent.class, EntityStatType.class, TriggerStatRegistry.get()::onAssetsLoaded);
 
         plugin.getInventoryPacketInterceptor().register();
     }
@@ -150,7 +149,10 @@ public final class NexusInitializer {
         var registry = plugin.getCommandRegistry();
 
         registry.registerCommand(new AdminStatsCommand());
-        registry.registerCommand(new AdminWeaponCommand());
+        registry.registerCommand(new AdminWeaponCommand(
+            plugin.getEssenceDustManager(),
+            plugin.getWeaponUpgradeService()
+        ));
         registry.registerCommand(new OpenInventoryCommand());
     }
 }

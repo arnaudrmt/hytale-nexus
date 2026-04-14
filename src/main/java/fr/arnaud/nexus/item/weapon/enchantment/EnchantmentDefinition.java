@@ -2,96 +2,80 @@ package fr.arnaud.nexus.item.weapon.enchantment;
 
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 
-import java.util.List;
+import java.util.Collections;
+import java.util.Map;
 
 public final class EnchantmentDefinition {
 
-    private final String enchantmentId;
-    private final String baseFamily;
-    private final int level;
+    private final String id;
+    private final String name;
+    private final String description;
+    private final String icon;
     private final WeaponTag compatibleTag;
-    private final String behaviorId;
-    private final float baseCost;
-    private final float costCurve;
-    private final List<EnchantmentLevelData> levelData;
+    private final int baseCost;
+    private final double costCurve;
+    private final int maxLevel;
+    private final Map<Integer, Map<String, Double>> levelData;
 
     public EnchantmentDefinition(
-        String enchantmentId,
-        String baseFamily,
-        int level,
+        String id,
+        String name,
+        String description,
+        String icon,
         WeaponTag compatibleTag,
-        String behaviorId,
-        float baseCost,
-        float costCurve,
-        List<EnchantmentLevelData> levelData
+        int baseCost,
+        double costCurve,
+        int maxLevel,
+        Map<Integer, Map<String, Double>> levelData
     ) {
-        this.enchantmentId = enchantmentId;
-        this.baseFamily = baseFamily;
-        this.level = level;
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.icon = icon;
         this.compatibleTag = compatibleTag;
-        this.behaviorId = behaviorId;
         this.baseCost = baseCost;
         this.costCurve = costCurve;
-        this.levelData = List.copyOf(levelData);
+        this.maxLevel = maxLevel;
+        this.levelData = Collections.unmodifiableMap(levelData);
     }
 
-    public String getEnchantmentId() {
-        return enchantmentId;
+    public String getId() {
+        return id;
     }
 
-    public String getBaseFamily() {
-        return baseFamily;
+    public String getName() {
+        return name;
     }
 
-    public int getLevel() {
-        return level;
+    public String getDescription() {
+        return description;
+    }
+
+    public String getIcon() {
+        return icon;
     }
 
     public WeaponTag getCompatibleTag() {
         return compatibleTag;
     }
 
-    public String getBehaviorId() {
-        return behaviorId;
-    }
-
-    public float getBaseCost() {
+    public int getBaseCost() {
         return baseCost;
     }
 
-    public float getCostCurve() {
+    public double getCostCurve() {
         return costCurve;
     }
 
-    public List<EnchantmentLevelData> getLevelData() {
-        return levelData;
+    public int getMaxLevel() {
+        return maxLevel;
     }
 
-    public boolean isBehavioral() {
-        return behaviorId != null && !behaviorId.isBlank();
+    public Map<String, Double> getValuesForLevel(int level) {
+        return levelData.getOrDefault(level, Collections.emptyMap());
     }
 
-    public EnchantmentLevelData getDataForLevel(int targetLevel) {
-        for (EnchantmentLevelData data : levelData) {
-            if (data.getLevel() == targetLevel) return data;
-        }
-        return levelData.isEmpty() ? null : levelData.get(0);
-    }
-
-    /**
-     * Cost to unlock at level 1 or upgrade to the next level.
-     */
-    public int computeCost(int targetLevel) {
-        if (targetLevel <= 1) return Math.round(baseCost);
-        float cost = baseCost;
-        for (int i = 1; i < targetLevel; i++) {
-            cost *= costCurve;
-        }
-        return Math.round(cost);
-    }
-
-    public enum ModifierType {ADD, MULTIPLY}
-
-    public record StatModifierEntry(String statId, ModifierType type, float value) {
+    public double getValue(int level, String key, double fallback) {
+        return getValuesForLevel(level).getOrDefault(key, fallback);
     }
 }

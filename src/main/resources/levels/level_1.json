@@ -47,7 +47,15 @@
                     "spawnRate": 0.5,
                     "wave": 1,
                     "minEssence": 5,
-                    "maxEssence": 15
+                    "maxEssence": 15,
+                    "lootTable": {
+                        "items": [
+                            {
+                                "itemId": "Potion_Health_Small",
+                                "chance": 0.25
+                            }
+                        ]
+                    }
                 },
                 {
                     "mobId": "Zombie",

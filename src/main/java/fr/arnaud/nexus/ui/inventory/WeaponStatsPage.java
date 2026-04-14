@@ -5,17 +5,11 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
-import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
-import fr.arnaud.nexus.item.weapon.data.WeaponRarity;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 import org.bson.BsonDocument;
 
 import javax.annotation.Nonnull;
 
-/**
- * Stateless helper — builds and refreshes the #WeaponStatsPanel section
- * and the #WeaponTabBar selection indicator.
- */
 public final class WeaponStatsPage {
 
     private WeaponStatsPage() {
@@ -28,6 +22,7 @@ public final class WeaponStatsPage {
 
         PlayerWeaponStateComponent state = store.getComponent(
             ref, PlayerWeaponStateComponent.getComponentType());
+
 
         if (state == null) {
             renderEmpty(cmd);
@@ -43,40 +38,22 @@ public final class WeaponStatsPage {
             return;
         }
 
-        WeaponRarity rarity = WeaponBsonSchema.readRarity(doc);
-        float damageMultiplier = WeaponBsonSchema.readDamageMultiplier(doc);
-
         String archetypeId = activeTab == WeaponTag.MELEE
-            ? "Nexus_Weapon_Sword_Default"
-            : "Nexus_Weapon_Staff_Default";
+            ? "Nexus_Melee_Sword_Default"
+            : "Nexus_Ranged_Staff_Default";
 
         cmd.set("#WeaponIcon.ItemId", archetypeId);
         cmd.set("#WeaponName.Text", archetypeId);
-        cmd.set("#WeaponRarity.Text", capitalize(rarity.name()));
-        cmd.set("#WeaponRarity.Style.TextColor", rarityColor(rarity));
-        cmd.set("#WeaponDamageMultiplier.Text", String.format("%.2fx", damageMultiplier));
-        cmd.set("#UpgradeButton.Disabled", rarity == WeaponRarity.LEGENDARY);
     }
 
     private static void renderEmpty(@Nonnull UICommandBuilder cmd) {
         cmd.setNull("#WeaponIcon.ItemId");
         cmd.set("#WeaponName.Text", "—");
-        cmd.set("#WeaponRarity.Text", "—");
-        cmd.set("#WeaponDamageMultiplier.Text", "—");
-        cmd.set("#UpgradeButton.Disabled", true);
+        cmd.set("#WeaponQuality.Text", "—");
     }
 
-    private static String rarityColor(WeaponRarity rarity) {
-        return switch (rarity) {
-            case COMMON -> "#9ca3af";
-            case RARE -> "#60a5fa";
-            case EPIC -> "#c084fc";
-            case LEGENDARY -> "#fbbf24";
-        };
-    }
-
-    private static String capitalize(String s) {
-        if (s == null || s.isEmpty()) return s;
-        return s.charAt(0) + s.substring(1).toLowerCase();
+    private static String colorToHex(com.hypixel.hytale.protocol.Color color) {
+        if (color == null) return "#ffffff";
+        return String.format("#%02x%02x%02x", color.red, color.green, color.blue);
     }
 }

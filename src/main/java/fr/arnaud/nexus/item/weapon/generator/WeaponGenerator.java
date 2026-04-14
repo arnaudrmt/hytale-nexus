@@ -1,16 +1,15 @@
 package fr.arnaud.nexus.item.weapon.generator;
 
+import com.hypixel.hytale.server.core.asset.type.item.config.Item;
+import com.hypixel.hytale.server.core.asset.type.item.config.ItemQuality;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
-import fr.arnaud.nexus.item.weapon.data.WeaponRarity;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public final class WeaponGenerator {
 
@@ -21,52 +20,68 @@ public final class WeaponGenerator {
         this.poolService = poolService;
     }
 
-    public BsonDocument generate(String archetypeId, WeaponTag tag, WeaponRarity rarity) {
+    public BsonDocument generateWeapon(Item item) {
+
+        ItemQuality quality = ItemQuality.getAssetMap().getAsset(item.getQualityIndex());
+        if (quality == null) return null;
+
+        WeaponTag tag = resolveTag(item);
+
         BsonDocument doc = new BsonDocument();
-        doc.put("archetype_id", new BsonString(archetypeId));
-        WeaponBsonSchema.writeRarity(doc, rarity);
+        doc.put("archetype_id", new BsonString(item.getId()));
+
+        WeaponBsonSchema.writeLevel(doc, 1);
         WeaponBsonSchema.writeWeaponTag(doc, tag);
-        WeaponBsonSchema.writeEnchantmentSlots(doc, rollEnchantmentSlots(tag, rarity));
+        WeaponBsonSchema.writeQuality(doc, quality.getQualityValue());
+        WeaponBsonSchema.writeEnchantmentSlots(doc, rollEnchantmentSlots(tag, quality.getQualityValue()));
+
         return doc;
     }
 
-    public BsonDocument generateWithRandomRarity(String archetypeId, WeaponTag tag) {
-        return generate(archetypeId, tag, rollRarity());
+    private WeaponTag resolveTag(Item item) {
+        return Arrays.stream(WeaponTag.values())
+                     .filter(t -> item.getId().toUpperCase().contains(t.name()))
+                     .findFirst()
+                     .orElse(WeaponTag.MELEE);
     }
 
-    private List<EnchantmentSlot> rollEnchantmentSlots(WeaponTag tag, WeaponRarity rarity) {
+    /**
+     * Rolls two distinct enchantment choices per slot.
+     * No enchantment id may appear more than once across all slots in either choice position.
+     * slotCount is driven by quality value (Common=0, Rare=1, Epic=2, Legendary=3).
+     */
+    private List<EnchantmentSlot> rollEnchantmentSlots(WeaponTag tag, int slotCount) {
         List<EnchantmentSlot> slots = new ArrayList<>();
-        int slotCount = WeaponRarityTableLoader.getEnchantmentSlots(rarity);
+        List<EnchantmentDefinition> pool = new ArrayList<>(poolService.getPoolForTag(tag));
+        Collections.shuffle(pool, random);
+
+        Set<String> usedIds = new HashSet<>();
+
         for (int i = 0; i < slotCount; i++) {
-            List<EnchantmentDefinition> pool = poolService.getPoolForTag(tag, 1);
-            if (pool.size() < 2) continue;
-            EnchantmentDefinition choiceA = pool.get(random.nextInt(pool.size()));
-            EnchantmentDefinition choiceB = drawDistinct(pool, choiceA);
+            List<EnchantmentDefinition> available = pool.stream()
+                                                        .filter(def -> !usedIds.contains(def.getId()))
+                                                        .toList();
+
+            if (available.size() < 2) break;
+
+            EnchantmentDefinition choiceA = available.get(random.nextInt(available.size()));
+            usedIds.add(choiceA.getId());
+
+            List<EnchantmentDefinition> remainingAfterA = available.stream()
+                                                                   .filter(def -> !def.getId().equals(choiceA.getId()))
+                                                                   .toList();
+
+            EnchantmentDefinition choiceB = available.get(random.nextInt(available.size()));
+            usedIds.add(choiceB.getId());
+
             slots.add(new EnchantmentSlot(
                 i,
-                choiceA.getBaseFamily(),
-                choiceB.getBaseFamily(),
+                choiceA.getId(),
+                choiceB.getId(),
                 null,
-                null,
-                0
+                1
             ));
         }
         return slots;
-    }
-
-    private EnchantmentDefinition drawDistinct(List<EnchantmentDefinition> pool, EnchantmentDefinition exclude) {
-        EnchantmentDefinition pick;
-        do {
-            pick = pool.get(random.nextInt(pool.size()));
-        } while (pick.getBaseFamily().equals(exclude.getBaseFamily()));
-        return pick;
-    }
-
-    private WeaponRarity rollRarity() {
-        int roll = random.nextInt(100);
-        if (roll < 50) return WeaponRarity.COMMON;
-        if (roll < 75) return WeaponRarity.RARE;
-        if (roll < 90) return WeaponRarity.EPIC;
-        return WeaponRarity.LEGENDARY;
     }
 }

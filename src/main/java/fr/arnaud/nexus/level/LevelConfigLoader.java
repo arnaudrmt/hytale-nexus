@@ -132,15 +132,34 @@ public final class LevelConfigLoader {
         String mobId = obj.get("mobId").getAsString();
         int minCount = obj.get("minCount").getAsInt();
         int maxCount = obj.get("maxCount").getAsInt();
-
         float spawnRate = obj.has("spawnRate") ? obj.get("spawnRate").getAsFloat() : 0f;
         int wave = obj.has("wave") ? obj.get("wave").getAsInt() : 0;
-
-        // "minEssence" and "maxEssence" are optional — default to 0 (no essence drop)
         int minEssence = obj.has("minEssence") ? obj.get("minEssence").getAsInt() : 0;
         int maxEssence = obj.has("maxEssence") ? obj.get("maxEssence").getAsInt() : 0;
 
-        return new LevelConfig.MobEntry(mobId, minCount, maxCount, spawnRate, wave, minEssence, maxEssence);
+        LevelConfig.MobLootConfig lootTable = null;
+        JsonObject lootObj = obj.getAsJsonObject("lootTable");
+        if (lootObj != null) {
+            lootTable = parseMobLoot(lootObj);
+        }
+
+        return new LevelConfig.MobEntry(mobId, minCount, maxCount, spawnRate, wave,
+            minEssence, maxEssence, lootTable);
+    }
+
+    private static LevelConfig.MobLootConfig parseMobLoot(JsonObject obj) {
+        List<LevelConfig.MobLootItem> items = new ArrayList<>();
+        JsonArray arr = obj.getAsJsonArray("items");
+        if (arr != null) {
+            for (JsonElement el : arr) {
+                JsonObject itemObj = el.getAsJsonObject();
+                items.add(new LevelConfig.MobLootItem(
+                    itemObj.get("itemId").getAsString(),
+                    itemObj.get("chance").getAsFloat()
+                ));
+            }
+        }
+        return new LevelConfig.MobLootConfig(items);
     }
 
     private static LevelConfig.LootChestConfig parseLootChest(JsonObject obj) {
