@@ -1,31 +1,23 @@
 {
     "Id": "Enchant_Vampirism",
     "Name": "Vampirism",
-    "Description": "Getting some health back on killing an ennemy.",
-    "Icon": "CharacterPanelStatIconHealth.png",
-    "CompatibleTag": "ANY",
-    "BaseCost": 120,
-    "CostCurve": 1.5,
-    "Levels": [
+    "Description": "Steal life when an enemy dies.",
+    "Icon": "CharacterPanelStatIconDamage.png",
+    "CompatibleTag": "MELEE",
+    "BaseCost": 100,
+    "CostCurve": 1.4,
+    "Stats": [
         {
-            "Level": 1,
-            "HealRatio": 0.04
-        },
-        {
-            "Level": 2,
-            "HealRatio": 0.07
-        },
-        {
-            "Level": 3,
-            "HealRatio": 0.10
-        },
-        {
-            "Level": 4,
-            "HealRatio": 0.14
-        },
-        {
-            "Level": 5,
-            "HealRatio": 0.18
+            "Id": "HealthRegen",
+            "DisplayName": "Health Regen",
+            "Type": "Curve",
+            "Values": {
+                "1": 1.5,
+                "2": 1.8,
+                "3": 2.2,
+                "4": 2.7,
+                "5": 3.3
+            }
         }
     ]
 }

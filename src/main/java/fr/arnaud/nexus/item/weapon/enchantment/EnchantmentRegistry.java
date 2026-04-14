@@ -14,35 +14,31 @@ public final class EnchantmentRegistry {
 
     private static final EnchantmentRegistry INSTANCE = new EnchantmentRegistry();
 
-    private static final String ENCHANTMENTS_PATH = "/nexus/enchantments/";
+    private static final String ENCHANTMENTS_PATH  = "/nexus/enchantments/";
     private static final String ENCHANTMENTS_INDEX = ENCHANTMENTS_PATH + "index.json";
 
     private final Map<String, EnchantmentDefinition> definitionsById = new HashMap<>();
 
-    private EnchantmentRegistry() {
-    }
+    private EnchantmentRegistry() {}
 
-    public static EnchantmentRegistry get() {
-        return INSTANCE;
-    }
+    public static EnchantmentRegistry get() { return INSTANCE; }
 
     public void loadAll() {
         definitionsById.clear();
-
-        List<String> fileNames = readIndex();
-        for (String fileName : fileNames) {
+        for (String fileName : readIndex()) {
             loadFile(ENCHANTMENTS_PATH + fileName);
         }
-
-        Nexus.get().getLogger().at(Level.INFO).log(
-            "Loaded " + definitionsById.size() + " enchantment definitions."
-        );
+        Nexus.get().getLogger().at(Level.INFO)
+             .log("Loaded " + definitionsById.size() + " enchantment definitions.");
     }
+
+    // ── index.json ────────────────────────────────────────────────────────────
 
     private List<String> readIndex() {
         try (InputStream is = Nexus.class.getResourceAsStream(ENCHANTMENTS_INDEX)) {
             if (is == null) {
-                Nexus.get().getLogger().at(Level.SEVERE).log("Enchantment index not found: " + ENCHANTMENTS_INDEX);
+                Nexus.get().getLogger().at(Level.SEVERE)
+                     .log("Enchantment index not found: " + ENCHANTMENTS_INDEX);
                 return Collections.emptyList();
             }
             String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
@@ -53,55 +49,69 @@ public final class EnchantmentRegistry {
             }
             return names;
         } catch (Exception e) {
-            Nexus.get().getLogger().at(Level.SEVERE).log("Failed to read enchantment index", e);
+            Nexus.get().getLogger().at(Level.SEVERE)
+                 .log("Failed to read enchantment index", e);
             return Collections.emptyList();
         }
     }
 
+    // ── individual file ───────────────────────────────────────────────────────
+
     private void loadFile(String path) {
         try (InputStream is = Nexus.class.getResourceAsStream(path)) {
             if (is == null) {
-                Nexus.get().getLogger().at(Level.WARNING).log("Enchantment file not found: " + path);
+                Nexus.get().getLogger().at(Level.WARNING)
+                     .log("Enchantment file not found: " + path);
                 return;
             }
             String json = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             EnchantmentDefinition def = parse(BsonDocument.parse(json));
-            if (def != null) {
-                definitionsById.put(def.getId(), def);
-            }
+            if (def != null) definitionsById.put(def.getId(), def);
         } catch (Exception e) {
-            Nexus.get().getLogger().at(Level.SEVERE).log("Failed to load enchantment: " + path, e);
+            Nexus.get().getLogger().at(Level.SEVERE)
+                 .log("Failed to load enchantment: " + path, e);
         }
     }
 
-    private EnchantmentDefinition parse(BsonDocument doc) {
-        String id = doc.getString("Id").getValue();
-        String name = doc.getString("Name").getValue();
-        String description = doc.getString("Description").getValue();
-        String icon = doc.getString("Icon").getValue();
-        WeaponTag tag = parseTag(doc.getString("CompatibleTag").getValue());
-        int baseCost = doc.getInt32("BaseCost").getValue();
-        double costCurve = doc.getNumber("CostCurve").doubleValue();
+    // ── parser ────────────────────────────────────────────────────────────────
 
-        Map<Integer, Map<String, Double>> levelData = new LinkedHashMap<>();
+    private EnchantmentDefinition parse(BsonDocument doc) {
+        String id          = doc.getString("Id").getValue();
+        String name        = doc.getString("Name").getValue();
+        String description = doc.getString("Description").getValue();
+        String icon        = doc.getString("Icon").getValue();
+        WeaponTag tag      = parseTag(doc.getString("CompatibleTag").getValue());
+        int baseCost       = doc.getInt32("BaseCost").getValue();
+        double costCurve   = doc.getNumber("CostCurve").doubleValue();
+
+        List<EnchantmentStatDefinition> stats = new ArrayList<>();
         int maxLevel = 0;
 
-        for (BsonValue entry : doc.getArray("Levels")) {
-            BsonDocument levelDoc = entry.asDocument();
-            int level = levelDoc.getInt32("Level").getValue();
-            maxLevel = Math.max(maxLevel, level);
+        for (BsonValue entry : doc.getArray("Stats")) {
+            BsonDocument statDoc = entry.asDocument();
 
-            Map<String, Double> values = new HashMap<>();
-            for (String key : levelDoc.keySet()) {
-                if (key.equals("Level")) continue;
-                BsonValue v = levelDoc.get(key);
-                if (v.isNumber()) values.put(key, v.asNumber().doubleValue());
-                else if (v.isInt32()) values.put(key, (double) v.asInt32().getValue());
+            String statId      = statDoc.getString("Id").getValue();
+            String displayName = statDoc.getString("DisplayName").getValue();
+            String typeRaw     = statDoc.getString("Type").getValue();
+            EnchantmentStatDefinition.StatType statType =
+                "Curve".equalsIgnoreCase(typeRaw)
+                    ? EnchantmentStatDefinition.StatType.CURVE
+                    : EnchantmentStatDefinition.StatType.FLAT;
+
+            Map<Integer, Double> values = new LinkedHashMap<>();
+            BsonDocument valuesDoc = statDoc.getDocument("Values");
+            for (String levelKey : valuesDoc.keySet()) {
+                int level = Integer.parseInt(levelKey);
+                double value = valuesDoc.getNumber(levelKey).doubleValue();
+                values.put(level, value);
+                maxLevel = Math.max(maxLevel, level);
             }
-            levelData.put(level, values);
+
+            stats.add(new EnchantmentStatDefinition(statId, displayName, statType, values));
         }
 
-        return new EnchantmentDefinition(id, name, description, icon, tag, baseCost, costCurve, maxLevel, levelData);
+        return new EnchantmentDefinition(
+            id, name, description, icon, tag, baseCost, costCurve, maxLevel, stats);
     }
 
     private WeaponTag parseTag(String raw) {
@@ -111,6 +121,8 @@ public final class EnchantmentRegistry {
             return WeaponTag.ANY;
         }
     }
+
+    // ── lookup ────────────────────────────────────────────────────────────────
 
     public EnchantmentDefinition getDefinition(String id) {
         return definitionsById.get(id);

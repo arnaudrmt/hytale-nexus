@@ -1,31 +1,23 @@
 {
     "Id": "Enchant_Sharpness",
     "Name": "Sharpness",
-    "Description": "Increase the weapon's output damage.",
-    "Icon": "CharacterPanelStatIconHealth.png",
-    "CompatibleTag": "ANY",
-    "BaseCost": 80,
+    "Description": "Multiplies your weapon damage.",
+    "Icon": "CharacterPanelStatIconDamage.png",
+    "CompatibleTag": "MELEE",
+    "BaseCost": 100,
     "CostCurve": 1.4,
-    "Levels": [
+    "Stats": [
         {
-            "Level": 1,
-            "DamageBonus": 0.08
-        },
-        {
-            "Level": 2,
-            "DamageBonus": 0.14
-        },
-        {
-            "Level": 3,
-            "DamageBonus": 0.20
-        },
-        {
-            "Level": 4,
-            "DamageBonus": 0.27
-        },
-        {
-            "Level": 5,
-            "DamageBonus": 0.35
+            "Id": "DamageMultiplier",
+            "DisplayName": "Damage Multiplier",
+            "Type": "Curve",
+            "Values": {
+                "1": 1.5,
+                "2": 1.8,
+                "3": 2.2,
+                "4": 2.7,
+                "5": 3.3
+            }
         }
     ]
 }

@@ -69,7 +69,11 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         InventoryGridPage.appendSlotBindings(cmd, event, "#HotbarSlotCards",
             InventoryGridPage.HOTBAR_CAPACITY, InventoryGridPage.STORAGE_CAPACITY);
 
+        // Enchantment slot bindings (also registers choose/upgrade event bindings)
+        EnchantmentGridPage.appendSlotBindings(cmd, event);
+
         applyTabVisuals(cmd, activeTab);
+        EnchantmentGridPage.populateSlots(cmd, ref, store, activeTab);
         InventoryGridPage.populateSlotItems(cmd, ref, store);
         InventoryGridPage.populateEquipSlots(cmd, ref, store);
         WeaponStatsPage.populate(cmd, ref, store, activeTab);
@@ -83,14 +87,11 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             cmd.setNull(iconSelector + ".ItemId");
             return;
         }
-
-        // Mirror WeaponStatsPage — archetype_id not stored in doc yet
         String itemId = doc.containsKey("archetype_id")
             ? doc.getString("archetype_id").getValue()
             : (tag == WeaponTag.MELEE
                ? "Nexus_Melee_Sword_Default"
                : "Nexus_Ranged_Staff_Default");
-
         cmd.set(iconSelector + ".ItemId", itemId);
     }
 
@@ -107,6 +108,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             world.execute(() -> {
                 UICommandBuilder update = new UICommandBuilder();
                 applyTabVisuals(update, activeTab);
+                EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
                 WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
                 sendUpdate(update, null, false);
             });
@@ -114,8 +116,37 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         }
 
         if ("Drop".equals(data.action)) {
-            // Clear the pending selection — item stays in inventory
             selectedSlot = null;
+            return;
+        }
+
+        // ── Enchant choose ────────────────────────────────────────────────────
+        if (data.enchantChoose != null) {
+            String capturedPayload = data.enchantChoose;
+            world.execute(() -> {
+                boolean changed = EnchantmentGridPage.handleChoose(
+                    ref, ref.getStore(), capturedPayload, activeTab);
+                if (changed) {
+                    UICommandBuilder update = new UICommandBuilder();
+                    EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
+                    sendUpdate(update, null, false);
+                }
+            });
+            return;
+        }
+
+        // ── Enchant upgrade ───────────────────────────────────────────────────
+        if (data.enchantUpgrade != null) {
+            String capturedPayload = data.enchantUpgrade;
+            world.execute(() -> {
+                boolean changed = EnchantmentGridPage.handleUpgrade(
+                    ref, ref.getStore(), capturedPayload, activeTab);
+                if (changed) {
+                    UICommandBuilder update = new UICommandBuilder();
+                    EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
+                    sendUpdate(update, null, false);
+                }
+            });
             return;
         }
 
@@ -135,14 +166,13 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                 UICommandBuilder update = new UICommandBuilder();
                 InventoryGridPage.populateSlotItems(update, ref, ref.getStore());
                 InventoryGridPage.populateEquipSlots(update, ref, ref.getStore());
+                EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
                 WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
                 sendUpdate(update, null, false);
             });
             return;
         }
 
-        // If equip slot clicked but nothing selected yet, ignore it —
-        // equip slots are not valid first-click selections
         if (data.equipSlotClick != null) return;
 
         // ── Inventory slot click (select / swap) ──────────────────────────────
@@ -191,7 +221,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         ItemStack incomingStack = container.getItemStack(slotIndex);
         if (incomingStack == null || incomingStack.isEmpty()) return;
 
-        org.bson.BsonDocument incomingDoc = incomingStack.getMetadata();
+        BsonDocument incomingDoc = incomingStack.getMetadata();
         if (incomingDoc == null || !incomingDoc.containsKey("nexus_rarity")) return;
 
         WeaponTag itemTag = WeaponBsonSchema.readWeaponTag(incomingDoc);
@@ -201,25 +231,19 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             ref, PlayerWeaponStateComponent.getComponentType());
         if (weaponState == null) return;
 
-        // ── Return the previously equipped weapon to inventory ────────────────
-        org.bson.BsonDocument oldDoc = targetTag == WeaponTag.MELEE
+        BsonDocument oldDoc = targetTag == WeaponTag.MELEE
             ? weaponState.meleeDocument
             : weaponState.rangedDocument;
 
         if (oldDoc != null && oldDoc.containsKey("archetype_id")) {
             ItemStack oldStack = new ItemStack(
                 oldDoc.getString("archetype_id").getValue(), 1, oldDoc.clone());
-            // tryAddToStorage drops it at player's feet if inventory is full
             InventoryUtils.tryAddToStorage(ref, store, oldStack);
         }
 
-        // ── Remove the incoming item from the source slot ─────────────────────
         container.removeItemStackFromSlot(slotIndex, (short) 1);
-
-        // ── Store the new weapon document ─────────────────────────────────────
         weaponState.setDocument(targetTag, incomingDoc.clone());
 
-        // ── Apply equip system if this is the active tab ──────────────────────
         if (targetTag == activeTab) {
             weaponState.activeTag = targetTag;
             Nexus.get().getWeaponEquipSystem().onWeaponEquipped(ref, incomingStack, store);
@@ -258,12 +282,18 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                 (d, v) -> d.action = v, d -> d.action)
             .addField(new KeyedCodec<>("EquipSlotClick", Codec.STRING),
                 (d, v) -> d.equipSlotClick = v, d -> d.equipSlotClick)
+            .addField(new KeyedCodec<>("EnchantChoose", Codec.STRING),
+                (d, v) -> d.enchantChoose = v, d -> d.enchantChoose)
+            .addField(new KeyedCodec<>("EnchantUpgrade", Codec.STRING),
+                (d, v) -> d.enchantUpgrade = v, d -> d.enchantUpgrade)
             .build();
 
         public String slotClick;
         public String tabClick;
         public String action;
         public String equipSlotClick;
+        public String enchantChoose;
+        public String enchantUpgrade;
 
         public EventData() {
         }

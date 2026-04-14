@@ -11,7 +11,8 @@ public final class WeaponStatBagBuilder {
     private static final String KEY_HEALTH_BOOST = "HealthBoost";
     private static final String KEY_MOVEMENT_SPEED = "MovementSpeedBoost";
 
-    private WeaponStatBagBuilder() {}
+    private WeaponStatBagBuilder() {
+    }
 
     /**
      * Builds a fully computed WeaponStatBag from the weapon's base curves
@@ -29,9 +30,9 @@ public final class WeaponStatBagBuilder {
             if (def == null) continue;
 
             int level = slot.currentLevel();
-            damageMultiplier += def.getValue(level, KEY_DAMAGE_BONUS, 0.0);
-            healthBoost += def.getValue(level, KEY_HEALTH_BOOST, 0.0);
-            movementSpeed += def.getValue(level, KEY_MOVEMENT_SPEED, 0.0);
+            damageMultiplier += def.getStat(KEY_DAMAGE_BONUS).compute(level, 1.0);
+            healthBoost += def.getStat(KEY_HEALTH_BOOST).compute(level, 100.0);
+            movementSpeed += def.getStat(KEY_MOVEMENT_SPEED).compute(level, 1.0);
         }
 
         return new WeaponStatBag(damageMultiplier, healthBoost, movementSpeed);

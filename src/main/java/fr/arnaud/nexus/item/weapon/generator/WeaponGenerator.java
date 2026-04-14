@@ -21,7 +21,6 @@ public final class WeaponGenerator {
     }
 
     public BsonDocument generateWeapon(Item item) {
-
         ItemQuality quality = ItemQuality.getAssetMap().getAsset(item.getQualityIndex());
         if (quality == null) return null;
 
@@ -58,29 +57,26 @@ public final class WeaponGenerator {
         Set<String> usedIds = new HashSet<>();
 
         for (int i = 0; i < slotCount; i++) {
+            // Filter out any enchant already used in a previous slot
             List<EnchantmentDefinition> available = pool.stream()
                                                         .filter(def -> !usedIds.contains(def.getId()))
                                                         .toList();
 
             if (available.size() < 2) break;
 
+            // Pick choice A
             EnchantmentDefinition choiceA = available.get(random.nextInt(available.size()));
             usedIds.add(choiceA.getId());
 
+            // Pick choice B from what remains after A is excluded
             List<EnchantmentDefinition> remainingAfterA = available.stream()
                                                                    .filter(def -> !def.getId().equals(choiceA.getId()))
                                                                    .toList();
 
-            EnchantmentDefinition choiceB = available.get(random.nextInt(available.size()));
+            EnchantmentDefinition choiceB = remainingAfterA.get(random.nextInt(remainingAfterA.size()));
             usedIds.add(choiceB.getId());
 
-            slots.add(new EnchantmentSlot(
-                i,
-                choiceA.getId(),
-                choiceB.getId(),
-                null,
-                1
-            ));
+            slots.add(new EnchantmentSlot(i, choiceA.getId(), choiceB.getId(), null, 1));
         }
         return slots;
     }

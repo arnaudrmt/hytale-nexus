@@ -3,7 +3,7 @@ package fr.arnaud.nexus.item.weapon.enchantment;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 
 public final class EnchantmentDefinition {
 
@@ -15,7 +15,7 @@ public final class EnchantmentDefinition {
     private final int baseCost;
     private final double costCurve;
     private final int maxLevel;
-    private final Map<Integer, Map<String, Double>> levelData;
+    private final List<EnchantmentStatDefinition> stats;
 
     public EnchantmentDefinition(
         String id,
@@ -26,7 +26,7 @@ public final class EnchantmentDefinition {
         int baseCost,
         double costCurve,
         int maxLevel,
-        Map<Integer, Map<String, Double>> levelData
+        List<EnchantmentStatDefinition> stats
     ) {
         this.id = id;
         this.name = name;
@@ -36,7 +36,7 @@ public final class EnchantmentDefinition {
         this.baseCost = baseCost;
         this.costCurve = costCurve;
         this.maxLevel = maxLevel;
-        this.levelData = Collections.unmodifiableMap(levelData);
+        this.stats = Collections.unmodifiableList(stats);
     }
 
     public String getId() {
@@ -71,11 +71,17 @@ public final class EnchantmentDefinition {
         return maxLevel;
     }
 
-    public Map<String, Double> getValuesForLevel(int level) {
-        return levelData.getOrDefault(level, Collections.emptyMap());
+    public List<EnchantmentStatDefinition> getStats() {
+        return stats;
     }
 
-    public double getValue(int level, String key, double fallback) {
-        return getValuesForLevel(level).getOrDefault(key, fallback);
+    /**
+     * Convenience: find a stat definition by its id, or null.
+     */
+    public EnchantmentStatDefinition getStat(String statId) {
+        for (EnchantmentStatDefinition s : stats) {
+            if (s.getId().equals(statId)) return s;
+        }
+        return null;
     }
 }

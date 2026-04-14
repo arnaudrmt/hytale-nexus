@@ -1,31 +1,23 @@
 {
     "Id": "Enchant_HealthBoost",
     "Name": "Health Boost",
-    "Description": "Increase your health.",
+    "Description": "Increases your maximum health.",
     "Icon": "CharacterPanelStatIconHealth.png",
     "CompatibleTag": "ANY",
     "BaseCost": 70,
     "CostCurve": 1.3,
-    "Levels": [
+    "Stats": [
         {
-            "Level": 1,
-            "HealthBoost": 10.0
-        },
-        {
-            "Level": 2,
-            "HealthBoost": 18.0
-        },
-        {
-            "Level": 3,
-            "HealthBoost": 28.0
-        },
-        {
-            "Level": 4,
-            "HealthBoost": 40.0
-        },
-        {
-            "Level": 5,
-            "HealthBoost": 55.0
+            "Id": "HealthBoost",
+            "DisplayName": "Health Boost",
+            "Type": "Flat",
+            "Values": {
+                "1": 10.0,
+                "2": 18.0,
+                "3": 28.0,
+                "4": 40.0,
+                "5": 55.0
+            }
         }
     ]
 }

@@ -36,14 +36,14 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         if (reason != AddReason.LOAD) return;
 
         PlayerWeaponStateComponent existing = store.getComponent(
-            ref, PlayerWeaponStateComponent.getComponentType()
-        );
+            ref, PlayerWeaponStateComponent.getComponentType());
 
         if (existing != null && existing.meleeDocument != null) {
             restoreActiveWeapon(ref, existing, store);
             return;
         }
 
+        // Fresh player — generate default weapons
         PlayerWeaponStateComponent state = new PlayerWeaponStateComponent();
         state.meleeDocument = generateDefaultWeapon("Nexus_Melee_Sword_Default");
         state.rangedDocument = generateDefaultWeapon("Nexus_Ranged_Staff_Default");
@@ -55,8 +55,7 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         equipSystem.onWeaponEquipped(
             ref,
             new ItemStack("Nexus_Melee_Sword_Default", 1, state.meleeDocument),
-            store
-        );
+            store);
     }
 
     @Override
@@ -77,16 +76,15 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         BsonDocument activeDoc = state.getActiveDocument();
         if (activeDoc == null) return;
 
-        String archetypeId = state.activeTag == WeaponTag.MELEE
-            ? "Nexus_Melee_Sword_Default"
-            : "Nexus_Ranged_Staff_Default";
+        // Read the real archetype id from the stored document instead of hardcoding
+        if (!activeDoc.containsKey("archetype_id")) return;
+        String archetypeId = activeDoc.getString("archetype_id").getValue();
 
         placeWeaponInSlot(ref, archetypeId, activeDoc, store);
         equipSystem.onWeaponEquipped(
             ref,
             new ItemStack(archetypeId, 1, activeDoc),
-            store
-        );
+            store);
     }
 
     private BsonDocument generateDefaultWeapon(String archetypeId) {
@@ -101,12 +99,10 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         Store<EntityStore> store
     ) {
         InventoryComponent.Hotbar hotbar = store.getComponent(
-            ref, InventoryComponent.Hotbar.getComponentType()
-        );
+            ref, InventoryComponent.Hotbar.getComponentType());
         if (hotbar == null) return;
         hotbar.getInventory().setItemStackForSlot(
-            (short) 0, new ItemStack(archetypeId, 1, doc)
-        );
+            (short) 0, new ItemStack(archetypeId, 1, doc));
         hotbar.markDirty();
     }
 }

@@ -39,21 +39,6 @@ public final class EssenceDustManager {
         subtractStat(player, store, amount);
     }
 
-    /**
-     * Deducts 25% of the player's balance on death.
-     *
-     * @return the amount lost
-     */
-    public float applyDeathPenalty(Ref<EntityStore> player, Store<EntityStore> store) {
-        EntityStatMap stats = getStats(player, store);
-        if (stats == null || essenceDustIndex == Integer.MIN_VALUE) return 0f;
-        EntityStatValue dust = stats.get(essenceDustIndex);
-        if (dust == null) return 0f;
-        float lost = dust.get() * DEATH_PENALTY_FRACTION;
-        stats.subtractStatValue(Predictable.SELF, essenceDustIndex, lost);
-        return lost;
-    }
-
     public float getBalance(Ref<EntityStore> player, Store<EntityStore> store) {
         EntityStatValue dust = getStatValue(player, store);
         return dust != null ? dust.get() : 0f;
