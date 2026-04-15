@@ -4,6 +4,13 @@
 
 $C = "../Common.ui";
 
+@ButtonTextTooltipStyle = TextTooltipStyle(
+  Background: (TexturePath: "Inventory/Backgrounds/ItemTooltipDefault.png", Border: 24),
+  MaxWidth: 400,
+  LabelStyle: (Wrap: true, FontSize: 16),
+  Padding: 24
+);
+
 Group {
   Anchor: (Vertical: 0);
   FlexWeight: 1;
@@ -174,6 +181,7 @@ Group {
       $C.@TextButton #UpgradeEnchantButton {
         @Anchor = (Width: 180, Height: 15, Bottom: 0);
         @Text = "UPGRADE";
+        TextTooltipStyle: @ButtonTextTooltipStyle;
       }
     }
   }

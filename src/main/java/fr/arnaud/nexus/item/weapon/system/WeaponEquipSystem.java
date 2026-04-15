@@ -8,71 +8,50 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import fr.arnaud.nexus.item.weapon.level.WeaponConfigCalculator;
-import fr.arnaud.nexus.item.weapon.stats.WeaponStatApplicator;
-import fr.arnaud.nexus.item.weapon.stats.WeaponStatBag;
-import fr.arnaud.nexus.item.weapon.stats.WeaponStatBagBuilder;
 import org.bson.BsonDocument;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public final class WeaponEquipSystem {
 
-    private final StatIndexResolver statResolver;
-    private final WeaponStatApplicator statApplicator;
+    public void onWeaponEquipped(@Nonnull Ref<EntityStore> playerRef,
+                                 @Nullable ItemStack incomingStack,
+                                 @Nonnull Store<EntityStore> store) {
+        // Always tear down old weapon first
+        tearDown(playerRef, store);
 
-    public WeaponEquipSystem(StatIndexResolver statResolver) {
-        this.statResolver = statResolver;
-        this.statApplicator = new WeaponStatApplicator(statResolver);
-    }
-
-    public void onWeaponEquipped(
-        Ref<EntityStore> playerRef,
-        ItemStack incomingStack,
-        Store<EntityStore> store
-    ) {
-        tearDownCurrentWeapon(playerRef, store);
         if (incomingStack == null || !isNexusWeapon(incomingStack)) return;
         if (!playerRef.isValid()) return;
 
         BsonDocument doc = incomingStack.getMetadata();
-        WeaponInstanceComponent instance = buildInstanceFromDocument(doc);
-
-        WeaponStatBag bag = WeaponStatBagBuilder.build(instance);
-        statApplicator.apply(playerRef, bag, store);
+        WeaponInstanceComponent instance = buildInstance(doc);
 
         store.getExternalData().getWorld().execute(() -> {
-            if (playerRef.isValid()) {
-                store.putComponent(playerRef, WeaponInstanceComponent.getComponentType(), instance);
-            }
+            if (!playerRef.isValid()) return;
+            store.putComponent(playerRef, WeaponInstanceComponent.getComponentType(), instance);
+            // Apply weapon base + enchant passive stats
+            WeaponPassiveApplicator.apply(playerRef, store, instance);
         });
     }
 
-    public void onWeaponUnequipped(Ref<EntityStore> playerRef, Store<EntityStore> store) {
-        tearDownCurrentWeapon(playerRef, store);
+    public void onWeaponUnequipped(@Nonnull Ref<EntityStore> playerRef,
+                                   @Nonnull Store<EntityStore> store) {
+        tearDown(playerRef, store);
     }
 
-    /**
-     * Called when an enchantment is unlocked or upgraded mid-session.
-     * Rebuilds and reapplies the stat bag so changes take effect immediately.
-     */
-    public void refreshStats(Ref<EntityStore> playerRef, Store<EntityStore> store) {
-        if (!playerRef.isValid()) return;
-        WeaponInstanceComponent instance = store.getComponent(
-            playerRef, WeaponInstanceComponent.getComponentType()
-        );
-        if (instance == null) return;
+    // ── Internal ──────────────────────────────────────────────────────────────
 
-        WeaponStatBag bag = WeaponStatBagBuilder.build(instance);
-        statApplicator.apply(playerRef, bag, store);
-    }
-
-    private void tearDownCurrentWeapon(Ref<EntityStore> playerRef, Store<EntityStore> store) {
+    private void tearDown(@Nonnull Ref<EntityStore> playerRef,
+                          @Nonnull Store<EntityStore> store) {
         if (!playerRef.isValid()) return;
 
         WeaponInstanceComponent current = store.getComponent(
-            playerRef, WeaponInstanceComponent.getComponentType()
-        );
+            playerRef, WeaponInstanceComponent.getComponentType());
         if (current == null) return;
 
-        statApplicator.remove(playerRef, store);
+        // Remove passive stat bonuses before clearing the component
+        WeaponPassiveApplicator.remove(playerRef, store, current);
 
         store.getExternalData().getWorld().execute(() -> {
             if (playerRef.isValid()) {
@@ -81,15 +60,14 @@ public final class WeaponEquipSystem {
         });
     }
 
-    private WeaponInstanceComponent buildInstanceFromDocument(BsonDocument doc) {
+    private WeaponInstanceComponent buildInstance(@Nonnull BsonDocument doc) {
         WeaponInstanceComponent instance = new WeaponInstanceComponent();
         instance.quality = ItemQuality.getAssetMap().getAsset(WeaponBsonSchema.readQuality(doc));
         instance.level = WeaponBsonSchema.readLevel(doc);
         instance.weaponTag = WeaponBsonSchema.readWeaponTag(doc);
         instance.enchantmentSlots = WeaponBsonSchema.readEnchantmentSlots(doc);
         instance.archetypeId = doc.containsKey("archetype_id")
-            ? doc.getString("archetype_id").getValue()
-            : "unknown";
+            ? doc.getString("archetype_id").getValue() : "unknown";
 
         instance.damageMultiplierCurve = WeaponConfigCalculator.calculateDamageMultiplier(doc);
         instance.healthBoostCurve = WeaponConfigCalculator.calculateHealthBoost(doc);
@@ -98,8 +76,8 @@ public final class WeaponEquipSystem {
         return instance;
     }
 
-    private boolean isNexusWeapon(ItemStack stack) {
+    private boolean isNexusWeapon(@Nonnull ItemStack stack) {
         BsonDocument doc = stack.getMetadata();
-        return doc != null && doc.containsKey("nexus_quality_id");
+        return doc != null && doc.containsKey("nexus_quality_value");
     }
 }

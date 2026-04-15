@@ -1,18 +1,25 @@
 package fr.arnaud.nexus.item.weapon.enchantment.event;
 
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Central event bus for enchantment runtime effects.
+ * Handlers are registered by enchantment ID and dispatched per trigger type.
+ */
 public final class NexusEnchantBus {
 
     private static final NexusEnchantBus INSTANCE = new NexusEnchantBus();
 
     private final Map<String, EnchantEffectHandler> handlers = new HashMap<>();
 
-    private NexusEnchantBus() {}
+    private NexusEnchantBus() {
+    }
 
     public static NexusEnchantBus get() {
         return INSTANCE;
@@ -23,23 +30,27 @@ public final class NexusEnchantBus {
     }
 
     /**
-     * Publishes an event. Looks up the attacker's active weapon enchantments
-     * and dispatches to any handler whose enchant id is present and unlocked.
+     * Publishes an event to all unlocked enchants on the attacker's weapon.
+     * Routes to the correct handler method based on event type.
      */
     public void publish(NexusEnchantEvent event) {
-        if (!event.attacker().isValid()) return;
+        Ref<EntityStore> attacker = event.attacker();
+        if (!attacker.isValid()) return;
 
         WeaponInstanceComponent weapon = event.store().getComponent(
-            event.attacker(), WeaponInstanceComponent.getComponentType()
-        );
+            attacker, WeaponInstanceComponent.getComponentType());
         if (weapon == null) return;
 
         for (EnchantmentSlot slot : weapon.enchantmentSlots) {
             if (!slot.isUnlocked()) continue;
-
             EnchantEffectHandler handler = handlers.get(slot.chosen());
-            if (handler != null) {
-                handler.handle(event, slot.currentLevel());
+            if (handler == null) continue;
+
+            int level = slot.currentLevel();
+            switch (event.type()) {
+                case ON_HIT -> handler.onHit(event, level);
+                case ON_RECEIVE_HIT -> handler.onReceiveHit(event, level);
+                case ON_KILL -> handler.onKill(event, level);
             }
         }
     }

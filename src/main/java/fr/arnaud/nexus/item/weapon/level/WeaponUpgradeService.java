@@ -3,25 +3,25 @@ package fr.arnaud.nexus.item.weapon.level;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.feature.ressource.EssenceDustManager;
+import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import org.bson.BsonDocument;
 
 public final class WeaponUpgradeService {
 
-    private final EssenceDustManager essenceManager;
+    private final PlayerStatsManager statsManager;
 
-    public WeaponUpgradeService(EssenceDustManager essenceManager) {
-        this.essenceManager = essenceManager;
+    public WeaponUpgradeService(PlayerStatsManager playerStatsManager) {
+        this.statsManager = playerStatsManager;
     }
 
     public UpgradeResult attemptUpgrade(Ref<EntityStore> playerRef, BsonDocument weaponDoc, Store<EntityStore> store) {
-        if (!essenceManager.isReady()) {
+        if (!statsManager.isReady()) {
             return UpgradeResult.failure("Essence system not initialized");
         }
 
         float upgradeCost = WeaponConfigCalculator.calculateUpgradeCost(weaponDoc);
-        float playerBalance = essenceManager.getBalance(playerRef, store);
+        float playerBalance = statsManager.getEssenceDust(playerRef, store);
 
         if (playerBalance < upgradeCost) {
             return UpgradeResult.failure("Insufficient Essence Dust", upgradeCost, playerBalance);
@@ -29,7 +29,7 @@ public final class WeaponUpgradeService {
 
         int currentLevel = WeaponBsonSchema.readLevel(weaponDoc);
         WeaponBsonSchema.writeLevel(weaponDoc, currentLevel + 1);
-        essenceManager.removeEssenceDust(playerRef, store, upgradeCost);
+        statsManager.removeEssenceDust(playerRef, store, upgradeCost);
 
         return UpgradeResult.success(currentLevel + 1, upgradeCost);
     }

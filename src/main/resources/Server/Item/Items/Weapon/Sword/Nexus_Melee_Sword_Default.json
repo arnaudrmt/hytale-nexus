@@ -101,7 +101,7 @@
                     "Type": "DamageEntity",
                     "DamageCalculator": {
                         "BaseDamage": {
-                            "Physical": 10
+                            "Physical": 100
                         }
                     },
                     "EntityStatsOnHit": [

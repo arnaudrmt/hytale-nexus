@@ -7,7 +7,7 @@ import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.EssenceDustManager;
+import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
@@ -69,9 +69,9 @@ public final class EnchantmentGridPage {
         // whether WeaponInstanceComponent has been set by the equip system yet.
         List<EnchantmentSlot> slots = getEnchantmentSlots(ref, store, activeTab);
 
-        EssenceDustManager essenceManager = Nexus.get().getEssenceDustManager();
-        float essence = essenceManager.isReady()
-            ? essenceManager.getBalance(ref, store) : 0f;
+        PlayerStatsManager statsManager = Nexus.get().getPlayerStatsManager();
+        float essence = statsManager.isReady()
+            ? statsManager.getEssenceDust(ref, store) : 0f;
 
         for (int i = 0; i < ENCHANT_SLOT_COUNT; i++) {
             if (slots == null || i >= slots.size()) {
@@ -157,6 +157,8 @@ public final class EnchantmentGridPage {
 
         int currentLevel = slot.currentLevel();
 
+        // Enchant icon slot background uses level as quality tier
+
         cmd.set(base + " #EnchantName.Text", def.getName() + " " + toRoman(currentLevel));
         cmd.set(base + " #EnchantLevel.Text", "Level " + currentLevel);
         cmd.set(base + " #EnchantDesc.Text", def.getDescription());
@@ -172,12 +174,48 @@ public final class EnchantmentGridPage {
         if (maxed) {
             cmd.set(base + " #EnchantCost.Text", "MAX");
             cmd.set(base + " #UpgradeEnchantButton.Disabled", true);
+            cmd.set(base + " #UpgradeEnchantButton.TooltipText", "Maximum level reached.");
         } else {
             int nextLevel = currentLevel + 1;
             int cost = EnchantmentCostCalculator.costForLevel(def, nextLevel);
             cmd.set(base + " #EnchantCost.Text", formatNumber(cost));
             cmd.set(base + " #UpgradeEnchantButton.Disabled", essence < cost);
+            cmd.set(base + " #UpgradeEnchantButton.TooltipText",
+                buildEnchantUpgradeTooltip(def, currentLevel, nextLevel, cost));
         }
+    }
+
+    // ── Enchant upgrade tooltip ───────────────────────────────────────────────
+
+    private static String buildEnchantUpgradeTooltip(@Nonnull EnchantmentDefinition def,
+                                                     int currentLevel,
+                                                     int nextLevel,
+                                                     int cost) {
+        StringBuilder sb = new StringBuilder();
+
+        for (EnchantmentStatDefinition stat : def.getStats()) {
+            double currentVal = stat.getValue(currentLevel);
+            double nextVal = stat.getValue(nextLevel);
+            double delta = nextVal - currentVal;
+
+            if (stat.getType() == EnchantmentStatDefinition.StatType.CURVE) {
+                sb.append(stat.getDisplayName() + ":")
+                  .append("  ×").append(String.format("%.2f", currentVal))
+                  .append(" -> ×").append(String.format("%.2f", nextVal))
+                  .append(" (").append(String.format("%+.2f", delta)).append(")\n");
+            } else {
+                sb.append(stat.getDisplayName())
+                  .append("  ")
+                  .append(formatStatValue(stat, currentLevel))
+                  .append(" → ")
+                  .append(formatStatValue(stat, nextLevel))
+                  .append(" (")
+                  .append(delta > 0 ? "+" : "")
+                  .append(delta == Math.floor(delta) ? String.valueOf((int) delta) : String.format("%.1f", delta))
+                  .append(")\n");
+            }
+        }
+        return sb.toString().stripTrailing();
     }
 
     // ── Handle choose event ───────────────────────────────────────────────────
@@ -215,11 +253,11 @@ public final class EnchantmentGridPage {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(chosenId);
         if (def == null) return false;
 
-        EssenceDustManager essenceManager = Nexus.get().getEssenceDustManager();
+        PlayerStatsManager statsManager = Nexus.get().getPlayerStatsManager();
         int cost = EnchantmentCostCalculator.costForLevel(def, 1);
-        if (!essenceManager.isReady() || essenceManager.getBalance(ref, store) < cost) return false;
+        if (!statsManager.isReady() || statsManager.getEssenceDust(ref, store) < cost) return false;
 
-        essenceManager.removeEssenceDust(ref, store, cost);
+        statsManager.removeEssenceDust(ref, store, cost);
 
         // Mutate the slot in the list, write back to the document
         slots.set(slotIndex, slot.withChoice(chosenId));
@@ -263,10 +301,10 @@ public final class EnchantmentGridPage {
         int nextLevel = currentLevel + 1;
         int cost = EnchantmentCostCalculator.costForLevel(def, nextLevel);
 
-        EssenceDustManager essenceManager = Nexus.get().getEssenceDustManager();
-        if (!essenceManager.isReady() || essenceManager.getBalance(ref, store) < cost) return false;
+        PlayerStatsManager statsManager = Nexus.get().getPlayerStatsManager();
+        if (!statsManager.isReady() || statsManager.getEssenceDust(ref, store) < cost) return false;
 
-        essenceManager.removeEssenceDust(ref, store, cost);
+        statsManager.removeEssenceDust(ref, store, cost);
 
         slots.set(slotIndex, slot.withLevel(nextLevel));
         WeaponBsonSchema.writeEnchantmentSlots(doc, slots);

@@ -13,7 +13,7 @@
         },
         {
             "Quality": 1,
-            "LevelCostBase": 0,
+            "LevelCostBase": 100,
             "LevelCostCurve": 1,
             "DamageMultiplierBase": 1.00,
             "DamageMultiplierCurve": 1,

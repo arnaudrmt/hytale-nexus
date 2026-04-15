@@ -63,6 +63,9 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         event.addEventBinding(CustomUIEventBindingType.Activating, "#RangedEquipButton",
             com.hypixel.hytale.server.core.ui.builder.EventData.of("EquipSlotClick", "Ranged"), false);
 
+        event.addEventBinding(CustomUIEventBindingType.Activating, "#UpgradeButton",
+            com.hypixel.hytale.server.core.ui.builder.EventData.of("WeaponUpgrade", ""), false);
+
         // Inventory grid bindings
         InventoryGridPage.appendSlotBindings(cmd, event, "#InventorySlotCards",
             InventoryGridPage.STORAGE_CAPACITY, 0);
@@ -76,6 +79,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         EnchantmentGridPage.populateSlots(cmd, ref, store, activeTab);
         InventoryGridPage.populateSlotItems(cmd, ref, store);
         InventoryGridPage.populateEquipSlots(cmd, ref, store);
+        CharacterStatsPage.populate(cmd, ref, store);
         WeaponStatsPage.populate(cmd, ref, store, activeTab);
     }
 
@@ -130,6 +134,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                     UICommandBuilder update = new UICommandBuilder();
                     EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
                     sendUpdate(update, null, false);
+                    pushFullStatsUpdate(ref);
                 }
             });
             return;
@@ -145,6 +150,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                     UICommandBuilder update = new UICommandBuilder();
                     EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
                     sendUpdate(update, null, false);
+                    pushFullStatsUpdate(ref);
                 }
             });
             return;
@@ -169,6 +175,25 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                 EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
                 WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
                 sendUpdate(update, null, false);
+                pushFullStatsUpdate(ref);
+            });
+            return;
+        }
+
+        // ── Weapon upgrade click ──────────────────────────────────────────────────
+        if (data.weaponUpgrade != null) {
+            world.execute(() -> {
+                PlayerWeaponStateComponent state = ref.getStore().getComponent(
+                    ref, PlayerWeaponStateComponent.getComponentType());
+                if (state == null) return;
+                BsonDocument doc = activeTab == WeaponTag.RANGED
+                    ? state.rangedDocument : state.meleeDocument;
+                if (doc == null) return;
+                Nexus.get().getWeaponUpgradeService().attemptUpgrade(ref, doc, ref.getStore());
+                UICommandBuilder update = new UICommandBuilder();
+                WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
+                sendUpdate(update, null, false);
+                pushFullStatsUpdate(ref);
             });
             return;
         }
@@ -286,6 +311,8 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                 (d, v) -> d.enchantChoose = v, d -> d.enchantChoose)
             .addField(new KeyedCodec<>("EnchantUpgrade", Codec.STRING),
                 (d, v) -> d.enchantUpgrade = v, d -> d.enchantUpgrade)
+            .addField(new KeyedCodec<>("WeaponUpgrade", Codec.STRING),
+                (d, v) -> d.weaponUpgrade = v, d -> d.weaponUpgrade)
             .build();
 
         public String slotClick;
@@ -294,12 +321,35 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         public String equipSlotClick;
         public String enchantChoose;
         public String enchantUpgrade;
+        public String weaponUpgrade;
 
         public EventData() {
         }
     }
 
-    void pushUpdate(@Nonnull UICommandBuilder cmd) {
-        sendUpdate(cmd, null, false);
+    private void pushFullStatsUpdate(@Nonnull Ref<EntityStore> ref) {
+        reequipActiveWeapon(ref, ref.getStore());
+        UICommandBuilder update = new UICommandBuilder();
+        WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
+        EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
+        CharacterStatsPage.populate(update, ref, ref.getStore());
+        sendUpdate(update, null, false);
+    }
+
+    private void reequipActiveWeapon(@Nonnull Ref<EntityStore> ref,
+                                     @Nonnull Store<EntityStore> store) {
+        PlayerWeaponStateComponent state = store.getComponent(
+            ref, PlayerWeaponStateComponent.getComponentType());
+        if (state == null) return;
+
+        BsonDocument doc = activeTab == WeaponTag.RANGED
+            ? state.rangedDocument : state.meleeDocument;
+        if (doc == null || !doc.containsKey("archetype_id")) return;
+
+        String archetypeId = doc.getString("archetype_id").getValue();
+        Nexus.get().getWeaponEquipSystem().onWeaponEquipped(
+            ref,
+            new ItemStack(archetypeId, 1, doc),
+            store);
     }
 }

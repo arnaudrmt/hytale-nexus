@@ -43,7 +43,6 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
             return;
         }
 
-        // Fresh player — generate default weapons
         PlayerWeaponStateComponent state = new PlayerWeaponStateComponent();
         state.meleeDocument = generateDefaultWeapon("Nexus_Melee_Sword_Default");
         state.rangedDocument = generateDefaultWeapon("Nexus_Ranged_Staff_Default");
@@ -76,7 +75,6 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         BsonDocument activeDoc = state.getActiveDocument();
         if (activeDoc == null) return;
 
-        // Read the real archetype id from the stored document instead of hardcoding
         if (!activeDoc.containsKey("archetype_id")) return;
         String archetypeId = activeDoc.getString("archetype_id").getValue();
 

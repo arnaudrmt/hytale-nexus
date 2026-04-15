@@ -27,9 +27,9 @@ import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import fr.arnaud.nexus.input.hover.PlayerHoverStateComponent;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDamageInterceptor;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistrar;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
-import fr.arnaud.nexus.item.weapon.enchantment.event.NexusEnchantBus;
-import fr.arnaud.nexus.item.weapon.enchantment.handlers.VampirismEnchantHandler;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatConfigLoader;
 import fr.arnaud.nexus.item.weapon.system.PlayerWeaponInitSystem;
 import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
@@ -38,6 +38,7 @@ import fr.arnaud.nexus.spawner.SpawnerMobDeathSystem;
 import fr.arnaud.nexus.spawner.SpawnerProximitySystem;
 import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import fr.arnaud.nexus.system.NexusStoragePickupGuard;
+import fr.arnaud.nexus.world.BlockInteractionGuard;
 
 public final class NexusInitializer {
 
@@ -59,9 +60,9 @@ public final class NexusInitializer {
         I18n.init(plugin);
         WeaponStatConfigLoader.load();
 
+        // Load enchant definitions first, then register all handlers
         EnchantmentRegistry.get().loadAll();
-
-        NexusEnchantBus.get().register("Enchant_Vampirism", new VampirismEnchantHandler());
+        EnchantmentRegistrar.registerAll();
     }
 
     private void registerComponents() {
@@ -110,7 +111,10 @@ public final class NexusInitializer {
         registry.registerSystem(plugin.getSwitchStrikeTriggerSystem());
         registry.registerSystem(plugin.getSwitchStrikeExecutionSystem());
 
-        registry.registerSystem(plugin.getEnchantmentDamageInterceptor());
+        // Three enchant damage systems replacing the old single interceptor
+        registry.registerSystem(new EnchantmentDamageInterceptor.OnHitSystem());
+        registry.registerSystem(new EnchantmentDamageInterceptor.OnReceiveHitSystem());
+        registry.registerSystem(new EnchantmentDamageInterceptor.OnKillSystem());
 
         registry.registerSystem(new BreachSequenceSystem());
         registry.registerSystem(new BreachDamageInterceptor());
@@ -127,6 +131,8 @@ public final class NexusInitializer {
         ));
 
         new WeaponSwapSystem(plugin.getWeaponEquipSystem());
+
+        registry.registerSystem(new BlockInteractionGuard.PreventBreak());
     }
 
     private void registerListeners() {
@@ -135,7 +141,7 @@ public final class NexusInitializer {
         events.registerGlobal(StartWorldEvent.class, plugin.getNexusWorldLoadSystem()::onWorldStart);
         events.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);
 
-        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getEssenceDustManager()::onAssetsLoaded);
+        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getPlayerStatsManager()::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getSwitchStrikeTriggerSystem()::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getStatIndexResolver()::onAssetsLoaded);
 
@@ -150,7 +156,7 @@ public final class NexusInitializer {
 
         registry.registerCommand(new AdminStatsCommand());
         registry.registerCommand(new AdminWeaponCommand(
-            plugin.getEssenceDustManager(),
+            plugin.getPlayerStatsManager(),
             plugin.getWeaponUpgradeService()
         ));
         registry.registerCommand(new OpenInventoryCommand());

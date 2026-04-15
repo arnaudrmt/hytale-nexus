@@ -164,14 +164,14 @@ Group #Root {
             );
             Background: "Inventory/Slots/SpecialSlotTemporary.png";
 
+            Button #MeleeEquipButton {
+              Style: @RightSideButtonDefaultStyle;
+            }
+
             ItemIcon #MeleeEquippedIcon {
               Anchor: (Width: 48, Height: 48);
               ShowItemTooltip: false;
               HitTestVisible: false;
-            }
-
-            Button #MeleeEquipButton {
-              Style: @RightSideButtonDefaultStyle;
             }
           }
 
@@ -184,14 +184,14 @@ Group #Root {
             );
             Background: "Inventory/Slots/SpecialSlotTemporary.png";
 
+            Button #RangedEquipButton {
+              Style: @RightSideButtonDefaultStyle;
+            }
+
             ItemIcon #RangedEquippedIcon {
               Anchor: (Width: 48, Height: 48);
               ShowItemTooltip: false;
               HitTestVisible: false;
-            }
-
-            Button #RangedEquipButton {
-              Style: @RightSideButtonDefaultStyle;
             }
           }
 
@@ -387,11 +387,10 @@ Group #Root {
         Group {
           LayoutMode: Top;
           FlexWeight: 1;
-          Anchor: (Top: -5);
 
           Group {
             LayoutMode: Left;
-            Anchor: (Height: 50, Top: 5);
+            Anchor: (Height: 50);
 
             @Icon {
               @IconPatch = "Inventory/Icons/CharacterPanelStatIconHealth.png"; TooltipText: %client.inventory.character.stats.health;
@@ -412,8 +411,8 @@ Group #Root {
             Group {
               Anchor: (Left: 10);
               LayoutMode: Middle;
+              FlexWeight: 1;
               @StatNameLabel {
-                FlexWeight: 1;
                 Text: %client.inventory.character.stats.stamina;
               }
               @StatNameValueLabel #StatsStamina {}
@@ -427,6 +426,7 @@ Group #Root {
             Anchor: (Height: 50);
 
             @Icon { @IconPatch = "Inventory/Icons/CharacterPanelStatIconMana.png"; TooltipText: %client.inventory.character.stats.mana; }
+
             Group {
               Anchor: (Left: 10);
               LayoutMode: Middle;
@@ -435,6 +435,19 @@ Group #Root {
                 Text: "Essence";
               }
               @StatNameValueLabel #StatsEssence {}
+            }
+
+            @Icon { @IconPatch = "Inventory/Icons/CharacterPanelStatIconMana.png"; TooltipText: %client.inventory.character.stats.mana; }
+
+            Group {
+              Anchor: (Left: 10);
+              LayoutMode: Middle;
+              FlexWeight: 1;
+              @StatNameLabel {
+                Text: "Movement Speed";
+              }
+
+              @StatNameValueLabel #StatsMovementSpeed {}
             }
           }
         }
@@ -552,7 +565,8 @@ Group #Root {
 
         ItemIcon #WeaponIcon {
           Anchor: (Width: 64, Height: 64);
-          ShowItemTooltip: false;
+          Background: "Inventory/Slots/SlotCommon.png";
+          ShowItemTooltip: true;
           HitTestVisible: false;
         }
 
@@ -561,15 +575,25 @@ Group #Root {
           LayoutMode: Middle;
           FlexWeight: 1;
 
-          Label #WeaponName {
-            Style: (TextColor: #e2e8f0, FontSize: 16, RenderBold: true);
-            Text: "—";
+          Group {
+            LayoutMode: Left;
+
+            Label #WeaponLevel {
+              Style: (TextColor: #878e9c, FontSize: 16, RenderBold: true);
+              Text: "[Lvl. 1]";
+            }
+
+            Label #WeaponName {
+              Anchor: (Left: 10);
+              Style: (TextColor: #e2e8f0, FontSize: 16, RenderBold: true);
+              Text: "Nexus Hatchet";
+            }
           }
 
           Label #WeaponRarity {
             Anchor: (Top: 4);
             Style: (TextColor: #878e9c, FontSize: 13);
-            Text: "—";
+            Text: "Legendary";
           }
         }
       }
@@ -592,8 +616,8 @@ Group #Root {
 
           Group {
             Anchor: (Left: 10);
-            LayoutMode: Middle;
             FlexWeight: 1;
+            LayoutMode: Middle;
 
             Label {
               Anchor: (Top: 1);
@@ -603,20 +627,72 @@ Group #Root {
 
             Label #WeaponDamageMultiplier {
               Anchor: (Top: -1);
-              Style: (TextColor: #b4c8c9, FontSize: 14, RenderBold: true);
-              Text: "—";
+              Style: (TextColor: #99c995, FontSize: 14, RenderBold: true);
+              Text: "+10 %";
+            }
+          }
+
+          Group {
+            Anchor: (Left: 10);
+            FlexWeight: 1;
+            LayoutMode: Middle;
+
+            Label {
+              Anchor: (Top: 1);
+              Style: (TextColor: #878e9c, FontSize: 11);
+              Text: "Health Boost";
+            }
+
+            Label #WeaponHealthAdder {
+              Anchor: (Top: -1);
+              Style: (TextColor: #C99595FF, FontSize: 14, RenderBold: true);
+              Text: "+250";
+            }
+          }
+
+          Group {
+            Anchor: (Left: 10);
+            FlexWeight: 1;
+            LayoutMode: Middle;
+
+            Label {
+              Anchor: (Top: 1);
+              Style: (TextColor: #878e9c, FontSize: 11);
+              Text: "Movement Speed";
+            }
+
+            Label #WeaponMovementSpeedAdder {
+              Anchor: (Top: -1);
+              Style: (TextColor: #C9C595FF, FontSize: 14, RenderBold: true);
+              Text: "+20";
             }
           }
         }
       }
 
       Group {
-        LayoutMode: Center;
-        Anchor: (Top: 12);
+        FlexWeight: 1;
+        LayoutMode: Bottom;
+
+        Group {
+          LayoutMode: CenterMiddle;
+          Anchor: (Bottom: 15);
+
+          Group {
+            Anchor: (Height: 44, Width: 44);
+            Background: "Inventory/Icons/CharacterPanelStatIconMana.png";
+          }
+
+          Label #UpgradeCost {
+            Style: (FontSize: 20, RenderBold: true, TextColor: #ffffff);
+            Text: "1 500";
+          }
+        }
 
         $C.@TextButton #UpgradeButton {
-          @Anchor = (Width: 180);
-          @Text = "Upgrade";
+          @Anchor = (Width: 180, Height: 15, Bottom: 0);
+          @Text = "UPGRADE";
+          TextTooltipStyle: @ButtonTextTooltipStyle;
         }
       }
     }

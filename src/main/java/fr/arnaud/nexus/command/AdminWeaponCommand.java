@@ -16,7 +16,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.EssenceDustManager;
+import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 import fr.arnaud.nexus.item.weapon.level.WeaponUpgradeService;
@@ -35,12 +35,12 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
         "param2", "Optional parameter", ArgTypes.STRING
     );
 
-    private final EssenceDustManager essenceManager;
+    private final PlayerStatsManager statsManager;
     private final WeaponUpgradeService upgradeService;
 
-    public AdminWeaponCommand(EssenceDustManager essenceManager, WeaponUpgradeService upgradeService) {
+    public AdminWeaponCommand(PlayerStatsManager playerStatsManager, WeaponUpgradeService upgradeService) {
         super("nexusweapon", "Dev tool for weapon and leveling system");
-        this.essenceManager = essenceManager;
+        this.statsManager = playerStatsManager;
         this.upgradeService = upgradeService;
     }
 
@@ -165,8 +165,8 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
             return;
         }
 
-        essenceManager.addEssenceDust(ref, store, amount);
-        float newBalance = essenceManager.getBalance(ref, store);
+        statsManager.addEssenceDust(ref, store, amount);
+        float newBalance = statsManager.getEssenceDust(ref, store);
         context.sendMessage(Message.raw(
             "§aAdded §f" + String.format("%.1f", amount) + " §aEssence Dust\n" +
                 "§7New balance: §f" + String.format("%.1f", newBalance)
