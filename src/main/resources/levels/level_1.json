@@ -79,8 +79,8 @@
             "lootChest": {
                 "items": [
                     {
-                        "itemId": "Sword_Iron",
-                        "chance": 0.50
+                        "itemId": "Nexus_Ranged_Staff_Copper",
+                        "chance": 1
                     },
                     {
                         "itemId": "Potion_Health_Small",

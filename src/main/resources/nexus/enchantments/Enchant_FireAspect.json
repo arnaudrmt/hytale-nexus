@@ -1,0 +1,17 @@
+{
+    "Id": "Enchant_FireAspect",
+    "Name": "Fire Aspect",
+    "Description": "Sets enemies on fire on hit.",
+    "Icon": "CharacterPanelStatIconDamage.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 90,
+    "CostCurve": 1.35,
+    "Stats": [
+        {
+            "Id": "FireDuration",
+            "DisplayName": "Burn Duration",
+            "Type": "Flat",
+            "Values": { "1": 2.0, "2": 3.0, "3": 4.5, "4": 6.0, "5": 8.0 }
+        }
+    ]
+}

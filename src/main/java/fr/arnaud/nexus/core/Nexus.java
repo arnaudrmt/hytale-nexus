@@ -2,7 +2,6 @@ package fr.arnaud.nexus.core;
 
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
-import fr.arnaud.nexus.debug.PacketDiagnostic;
 import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeExecutionSystem;
 import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeTriggerSystem;
 import fr.arnaud.nexus.feature.movement.PlayerDashSystem;
@@ -19,6 +18,7 @@ import fr.arnaud.nexus.level.LevelManager;
 import fr.arnaud.nexus.level.NexusWorldLoadSystem;
 import fr.arnaud.nexus.spawner.MobSpawnerManager;
 import fr.arnaud.nexus.ui.inventory.InventoryPacketInterceptor;
+import fr.arnaud.nexus.util.PacketDiagnostic;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.logging.Level;

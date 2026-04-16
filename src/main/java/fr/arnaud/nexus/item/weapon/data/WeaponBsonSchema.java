@@ -11,6 +11,9 @@ public final class WeaponBsonSchema {
     private static final String KEY_WEAPON_TAG = "nexus_weapon_tag";
     private static final String KEY_QUALITY_VALUE = "nexus_quality_value";
 
+    private static final String KEY_NAME_KEY = "nexus_name_key";
+    private static final String KEY_DESCRIPTION_KEY = "nexus_description_key";
+
     private static final String KEY_ENCHANT_SLOTS = "nexus_enchant_slots";
     private static final String KEY_SLOT_INDEX = "slot";
     private static final String KEY_CHOICE_A = "choice_a";
@@ -40,6 +43,26 @@ public final class WeaponBsonSchema {
         BsonValue value = doc.get(KEY_QUALITY_VALUE);
         if (value == null || !value.isInt32()) return 1;
         return value.asInt32().getValue();
+    }
+
+    public static void writeName(BsonDocument doc, String name) {
+        doc.put(KEY_NAME_KEY, new BsonString(name));
+    }
+
+    public static String readName(BsonDocument doc) {
+        BsonValue value = doc.get(KEY_NAME_KEY);
+        if (value == null) return "Unknown";
+        return value.asString().getValue();
+    }
+
+    public static void writeDescription(BsonDocument doc, String description) {
+        doc.put(KEY_DESCRIPTION_KEY, new BsonString(description));
+    }
+
+    public static String readDescription(BsonDocument doc) {
+        BsonValue value = doc.get(KEY_DESCRIPTION_KEY);
+        if (value == null) return "Unknown";
+        return value.asString().getValue();
     }
 
     public static void writeWeaponTag(BsonDocument doc, WeaponTag tag) {
@@ -90,6 +113,7 @@ public final class WeaponBsonSchema {
             int currentLevel = slotDoc.containsKey(KEY_CURRENT_LEVEL)
                 ? slotDoc.getInt32(KEY_CURRENT_LEVEL).getValue() : 1;
             slots.add(new EnchantmentSlot(index, choiceA, choiceB,
+
                 chosen, currentLevel));
         }
         return slots;

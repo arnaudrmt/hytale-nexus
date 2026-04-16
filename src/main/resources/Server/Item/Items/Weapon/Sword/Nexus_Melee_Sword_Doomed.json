@@ -1,16 +1,12 @@
 {
     "Parent": "Template_Weapon_Sword",
     "TranslationProperties": {
-        "Name": "server.items.Weapon_Sword_Steel_Rusty.name"
+        "Name": "server.items.Weapon_Sword_Doomed.name"
     },
-    "Model": "Items/Weapons/Sword/Steel.blockymodel",
-    "Texture": "Items/Weapons/Sword/Steel_Rusty_Texture.png",
-    "Icon": "Icons/ItemsGenerated/Weapon_Sword_Steel_Rusty.png",
-    "Quality": "Common",
-    "ItemLevel": 15,
-    "Utility": {
-        "Compatible": true
-    },
+    "Model": "NPC/Intelligent/Outlander/Models/Weapons/Sword/Doomed.blockymodel",
+    "Texture": "NPC/Intelligent/Outlander/Models/Weapons/Sword/Doomed_Texture.png",
+    "Icon": "Icons/ItemsGenerated/Weapon_Sword_Doomed.png",
+    "Quality": "Rare",
     "Interactions": {
         "Ability2": {
             "Interactions": [
@@ -21,6 +17,8 @@
             ]
         }
     },
+    "ItemLevel": 30,
+    "MaxDurability": 75,
     "InteractionVars": {
         "Swing_Left_Damage": {
             "Interactions": [
@@ -28,12 +26,12 @@
                     "Parent": "Weapon_Sword_Primary_Swing_Left_Damage",
                     "DamageCalculator": {
                         "BaseDamage": {
-                            "Physical": 9
+                            "Physical": 12
                         }
                     },
                     "DamageEffects": {
-                        "WorldSoundEventId": "SFX_Light_Melee_T1_Impact",
-                        "LocalSoundEventId": "SFX_Light_Melee_T1_Impact"
+                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
+                        "LocalSoundEventId": "SFX_Sword_T2_Impact"
                     }
                 }
             ]
@@ -44,12 +42,12 @@
                     "Parent": "Weapon_Sword_Primary_Swing_Right_Damage",
                     "DamageCalculator": {
                         "BaseDamage": {
-                            "Physical": 9
+                            "Physical": 12
                         }
                     },
                     "DamageEffects": {
-                        "WorldSoundEventId": "SFX_Light_Melee_T1_Impact",
-                        "LocalSoundEventId": "SFX_Light_Melee_T1_Impact"
+                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
+                        "LocalSoundEventId": "SFX_Sword_T2_Impact"
                     }
                 }
             ]
@@ -60,12 +58,12 @@
                     "Parent": "Weapon_Sword_Primary_Swing_Down_Damage",
                     "DamageCalculator": {
                         "BaseDamage": {
-                            "Physical": 16
+                            "Physical": 22
                         }
                     },
                     "DamageEffects": {
-                        "WorldSoundEventId": "SFX_Light_Melee_T1_Impact",
-                        "LocalSoundEventId": "SFX_Light_Melee_T1_Impact"
+                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
+                        "LocalSoundEventId": "SFX_Sword_T2_Impact"
                     }
                 }
             ]
@@ -76,7 +74,7 @@
                     "Parent": "Weapon_Sword_Primary_Thrust_Damage",
                     "DamageCalculator": {
                         "BaseDamage": {
-                            "Physical": 24
+                            "Physical": 32
                         }
                     },
                     "EntityStatsOnHit": [
@@ -86,8 +84,8 @@
                         }
                     ],
                     "DamageEffects": {
-                        "WorldSoundEventId": "SFX_Light_Melee_T1_Impact",
-                        "LocalSoundEventId": "SFX_Light_Melee_T1_Impact"
+                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
+                        "LocalSoundEventId": "SFX_Sword_T2_Impact"
                     }
                 }
             ]
@@ -98,13 +96,13 @@
                     "Parent": "Weapon_Sword_Signature_Vortexstrike_Spin_Damage",
                     "DamageCalculator": {
                         "BaseDamage": {
-                            "Physical": 17
+                            "Physical": 23
                         }
                     },
                     "EntityStatsOnHit": [],
                     "DamageEffects": {
-                        "WorldSoundEventId": "SFX_Light_Melee_T1_Impact",
-                        "LocalSoundEventId": "SFX_Light_Melee_T1_Impact"
+                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
+                        "LocalSoundEventId": "SFX_Sword_T2_Impact"
                     }
                 }
             ]
@@ -115,13 +113,13 @@
                     "Parent": "Weapon_Sword_Signature_Vortexstrike_Stab_Damage",
                     "DamageCalculator": {
                         "BaseDamage": {
-                            "Physical": 50
+                            "Physical": 70
                         }
                     },
                     "EntityStatsOnHit": [],
                     "DamageEffects": {
-                        "WorldSoundEventId": "SFX_Light_Melee_T1_Impact",
-                        "LocalSoundEventId": "SFX_Light_Melee_T1_Impact"
+                        "WorldSoundEventId": "SFX_Sword_T2_Impact",
+                        "LocalSoundEventId": "SFX_Sword_T2_Impact"
                     }
                 }
             ]
@@ -131,7 +129,7 @@
                 {
                     "Parent": "Weapon_Sword_Secondary_Guard_Wield",
                     "StaminaCost": {
-                        "Value": 8.89,
+                        "Value": 12.22,
                         "CostType": "Damage"
                     }
                 }

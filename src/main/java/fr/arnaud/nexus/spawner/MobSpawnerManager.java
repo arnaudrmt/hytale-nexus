@@ -5,6 +5,12 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.protocol.SoundCategory;
+import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
+import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.modules.entity.EntityModule;
+import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
@@ -134,6 +140,15 @@ public final class MobSpawnerManager {
         state.setChestPosition(chestPos);
 
         activeWorld.execute(() -> {
+
+            EntityStore store = activeWorld.getEntityStore();
+            int index = SoundEvent.getAssetMap().getIndex("SFX_Portal_Neutral_Open.json");
+
+            activeWorld.getPlayerRefs().forEach(playerRef -> {
+                TransformComponent transform = store.getStore().getComponent(playerRef.getReference(), EntityModule.get().getTransformComponentType());
+                SoundUtil.playSoundEvent3dToPlayer(playerRef.getReference(), index, SoundCategory.UI, transform.getPosition(), store.getStore());
+            });
+
             int x = (int) Math.floor(chestPos.getX());
             int y = (int) Math.floor(chestPos.getY());
             int z = (int) Math.floor(chestPos.getZ());
@@ -161,6 +176,15 @@ public final class MobSpawnerManager {
             List<String> loot = state.getPendingChestLoot();
             state.clearPendingChestLoot();
 
+            int index = SoundEvent.getAssetMap().getIndex("SFX_Chest_Legendary_FirstOpen_Player");
+            Player player = store.getComponent(playerRef, Player.getComponentType());
+            World world = player.getWorld();
+
+            world.execute(() -> {
+                TransformComponent transform = store.getComponent(playerRef, EntityModule.get().getTransformComponentType());
+                SoundUtil.playSoundEvent3dToPlayer(playerRef, index, SoundCategory.UI, transform.getPosition(), store);
+            });
+
             ejectItems(loot, chestPos, playerRef, store);
             breakChestBlock(chestPos);
             return true;
@@ -173,12 +197,11 @@ public final class MobSpawnerManager {
         Random rng = ThreadLocalRandom.current();
 
         for (String itemId : itemIds) {
-            float velX = (rng.nextFloat() - 0.5f) * 0.3f;
-            float velY = 0.2f + rng.nextFloat() * 0.15f;
-            float velZ = (rng.nextFloat() - 0.5f) * 0.3f;
+            float velX = (rng.nextFloat() - 0.5f) * 1.2f;
+            float velY = 0.4f + rng.nextFloat() * 0.5f;
+            float velZ = (rng.nextFloat() - 0.5f) * 1.2f;
 
-            com.hypixel.hytale.server.core.inventory.ItemStack itemStack =
-                new com.hypixel.hytale.server.core.inventory.ItemStack(itemId, 1);
+            com.hypixel.hytale.server.core.inventory.ItemStack itemStack = buildLootStack(itemId);
 
             com.hypixel.hytale.component.Holder<EntityStore> itemHolder =
                 com.hypixel.hytale.server.core.modules.entity.item.ItemComponent
@@ -188,6 +211,26 @@ public final class MobSpawnerManager {
                 store.addEntity(itemHolder, com.hypixel.hytale.component.AddReason.SPAWN);
             }
         }
+    }
+
+    private com.hypixel.hytale.server.core.inventory.ItemStack buildLootStack(String itemId) {
+        if (isNexusWeapon(itemId)) {
+            com.hypixel.hytale.server.core.asset.type.item.config.Item item =
+                com.hypixel.hytale.server.core.asset.type.item.config.Item
+                    .getAssetMap().getAsset(itemId);
+            if (item != null) {
+                org.bson.BsonDocument doc = fr.arnaud.nexus.core.Nexus.get()
+                                                                      .getWeaponGenerator().generateWeapon(item);
+                if (doc != null) {
+                    return new com.hypixel.hytale.server.core.inventory.ItemStack(itemId, 1, doc);
+                }
+            }
+        }
+        return new com.hypixel.hytale.server.core.inventory.ItemStack(itemId, 1);
+    }
+
+    private static boolean isNexusWeapon(String itemId) {
+        return itemId.startsWith("Nexus_Melee_") || itemId.startsWith("Nexus_Ranged_");
     }
 
     private void breakChestBlock(Vector3d chestPos) {

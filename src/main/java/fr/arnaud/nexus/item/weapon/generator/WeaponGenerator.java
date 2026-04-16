@@ -32,6 +32,8 @@ public final class WeaponGenerator {
         WeaponBsonSchema.writeLevel(doc, 1);
         WeaponBsonSchema.writeWeaponTag(doc, tag);
         WeaponBsonSchema.writeQuality(doc, quality.getQualityValue());
+        WeaponBsonSchema.writeName(doc, item.getTranslationKey());
+        WeaponBsonSchema.writeDescription(doc, item.getDescriptionTranslationKey());
         WeaponBsonSchema.writeEnchantmentSlots(doc, rollEnchantmentSlots(tag, quality.getQualityValue()));
 
         return doc;

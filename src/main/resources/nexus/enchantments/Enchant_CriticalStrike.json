@@ -1,0 +1,17 @@
+{
+    "Id": "Enchant_CriticalStrike",
+    "Name": "Critical Strike",
+    "Description": "Chance to deal double damage on hit.",
+    "Icon": "CharacterPanelStatIconDamage.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 100,
+    "CostCurve": 1.4,
+    "Stats": [
+        {
+            "Id": "CritChance",
+            "DisplayName": "Crit Chance",
+            "Type": "Flat",
+            "Values": { "1": 0.08, "2": 0.14, "3": 0.20, "4": 0.28, "5": 0.35 }
+        }
+    ]
+}

@@ -2,6 +2,7 @@ package fr.arnaud.nexus.ui.inventory;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
@@ -48,6 +49,7 @@ public final class WeaponStatsPage {
         String archetypeId = doc.getString("archetype_id").getValue();
         int level = WeaponBsonSchema.readLevel(doc);
         int quality = WeaponBsonSchema.readQuality(doc);
+        String name = WeaponBsonSchema.readName(doc);
 
         // ── Icon ──────────────────────────────────────────────────────────────
         cmd.set("#WeaponIcon.ItemId", archetypeId);
@@ -56,7 +58,7 @@ public final class WeaponStatsPage {
         cmd.set("#WeaponLevel.Text", "[Lvl. " + level + "]");
 
         // ── Weapon name (always white) ────────────────────────────────────────
-        cmd.set("#WeaponName.Text", archetypeId);
+        cmd.set("#WeaponName.Text", Message.translation(name));
 
         // ── Quality label coloured by quality ─────────────────────────────────
         String qualityColor = QualityMapper.toColor(quality);

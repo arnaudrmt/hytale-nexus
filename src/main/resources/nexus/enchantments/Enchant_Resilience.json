@@ -1,0 +1,17 @@
+{
+    "Id": "Enchant_Resilience",
+    "Name": "Resilience",
+    "Description": "Reduces incoming damage.",
+    "Icon": "CharacterPanelStatIconHealth.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 90,
+    "CostCurve": 1.35,
+    "Stats": [
+        {
+            "Id": "DamageReduction",
+            "DisplayName": "Damage Reduction",
+            "Type": "Flat",
+            "Values": { "1": 0.05, "2": 0.10, "3": 0.15, "4": 0.22, "5": 0.30 }
+        }
+    ]
+}

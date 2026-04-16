@@ -74,13 +74,12 @@ public final class WeaponSwapSystem {
         equipSystem.onWeaponEquipped(ref, buildStack(state.activeTag, incomingDoc), store);
     }
 
-    private ItemStack buildStack(
-        WeaponTag tag,
-        BsonDocument doc
-    ) {
-        String archetypeId = tag == WeaponTag.MELEE
-            ? "Nexus_Melee_Sword_Default"
-            : "Nexus_Ranged_Staff_Default";
+    private ItemStack buildStack(WeaponTag tag, BsonDocument doc) {
+        String archetypeId = doc.containsKey("archetype_id")
+            ? doc.getString("archetype_id").getValue()
+            : (tag == WeaponTag.MELEE
+               ? "Nexus_Melee_Sword_Default"
+               : "Nexus_Ranged_Staff_Default");
         return new ItemStack(archetypeId, 1, doc);
     }
 }

@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.debug;
+package fr.arnaud.nexus.util;
 
 import com.hypixel.hytale.protocol.Packet;
 import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;

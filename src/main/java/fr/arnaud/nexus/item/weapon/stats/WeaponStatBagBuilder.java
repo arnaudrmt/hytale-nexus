@@ -53,7 +53,7 @@ public final class WeaponStatBagBuilder {
         WeaponStatCurves curves = WeaponStatRegistry.get().getCurves(quality);
         if (curves == null) return WeaponStatBag.empty();
 
-        double damageMultiplier = computeCurve(curves.damageBase(), curves.damageCurve(), forLevel);
+        double damageMultiplier = computeFlat(curves.damageBase(), curves.damageCurve(), forLevel);
         double healthBoost = computeFlat(curves.healthBase(), curves.healthFlat(), forLevel);
         double movementSpeed = computeFlat(curves.speedBase(), curves.speedFlat(), forLevel);
 
@@ -78,7 +78,6 @@ public final class WeaponStatBagBuilder {
      * Used for multiplicative stats like damage.
      */
     public static double computeCurve(double base, double curve, int level) {
-        if (level <= 1) return base;
         return base * Math.pow(curve, level - 1);
     }
 

@@ -1,5 +1,6 @@
 package fr.arnaud.nexus.item.weapon.enchantment.event;
 
+import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -11,6 +12,8 @@ import fr.arnaud.nexus.item.weapon.system.StatIndexResolver;
  * attacker — the entity dealing damage / the player whose weapon proc'd
  * target   — the entity receiving damage / dying
  * damage   — the raw damage amount (0 for non-damage triggers)
+ * cmd      — the command buffer for the current tick (needed for spatial queries,
+ * applying effects, etc.)
  */
 public record NexusEnchantEvent(
     Type type,
@@ -18,20 +21,12 @@ public record NexusEnchantEvent(
     Ref<EntityStore> target,
     double damage,
     Store<EntityStore> store,
+    CommandBuffer<EntityStore> cmd,
     StatIndexResolver statIndexResolver
 ) {
     public enum Type {
-        /**
-         * Player hit an entity with a weapon.
-         */
         ON_HIT,
-        /**
-         * Player received damage from any source.
-         */
         ON_RECEIVE_HIT,
-        /**
-         * An entity killed by the player died.
-         */
         ON_KILL
     }
 }

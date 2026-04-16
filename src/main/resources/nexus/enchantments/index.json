@@ -4,6 +4,14 @@
         "Enchant_Vampirism.json",
         "Enchant_HealthBoost.json",
         "Enchant_StaminaBoost.json",
-        "Enchant_Swiftness.json"
+        "Enchant_Swiftness.json",
+        "Enchant_FireAspect.json",
+        "Enchant_FreezeAspect.json",
+        "Enchant_Poison.json",
+        "Enchant_Cleave.json",
+        "Enchant_Gambler.json",
+        "Enchant_Resilience.json",
+        "Enchant_SwiftnessOnKill.json",
+        "Enchant_CriticalStrike.json"
     ]
 }

@@ -247,7 +247,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         if (incomingStack == null || incomingStack.isEmpty()) return;
 
         BsonDocument incomingDoc = incomingStack.getMetadata();
-        if (incomingDoc == null || !incomingDoc.containsKey("nexus_rarity")) return;
+        if (incomingDoc == null || !incomingDoc.containsKey("nexus_quality_value")) return;
 
         WeaponTag itemTag = WeaponBsonSchema.readWeaponTag(incomingDoc);
         if (!itemTag.isCompatibleWith(targetTag)) return;

@@ -4,7 +4,6 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
-import com.hypixel.hytale.server.core.asset.type.item.config.ItemQuality;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.arguments.system.OptionalArg;
 import com.hypixel.hytale.server.core.command.system.arguments.system.RequiredArg;
@@ -18,7 +17,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
-import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 import fr.arnaud.nexus.item.weapon.level.WeaponUpgradeService;
 import org.bson.BsonDocument;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
@@ -57,7 +55,7 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
 
         world.execute(() -> {
             switch (subcommand) {
-                case "give" -> handleGive(context, store, ref, param1Arg.get(context), defaultQuality);
+                case "give" -> handleGive(context, store, ref, param1Arg.get(context));
                 case "stats" -> handlePrintStats(context, store, ref);
                 case "levelup" -> handleLevelUp(context, store, ref);
                 case "essence" -> handleEssence(context, store, ref, param1Arg.get(context));
@@ -70,29 +68,15 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
         CommandContext context,
         Store<EntityStore> store,
         Ref<EntityStore> ref,
-        String typeArg,
-        String qualityIdArg
+        String archetypeArg
     ) {
-        WeaponTag tag = parseTag(typeArg);
-        if (tag == null) {
-            context.sendMessage(Message.raw("§cUnknown type. Use: melee, ranged"));
-            return;
-        }
 
-        ItemQuality quality = ItemQuality.getAssetMap().getAsset(qualityIdArg);
-        if (quality == null) {
-            context.sendMessage(Message.raw("§cUnknown quality ID: " + qualityIdArg));
-            return;
-        }
+        Item item = Item.getAssetMap().getAsset(archetypeArg);
 
-        String archetypeId = tag == WeaponTag.MELEE
-            ? "Nexus_Melee_Sword_Default"
-            : "Nexus_Ranged_Staff_Default";
-
-        Item item = Item.getAssetMap().getAsset(archetypeId);
+        if (item == null) return;
 
         BsonDocument doc = Nexus.get().getWeaponGenerator().generateWeapon(item);
-        ItemStack stack = new ItemStack(archetypeId, 1, doc);
+        ItemStack stack = new ItemStack(archetypeArg, 1, doc);
 
         InventoryComponent.Hotbar hotbar = store.getComponent(ref, InventoryComponent.Hotbar.getComponentType());
         if (hotbar == null) {
@@ -100,7 +84,7 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
             return;
         }
 
-        hotbar.getInventory().setItemStackForSlot((short) 0, stack);
+        hotbar.getInventory().addItemStack(stack);
         hotbar.markDirty();
     }
 
@@ -171,13 +155,5 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
             "§aAdded §f" + String.format("%.1f", amount) + " §aEssence Dust\n" +
                 "§7New balance: §f" + String.format("%.1f", newBalance)
         ));
-    }
-
-    private WeaponTag parseTag(String s) {
-        return switch (s.toLowerCase()) {
-            case "melee" -> WeaponTag.MELEE;
-            case "ranged" -> WeaponTag.RANGED;
-            default -> null;
-        };
     }
 }

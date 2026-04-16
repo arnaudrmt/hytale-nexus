@@ -14,9 +14,9 @@
         {
             "Quality": 1,
             "LevelCostBase": 100,
-            "LevelCostCurve": 1,
-            "DamageMultiplierBase": 1.00,
-            "DamageMultiplierCurve": 1,
+            "LevelCostCurve": 1.1,
+            "DamageMultiplierBase": 1.20,
+            "DamageMultiplierCurve": 1.2,
             "HealthBoostBase": 0,
             "HealthBoostFlat": 0,
             "MovementSpeedBase": 0,
@@ -30,7 +30,7 @@
             "DamageMultiplierCurve": 1.05,
             "HealthBoostBase": 10.00,
             "HealthBoostFlat": 10.00,
-            "MovementSpeedBase": 5.00,
+            "MovementSpeedBase": 0.5,
             "MovementSpeedFlat": 2
         },
         {
@@ -41,7 +41,7 @@
             "DamageMultiplierCurve": 1.15,
             "HealthBoostBase": 15.00,
             "HealthBoostFlat": 15.00,
-            "MovementSpeedBase": 10.00,
+            "MovementSpeedBase": 1.00,
             "MovementSpeedFlat": 2
         },
         {

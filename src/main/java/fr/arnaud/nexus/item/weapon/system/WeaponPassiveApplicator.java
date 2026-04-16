@@ -81,10 +81,6 @@ public final class WeaponPassiveApplicator {
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;
 
-        // Zero out the health and stamina modifiers cleanly
-        psm.setMaxHealthBonus(ref, store, 0f);
-        psm.setMaxStaminaBonus(ref, store, 0f);
-
         // Reverse the exact speed that was added
         float totalSpeed = (float) weapon.movementSpeedCurve;
         for (EnchantmentSlot slot : weapon.enchantmentSlots) {

@@ -8,14 +8,9 @@ import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Central event bus for enchantment runtime effects.
- * Handlers are registered by enchantment ID and dispatched per trigger type.
- */
 public final class NexusEnchantBus {
 
     private static final NexusEnchantBus INSTANCE = new NexusEnchantBus();
-
     private final Map<String, EnchantEffectHandler> handlers = new HashMap<>();
 
     private NexusEnchantBus() {
@@ -29,10 +24,6 @@ public final class NexusEnchantBus {
         handlers.put(enchantmentId, handler);
     }
 
-    /**
-     * Publishes an event to all unlocked enchants on the attacker's weapon.
-     * Routes to the correct handler method based on event type.
-     */
     public void publish(NexusEnchantEvent event) {
         Ref<EntityStore> attacker = event.attacker();
         if (!attacker.isValid()) return;
