@@ -4,9 +4,10 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.spatial.SpatialResource;
 import com.hypixel.hytale.math.vector.Vector3d;
+import com.hypixel.hytale.protocol.ChangeVelocityType;
+import com.hypixel.hytale.server.core.entity.knockback.KnockbackComponent;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
-import com.hypixel.hytale.server.core.modules.physics.component.Velocity;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import java.util.ArrayList;
@@ -26,8 +27,6 @@ public final class EnchantmentSpatialUtil {
             centerRef, TransformComponent.getComponentType());
         if (transform == null) return List.of();
 
-        // Use entitySpatialResourceType — tracks ALL entities including NPCs/mobs
-        // (playerSpatialResourceType only tracks players)
         SpatialResource<Ref<EntityStore>, EntityStore> spatial =
             cmd.getResource(EntityModule.get().getEntitySpatialResourceType());
 
@@ -47,6 +46,10 @@ public final class EnchantmentSpatialUtil {
         return ta.getPosition().distanceTo(tb.getPosition());
     }
 
+    /**
+     * Applies a radial knockback impulse from source to target using KnockbackComponent.
+     * This properly syncs to the client via the engine's knockback system.
+     */
     public static void applyRadialImpulse(
         Ref<EntityStore> sourceRef,
         Ref<EntityStore> targetRef,
@@ -57,15 +60,25 @@ public final class EnchantmentSpatialUtil {
             sourceRef, TransformComponent.getComponentType());
         TransformComponent targetTransform = cmd.getComponent(
             targetRef, TransformComponent.getComponentType());
-        Velocity targetVelocity = cmd.getComponent(targetRef, Velocity.getComponentType());
-        if (sourceTransform == null || targetTransform == null || targetVelocity == null) return;
+        if (sourceTransform == null || targetTransform == null) return;
 
+        // Compute direction from source to target
         Vector3d direction = targetTransform.getPosition().clone();
         direction.subtract(sourceTransform.getPosition());
         double length = direction.length();
-        if (length < 0.001) return;
-        direction.setLength(force);
-        targetVelocity.addForce(direction);
+        if (length < 0.001) {
+            // Entities at same position — push straight up
+            direction.assign(0, 1, 0);
+        } else {
+            direction.setLength(force);
+        }
+
+        // Use KnockbackComponent so the impulse is synced to the client
+        KnockbackComponent knockback = new KnockbackComponent();
+        knockback.setVelocity(direction);
+        knockback.setVelocityType(ChangeVelocityType.Add);
+        knockback.setDuration(0.05f);
+        cmd.putComponent(targetRef, KnockbackComponent.getComponentType(), knockback);
     }
 
     public static void applyDirectionalImpulse(
@@ -78,15 +91,19 @@ public final class EnchantmentSpatialUtil {
             targetRef, TransformComponent.getComponentType());
         TransformComponent towardTransform = cmd.getComponent(
             towardRef, TransformComponent.getComponentType());
-        Velocity targetVelocity = cmd.getComponent(targetRef, Velocity.getComponentType());
-        if (targetTransform == null || towardTransform == null || targetVelocity == null) return;
+        if (targetTransform == null || towardTransform == null) return;
 
         Vector3d direction = towardTransform.getPosition().clone();
         direction.subtract(targetTransform.getPosition());
         double length = direction.length();
         if (length < 0.001) return;
         direction.setLength(force);
-        targetVelocity.addForce(direction);
+
+        KnockbackComponent knockback = new KnockbackComponent();
+        knockback.setVelocity(direction);
+        knockback.setVelocityType(ChangeVelocityType.Add);
+        knockback.setDuration(0.05f);
+        cmd.putComponent(targetRef, KnockbackComponent.getComponentType(), knockback);
     }
 
     public static boolean isSameRef(Ref<EntityStore> a, Ref<EntityStore> b) {

@@ -1,0 +1,17 @@
+{
+    "Id": "Enchant_LifeDrain",
+    "Name": "Life Drain",
+    "Description": "Steal health on every hit.",
+    "Icon": "CharacterPanelStatIconHealth.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 90,
+    "CostCurve": 1.35,
+    "Stats": [
+        {
+            "Id": "LifeDrainAmount",
+            "DisplayName": "Health Stolen",
+            "Type": "Flat",
+            "Values": { "1": 2.0, "2": 3.5, "3": 5.5, "4": 8.0, "5": 11.0 }
+        }
+    ]
+}

@@ -52,7 +52,7 @@
             "DamageMultiplierCurve": 1.30,
             "HealthBoostBase": 50.00,
             "HealthBoostFlat": 50.00,
-            "MovementSpeedBase": 15.00,
+            "MovementSpeedBase": 2.00,
             "MovementSpeedFlat": 2
         }
     ]

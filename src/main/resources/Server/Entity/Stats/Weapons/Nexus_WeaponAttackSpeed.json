@@ -1,8 +1,0 @@
-{
-    "Id": "Nexus_WeaponAttackSpeed",
-    "InitialValue": 1.0,
-    "Min": 0.1,
-    "Max": 5.0,
-    "Shared": false,
-    "ResetType": "InitialValue"
-}

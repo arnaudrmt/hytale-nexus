@@ -8,10 +8,17 @@
         "Enchant_FireAspect.json",
         "Enchant_FreezeAspect.json",
         "Enchant_Poison.json",
-        "Enchant_Cleave.json",
         "Enchant_Gambler.json",
         "Enchant_Resilience.json",
         "Enchant_SwiftnessOnKill.json",
-        "Enchant_CriticalStrike.json"
+        "Enchant_CriticalStrike.json",
+        "Enchant_Knockback.json",
+        "Enchant_LifeDrain.json",
+        "Enchant_Cripple.json",
+        "Enchant_Thorns.json",
+        "Enchant_Fortitude.json",
+        "Enchant_SoulHarvest.json",
+        "Enchant_Bloodlust.json",
+        "Enchant_Warding.json"
     ]
 }

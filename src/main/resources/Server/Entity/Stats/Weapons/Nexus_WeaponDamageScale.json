@@ -1,8 +1,0 @@
-{
-    "Id": "Nexus_WeaponDamageScale",
-    "InitialValue": 1.0,
-    "Min": 0.0,
-    "Max": 10.0,
-    "Shared": false,
-    "ResetType": "InitialValue"
-}

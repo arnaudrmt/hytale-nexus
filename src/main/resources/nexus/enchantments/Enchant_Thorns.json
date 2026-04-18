@@ -1,0 +1,17 @@
+{
+    "Id": "Enchant_Thorns",
+    "Name": "Thorns",
+    "Description": "Reflects damage back at attackers.",
+    "Icon": "CharacterPanelStatIconHealth.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 90,
+    "CostCurve": 1.35,
+    "Stats": [
+        {
+            "Id": "ThornsPercent",
+            "DisplayName": "Reflect %",
+            "Type": "Flat",
+            "Values": { "1": 0.10, "2": 0.18, "3": 0.28, "4": 0.40, "5": 0.55 }
+        }
+    ]
+}
