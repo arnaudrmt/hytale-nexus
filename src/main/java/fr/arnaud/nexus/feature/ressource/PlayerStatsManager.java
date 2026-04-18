@@ -25,6 +25,8 @@ public final class PlayerStatsManager {
     // Modifier keys — unique strings used to identify our modifiers on the stat
     private static final String MOD_KEY_MAX_HEALTH = "nexus_max_health";
     private static final String MOD_KEY_MAX_STAMINA = "nexus_max_stamina";
+    // Tracks the last speed bonus applied so we can reverse it exactly
+    private static final String SPEED_BONUS_KEY = "nexus_weapon_speed";
 
     private int healthIndex = Integer.MIN_VALUE;
     private int staminaIndex = Integer.MIN_VALUE;
@@ -73,12 +75,39 @@ public final class PlayerStatsManager {
     public void setMaxHealthBonus(Ref<EntityStore> ref, Store<EntityStore> store, float bonus) {
         EntityStatMap stats = getStats(ref, store);
         if (stats == null || healthIndex == Integer.MIN_VALUE) return;
+
+        // Read old max before applying the new modifier so we can compute the delta
+        EntityStatValue healthStat = stats.get(healthIndex);
+        float oldMax = healthStat != null ? healthStat.getMax() : 0f;
+
         if (bonus == 0f) {
             stats.removeModifier(Predictable.NONE, healthIndex, MOD_KEY_MAX_HEALTH);
         } else {
             stats.putModifier(Predictable.NONE, healthIndex, MOD_KEY_MAX_HEALTH,
                 new StaticModifier(Modifier.ModifierTarget.MAX,
                     StaticModifier.CalculationType.ADDITIVE, bonus));
+        }
+
+        // Adjust current health:
+        // - If max increased (upgrade): add the delta so player keeps relative health
+        //   e.g. 10/100 → 110/200
+        // - If max decreased (downgrade): clamp current health to the new max
+        //   e.g. 200/200 → 100/100, but 10/200 → 10/100 (stays at 10)
+        if (healthStat != null) {
+            float newMax = healthStat.getMax();
+            float delta = newMax - oldMax;
+            if (delta > 0f) {
+                // Upgrade — add delta to current health
+                addHealth(ref, store, delta);
+            } else if (delta < 0f) {
+                // Downgrade — clamp current health to new max without dealing damage
+                float currentHealth = healthStat.get();
+                if (currentHealth > newMax) {
+                    // Set health directly to new max by adding the difference
+                    // (negative add = reduce, but clamped to newMax not zero)
+                    addHealth(ref, store, newMax - currentHealth);
+                }
+            }
         }
     }
 
@@ -161,6 +190,28 @@ public final class PlayerStatsManager {
      */
     public void addMovementSpeed(Ref<EntityStore> ref, Store<EntityStore> store, float delta) {
         setMovementSpeed(ref, store, getMovementSpeed(ref, store) + delta);
+    }
+
+    /**
+     * Sets a named weapon speed bonus, replacing any previous one.
+     * Safe to call repeatedly — removes old bonus and applies new one atomically.
+     * Pass 0 to remove the bonus entirely.
+     */
+    public void setMovementSpeedBonus(Ref<EntityStore> ref, Store<EntityStore> store,
+                                      float bonus) {
+        MovementManager mm = store.getComponent(ref, MovementManager.getComponentType());
+        if (mm == null) return;
+
+        // Remove old bonus by reading what was previously stored
+        float oldBonus = mm.getSettings().baseSpeed
+            - mm.getDefaultSettings().baseSpeed;
+
+        // Apply new net speed: default + new bonus
+        float newSpeed = mm.getDefaultSettings().baseSpeed + bonus;
+        mm.getSettings().baseSpeed = newSpeed;
+
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        if (playerRef != null) mm.update(playerRef.getPacketHandler());
     }
 
     // ── Internal helpers ──────────────────────────────────────────────────────

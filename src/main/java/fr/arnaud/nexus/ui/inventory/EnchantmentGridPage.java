@@ -163,11 +163,23 @@ public final class EnchantmentGridPage {
         cmd.set(base + " #EnchantLevel.Text", "Level " + currentLevel);
         cmd.set(base + " #EnchantDesc.Text", def.getDescription());
 
+        // Stamp one row per stat into #EnchantStatRows
+        // Clear first to avoid rows stacking on repeated updates
         List<EnchantmentStatDefinition> stats = def.getStats();
-        if (!stats.isEmpty()) {
-            EnchantmentStatDefinition stat = stats.get(0);
-            cmd.set(base + " #EnchantStatValue.Text", formatStatValue(stat, currentLevel));
-            cmd.set(base + " #EnchantStatName.Text", stat.getDisplayName());
+        String statsContainer = base + " #EnchantStatRows";
+        cmd.clear(statsContainer);
+        for (int s = 0; s < stats.size(); s++) {
+            EnchantmentStatDefinition stat = stats.get(s);
+            // Create a row group inline
+            cmd.appendInline(statsContainer,
+                "Group { LayoutMode: Left; Anchor: (Height: 28, Top: 4); }");
+            String rowBase = statsContainer + "[" + s + "]";
+            cmd.appendInline(rowBase,
+                "Label { Style: (TextColor: #99c995, FontSize: 14, RenderBold: true); }");
+            cmd.appendInline(rowBase,
+                "Label { Anchor: (Left: 8); Style: (TextColor: #ffffff, FontSize: 13); }");
+            cmd.set(rowBase + "[0].Text", formatStatValue(stat, currentLevel));
+            cmd.set(rowBase + "[1].Text", stat.getDisplayName());
         }
 
         boolean maxed = currentLevel >= def.getMaxLevel();

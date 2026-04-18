@@ -24,7 +24,7 @@ import java.util.logging.Level;
  */
 public final class LevelConfigLoader {
 
-    private static final String LEVELS_PATH = "levels/";
+    private static final String LEVELS_PATH = "/nexus/levels/";
     private static final Gson GSON = new Gson();
 
     private LevelConfigLoader() {
@@ -39,9 +39,7 @@ public final class LevelConfigLoader {
      */
     public static LevelConfig load(String levelId) {
         String resourcePath = LEVELS_PATH + levelId + ".json";
-        InputStream stream = Nexus.get().getClass()
-                                  .getClassLoader()
-                                  .getResourceAsStream(resourcePath);
+        InputStream stream = Nexus.class.getResourceAsStream(resourcePath);
 
         if (stream == null) {
             Nexus.get().getLogger().at(Level.SEVERE)
@@ -74,7 +72,16 @@ public final class LevelConfigLoader {
             spawners.add(parseSpawner(el.getAsJsonObject()));
         }
 
-        return new LevelConfig(id, name, difficulty, spawnPoint, finishPoint, spawners);
+        List<LevelConfig.IndependentChestConfig> independentChests = new ArrayList<>();
+        JsonArray chestsArray = root.getAsJsonArray("independentChests");
+        if (chestsArray != null) {
+            for (JsonElement el : chestsArray) {
+                independentChests.add(parseIndependentChest(el.getAsJsonObject()));
+            }
+        }
+
+
+        return new LevelConfig(id, name, difficulty, spawnPoint, finishPoint, spawners, independentChests);
     }
 
     private static LevelConfig.Position parsePosition(JsonObject obj) {
@@ -174,5 +181,24 @@ public final class LevelConfigLoader {
             }
         }
         return new LevelConfig.LootChestConfig(items);
+    }
+
+    private static LevelConfig.IndependentChestConfig parseIndependentChest(JsonObject obj) {
+        LevelConfig.Position pos = parsePosition(obj.getAsJsonObject("position"));
+        float triggerRadius = obj.get("triggerRadius").getAsFloat();
+
+        List<LevelConfig.LootChestItem> items = new ArrayList<>();
+        JsonArray arr = obj.getAsJsonArray("items");
+        if (arr != null) {
+            for (JsonElement el : arr) {
+                JsonObject itemObj = el.getAsJsonObject();
+                items.add(new LevelConfig.LootChestItem(
+                    itemObj.get("itemId").getAsString(),
+                    itemObj.get("chance").getAsFloat()
+                ));
+            }
+        }
+
+        return new LevelConfig.IndependentChestConfig(pos, triggerRadius, items);
     }
 }

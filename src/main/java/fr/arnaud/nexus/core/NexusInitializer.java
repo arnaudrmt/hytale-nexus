@@ -57,10 +57,8 @@ public final class NexusInitializer {
     }
 
     private void initializeLoaders() {
-        I18n.init(plugin);
         WeaponStatConfigLoader.load();
 
-        // Load enchant definitions first, then register all handlers
         EnchantmentRegistry.get().loadAll();
         EnchantmentRegistrar.registerAll();
     }

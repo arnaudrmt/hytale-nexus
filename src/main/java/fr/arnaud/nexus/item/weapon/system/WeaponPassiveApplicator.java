@@ -14,28 +14,19 @@ import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
 import javax.annotation.Nonnull;
 
 /**
- * Applies and removes permanent passive stat bonuses (health and speed)
+ * Applies and removes permanent passive stat bonuses (health, stamina, speed)
  * granted by a weapon's base curves and its unlocked enchantments.
  * <p>
- * Damage is NOT handled here — it is applied per-hit in
- * {@link fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDamageInterceptor.OnHitSystem}
- * by multiplying the incoming Damage amount directly before distribution.
+ * All three stats use named modifier / set patterns so calling apply() repeatedly
+ * always replaces the previous value rather than stacking.
  * <p>
- * Called from {@link WeaponEquipSystem} on equip and unequip.
+ * Damage is NOT handled here — applied per-hit in OnHitSystem.
  */
 public final class WeaponPassiveApplicator {
 
     private WeaponPassiveApplicator() {
     }
 
-    // ── Apply ─────────────────────────────────────────────────────────────────
-
-    /**
-     * Computes the total health and speed bonuses from the weapon base curves
-     * plus all unlocked enchant passive stats, then applies them via
-     * {@link PlayerStatsManager}. Safe to call repeatedly — named modifiers
-     * replace rather than stack.
-     */
     public static void apply(@Nonnull Ref<EntityStore> ref,
                              @Nonnull Store<EntityStore> store,
                              @Nonnull WeaponInstanceComponent weapon) {
@@ -57,43 +48,25 @@ public final class WeaponPassiveApplicator {
                     case "HealthBoost" -> totalHealth += (float) statDef.getValue(level);
                     case "StaminaBoost" -> totalStamina += (float) statDef.getValue(level);
                     case "Swiftness" -> totalSpeed += (float) statDef.getValue(level);
-                    // Damage and proc stats handled at runtime — not passive
                 }
             }
         }
 
-        // setMaxHealthBonus uses a named modifier so re-equipping always replaces, never stacks
+        // All three use set-style methods — safe to call repeatedly, never stacks
         psm.setMaxHealthBonus(ref, store, totalHealth);
         psm.setMaxStaminaBonus(ref, store, totalStamina);
-        // Base speed is tracked separately — add the total bonus on top
-        psm.addMovementSpeed(ref, store, totalSpeed);
+        psm.setMovementSpeedBonus(ref, store, totalSpeed);
     }
 
-    // ── Remove ────────────────────────────────────────────────────────────────
-
-    /**
-     * Removes all passive stat bonuses applied by this weapon.
-     * Must be called before equipping a new weapon.
-     */
     public static void remove(@Nonnull Ref<EntityStore> ref,
                               @Nonnull Store<EntityStore> store,
                               @Nonnull WeaponInstanceComponent weapon) {
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;
 
-        // Reverse the exact speed that was added
-        float totalSpeed = (float) weapon.movementSpeedCurve;
-        for (EnchantmentSlot slot : weapon.enchantmentSlots) {
-            if (!slot.isUnlocked()) continue;
-            EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(slot.chosen());
-            if (def == null) continue;
-            int level = slot.currentLevel();
-            for (EnchantmentStatDefinition statDef : def.getStats()) {
-                if (statDef.getId().equals("Swiftness")) {
-                    totalSpeed += (float) statDef.getValue(level);
-                }
-            }
-        }
-        psm.addMovementSpeed(ref, store, -totalSpeed);
+        // Zero out all bonuses — apply() will set the correct values on next equip
+        psm.setMaxHealthBonus(ref, store, 0f);
+        psm.setMaxStaminaBonus(ref, store, 0f);
+        psm.setMovementSpeedBonus(ref, store, 0f);
     }
 }

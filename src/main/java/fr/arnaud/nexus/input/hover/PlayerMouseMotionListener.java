@@ -2,7 +2,6 @@ package fr.arnaud.nexus.input.hover;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
-import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.entity.Entity;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -13,29 +12,11 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.camera.PlayerCameraComponent;
-import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
 import fr.arnaud.nexus.input.VoxelTargetResolver;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
 
-/**
- * Handles {@link PlayerMouseMotionEvent} to display cursor hover highlights.
- * <p>
- * On each motion event:
- * 1. Resolves the true target block via {@link VoxelTargetResolver} (same recast
- * logic used by {@code PlayerInputListener}).
- * 2. Checks whether the resolved target is on the {@link CursorHoverAllowlist}.
- * 3. Diffs against {@link PlayerHoverStateComponent} — only sends a highlight
- * packet when the active target has changed, avoiding per-frame spam.
- * <p>
- * Particle lifetime is intentionally short (defined in the Asset Editor).
- * No explicit "clear" packet exists for particles; the highlight simply expires
- * when the cursor moves away and no new packet is sent.
- * <p>
- * Entity targets take priority over block targets, matching the engine's own
- * targeting behaviour.
- */
 public final class PlayerMouseMotionListener {
 
     private final VoxelTargetResolver targetResolver;
@@ -50,7 +31,7 @@ public final class PlayerMouseMotionListener {
         if (world == null) return;
 
         Entity targetEntity = event.getTargetEntity();
-        Vector3i rawTargetBlock = event.getTargetBlock();
+        Vector3i targetBlock = event.getTargetBlock();
 
         world.execute(() -> {
             Ref<EntityStore> ref = player.getReference();
@@ -66,13 +47,13 @@ public final class PlayerMouseMotionListener {
 
             if (targetEntity != null) {
                 handleEntityTarget(targetEntity, hoverState, playerRef, ref, store);
-            } else if (rawTargetBlock != null) {
-                Vector3i resolvedBlock = resolveBlock(ref, store, rawTargetBlock, world);
-                if (resolvedBlock != null) {
-                    handleBlockTarget(resolvedBlock, hoverState, playerRef);
-                } else {
-                    hoverState.clear();
-                }
+            } else if (targetBlock != null) {
+                TransformComponent transform = store.getComponent(ref, EntityModule.get().getTransformComponentType());
+                PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
+                if (transform == null) return;
+                float camDistance = cam != null ? cam.getEffectiveIsoDistance() : PlayerCameraComponent.ISO_DISTANCE;
+                Vector3i resolved = targetResolver.resolve(transform.getPosition(), targetBlock, camDistance, world);
+                if (resolved != null) handleBlockTarget(resolved, hoverState, playerRef);
             } else {
                 hoverState.clear();
             }
@@ -113,52 +94,11 @@ public final class PlayerMouseMotionListener {
     }
 
     @Nullable
-    private Vector3i resolveBlock(
-        @NonNullDecl Ref<EntityStore> ref,
-        @NonNullDecl Store<EntityStore> store,
-        @NonNullDecl Vector3i rawTarget,
-        @NonNullDecl World world
-    ) {
-        TransformComponent transform = store.getComponent(
-            ref, EntityModule.get().getTransformComponentType()
-        );
-        if (transform == null) return null;
-        Vector3d playerFeet = transform.getPosition();
-        if (playerFeet == null) return null;
-
-        PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
-        float camDistance = cam != null ? cam.getEffectiveIsoDistance() : PlayerCameraComponent.ISO_DISTANCE;
-        PlayerOcclusionComponent occlusion = store.getComponent(ref, PlayerOcclusionComponent.getComponentType());
-
-        return targetResolver.resolve(playerFeet, rawTarget, camDistance, occlusion, world);
-    }
-
-    /**
-     * Resolves the block's asset ID by querying the world's block data at the
-     * given position. Returns null if the block cannot be identified.
-     * <p>
-     * TODO: replace with the correct BlockType lookup API once confirmed.
-     */
-    @Nullable
-    private String resolveBlockAssetId(@NonNullDecl Vector3i block) {
-        // Placeholder — wire up the engine's block asset lookup here.
-        // Example shape: world.getBlockType(block.getX(), block.getY(), block.getZ()).getAssetId()
-        return null;
-    }
-
-    /**
-     * Resolves the entity's type ID from its ECS components.
-     * Returns null if the type cannot be determined.
-     * <p>
-     * TODO: replace with the correct NPC role/entity type lookup once confirmed.
-     */
-    @Nullable
     private String resolveEntityTypeId(
         @NonNullDecl Entity targetEntity,
         @NonNullDecl Store<EntityStore> store
     ) {
-        // Placeholder — wire up the engine's entity type lookup here.
-        // Example shape: store.getComponent(targetEntity.getRef(), NpcRoleComponent.getComponentType()).getRoleId()
+        // TODO: replace with the correct NPC role/entity type lookup once confirmed.
         return null;
     }
 }

@@ -128,7 +128,7 @@ Group {
 
     Group #EnchantStatsBlock {
       LayoutMode: Top;
-      Anchor: (Height: 125, Top: 15);
+      Anchor: (Top: 15);
 
       Label {
         Text: "Stats";
@@ -136,26 +136,10 @@ Group {
         Style: (TextColor: #878e9c, FontSize: 16, RenderBold: true, RenderUppercase: true);
       }
 
-      Group {
-        LayoutMode: Left;
-        Anchor: (Height: 50, Top: 5);
-
-        Group {
-          Anchor: (Left: 10);
-          LayoutMode: Left;
-          FlexWeight: 1;
-
-          Label #EnchantStatValue {
-            Style: (TextColor: #99c995, FontSize: 16, RenderBold: true);
-            Text: "+10 ";
-          }
-
-          Label #EnchantStatName {
-            Anchor: (Left: 10);
-            Style: (TextColor: #ffffff, FontSize: 14);
-            Text: "Bonus Health";
-          }
-        }
+      // Stat rows stamped dynamically by EnchantmentGridPage
+      Group #EnchantStatRows {
+        LayoutMode: Top;
+        Anchor: (Top: 5);
       }
     }
 
@@ -169,7 +153,7 @@ Group {
 
         Group {
           Anchor: (Height: 38, Width: 38);
-          Background: "Inventory/Icons/CharacterPanelStatIconMana.png";
+          Background: "Inventory/Icons/CharacterPanelEssenceIcon.png";
         }
 
         Label #EnchantCost {

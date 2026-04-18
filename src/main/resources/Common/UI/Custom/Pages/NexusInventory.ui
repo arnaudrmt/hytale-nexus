@@ -200,7 +200,7 @@ Group #Root {
             Anchor: (Top: 98, Right: -302);
 
             Group #SubMenuBackground {
-              Anchor: (Top: 0, Width: 72, Height: 212);
+              Anchor: (Top: 0, Width: 72, Height: 141);
               Background: "Inventory/Backgrounds/SubMenuBackground.png";
             }
 
@@ -225,13 +225,13 @@ Group #Root {
                 }
 
                 Group #MeleeInactive {
-                  Background: "Inventory/Icons/PocketCraftingIcon.png";
+                  Background: "Inventory/Icons/MeleeWeaponIcon.png";
                   Anchor: (Width: 48, Height: 48);
                   Visible: false;
                 }
 
                 Group #MeleeActive {
-                  Background: "Inventory/Icons/PocketCraftingActiveIcon.png";
+                  Background: "Inventory/Icons/MeleeWeaponActiveIcon.png";
                   Anchor: (Width: 48, Height: 48);
 
                   Group {
@@ -274,13 +274,13 @@ Group #Root {
                 }
 
                 Group #RangedInactive {
-                  Background: "Inventory/Icons/PocketCraftingIcon.png";
+                  Background: "Inventory/Icons/RangedWeaponIcon.png";
                   Anchor: (Width: 48, Height: 48, Top: 12);
                   Visible: false;
                 }
 
                 Group #RangedActive {
-                  Background: "Inventory/Icons/PocketCraftingActiveIcon.png";
+                  Background: "Inventory/Icons/RangedWeaponActiveIcon.png";
                   Anchor: (Width: 48, Height: 48, Top: 12);
 
                   Group {
@@ -296,46 +296,8 @@ Group #Root {
                 TextTooltipStyle: @ButtonTextTooltipStyle;
 
                 Group {
-                  Background: "Inventory/Icons/PocketCraftingDisabledIcon.png";
+                  Background: "Inventory/Icons/RangedWeaponIcon.png";
                   Anchor: (Width: 48, Height: 48, Top: 12);
-                }
-              }
-            }
-
-            Group #PocketCraftingButtons {
-              Anchor: (Width: @RightSideButtonSize, Height: @RightSideButtonSize, Top: 138);
-
-              Button #PocketCraftingButton {
-                Style: @RightSideButtonDefaultStyle;
-                TooltipText: %client.inventory.character.tooltip.togglePocketCrafting;
-                TextTooltipStyle: @ButtonTextTooltipStyle;
-
-                Group #PocketCraftingInactive {
-                  Background: "Inventory/Icons/PocketCraftingIcon.png";
-                  Anchor: (Width: 48, Height: 48, Top: 12);
-                  Visible: false;
-                }
-
-                Group #PocketCraftingActive {
-                  Background: "Inventory/Icons/PocketCraftingActiveIcon.png";
-                  Anchor: (Width: 48, Height: 48, Top: 12);
-                  Visible: false;
-
-                  Group {
-                    Anchor: (Width: 24, Height: 24, Top: 12, Right: -35);
-                    Background: "Inventory/Icons/RightMenuSelectedArrow.png";
-                  }
-                }
-              }
-
-              Button #PocketCraftingDisabledButton {
-                Style: @RightSideButtonDefaultStyle;
-                TooltipText: %client.inventory.character.tooltip.pocketCraftingDisabled;
-                TextTooltipStyle: @ButtonTextTooltipStyle;
-
-                Group {
-                  Background: "Inventory/Icons/PocketCraftingDisabledIcon.png";
-                  Anchor: (Width: 48, Height: 48, Top: 10);
                 }
               }
             }
@@ -425,7 +387,7 @@ Group #Root {
             LayoutMode: Left;
             Anchor: (Height: 50);
 
-            @Icon { @IconPatch = "Inventory/Icons/CharacterPanelStatIconMana.png"; TooltipText: %client.inventory.character.stats.mana; }
+            @Icon { @IconPatch = "Inventory/Icons/CharacterPanelEssenceIcon.png"; TooltipText: %client.inventory.character.stats.mana; }
 
             Group {
               Anchor: (Left: 10);
@@ -437,7 +399,7 @@ Group #Root {
               @StatNameValueLabel #StatsEssence {}
             }
 
-            @Icon { @IconPatch = "Inventory/Icons/CharacterPanelStatIconMana.png"; TooltipText: %client.inventory.character.stats.mana; }
+            @Icon { @IconPatch = "Inventory/Icons/CharacterPanelMovementSpeedIcon.png"; TooltipText: %client.inventory.character.stats.mana; }
 
             Group {
               Anchor: (Left: 10);
@@ -680,7 +642,7 @@ Group #Root {
 
           Group {
             Anchor: (Height: 44, Width: 44);
-            Background: "Inventory/Icons/CharacterPanelStatIconMana.png";
+            Background: "Inventory/Icons/CharacterPanelEssenceIcon.png";
           }
 
           Label #UpgradeCost {

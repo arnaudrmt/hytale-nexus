@@ -42,7 +42,7 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
     private static final double CYLINDER_RADIUS_SQ = CYLINDER_RADIUS * CYLINDER_RADIUS;
     private static final double EYE_HEIGHT = 1.62;
     private static final double ISO_PITCH_RAD = Math.toRadians(-45.0);
-    private static final double FLOOR_Y_OFFSET = 2.0;
+    private static final double FLOOR_Y_OFFSET = 0.0;
 
     /**
      * How many blocks past the player's head the ray extends.
@@ -55,6 +55,10 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
      * skip filler set (8), skip filler remove (16), skip height update (512).
      */
     private static final int SILENT_SETTINGS = 4 | 2 | 8 | 16 | 512;
+
+    private static final double BARRIER_RADIUS = 2.0;
+    private static final double BARRIER_RADIUS_SQ = BARRIER_RADIUS * BARRIER_RADIUS;
+    private static final double BARRIER_HEIGHT = 2.0;
 
     private int barrierBlockId = Integer.MIN_VALUE;
 
@@ -150,7 +154,9 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
                     if (rx * rx + ry * ry + rz * rz > CYLINDER_RADIUS_SQ) continue;
 
                     int blockId = sampleBlock(world, bx, by, bz);
-                    if (blockId == BlockType.EMPTY_ID || blockId == barrierBlockId) continue;
+                    if (blockId == BlockType.EMPTY_ID) continue;
+                    if (blockId == barrierBlockId && isBarrierProtected(bx, by, bz, feet.getX(), feetY, feet.getZ()))
+                        continue;
 
                     currentPositions.add(packed);
                 }
@@ -163,7 +169,11 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
             if (!occlusion.isReplaced(c[0], c[1], c[2])) {
                 int originalId = sampleBlock(world, c[0], c[1], c[2]);
                 if (originalId == BlockType.EMPTY_ID) continue;
-                replaceWithAir(world, c[0], c[1], c[2]);
+                if (isBarrierProtected(c[0], c[1], c[2], feet.getX(), feetY, feet.getZ())) {
+                    replaceWithBarrier(world, c[0], c[1], c[2]);
+                } else {
+                    replaceWithAir(world, c[0], c[1], c[2]);
+                }
                 occlusion.putReplaced(c[0], c[1], c[2], originalId);
             }
         }
@@ -181,8 +191,22 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         cmd.run(s -> s.putComponent(ref, PlayerOcclusionComponent.getComponentType(), occlusion));
     }
 
+    private static boolean isBarrierProtected(int bx, int by, int bz, double feetX, double feetY, double feetZ) {
+        double dx = (bx + 0.5) - feetX;
+        double dz = (bz + 0.5) - feetZ;
+        double dy = (by + 0.5) - feetY;
+        return dx * dx + dz * dz <= BARRIER_RADIUS_SQ
+            && dy >= 0 && dy <= BARRIER_HEIGHT;
+    }
+
     private static void replaceWithAir(@NonNullDecl World world, int x, int y, int z) {
         setBlock(world, x, y, z, BlockType.EMPTY_ID, BlockType.EMPTY);
+    }
+
+    private void replaceWithBarrier(@NonNullDecl World world, int x, int y, int z) {
+        BlockType barrierType = BlockType.getAssetMap().getAsset(barrierBlockId);
+        if (barrierType == null) return;
+        setBlock(world, x, y, z, barrierBlockId, barrierType);
     }
 
     private static void restoreBlock(@NonNullDecl World world, int x, int y, int z, int blockId) {

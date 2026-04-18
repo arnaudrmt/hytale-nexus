@@ -9,6 +9,7 @@ import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
+import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
@@ -269,7 +270,17 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         container.removeItemStackFromSlot(slotIndex, (short) 1);
         weaponState.setDocument(targetTag, incomingDoc.clone());
 
-        if (targetTag == activeTab) {
+        // If this weapon tag is the one currently held in hotbar slot 0, update it
+        if (targetTag == weaponState.activeTag) {
+            String archetypeId = incomingDoc.containsKey("archetype_id")
+                ? incomingDoc.getString("archetype_id").getValue() : "unknown";
+            InventoryComponent.Hotbar hotbar = store.getComponent(
+                ref, InventoryComponent.Hotbar.getComponentType());
+            if (hotbar != null) {
+                hotbar.getInventory().setItemStackForSlot(
+                    (short) 0, new ItemStack(archetypeId, 1, incomingDoc.clone()));
+                hotbar.markDirty();
+            }
             weaponState.activeTag = targetTag;
             Nexus.get().getWeaponEquipSystem().onWeaponEquipped(ref, incomingStack, store);
         }
@@ -329,11 +340,16 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
 
     private void pushFullStatsUpdate(@Nonnull Ref<EntityStore> ref) {
         reequipActiveWeapon(ref, ref.getStore());
-        UICommandBuilder update = new UICommandBuilder();
-        WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
-        EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
-        CharacterStatsPage.populate(update, ref, ref.getStore());
-        sendUpdate(update, null, false);
+        // Defer UI populate to the next world execute so WeaponPassiveApplicator.apply
+        // (which runs inside its own world.execute) has fully completed before we read stats
+        ref.getStore().getExternalData().getWorld().execute(() -> {
+            if (!ref.isValid()) return;
+            UICommandBuilder update = new UICommandBuilder();
+            WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
+            EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
+            CharacterStatsPage.populate(update, ref, ref.getStore());
+            sendUpdate(update, null, false);
+        });
     }
 
     private void reequipActiveWeapon(@Nonnull Ref<EntityStore> ref,

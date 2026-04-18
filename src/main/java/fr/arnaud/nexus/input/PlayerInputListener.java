@@ -9,40 +9,18 @@ import com.hypixel.hytale.server.core.entity.Entity;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
-import com.hypixel.hytale.server.core.modules.entity.EntityModule;
-import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.camera.PlayerCameraComponent;
-import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.feature.movement.PlayerDashSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-import javax.annotation.Nullable;
-
-/**
- * Single entry point for all player mouse input.
- * Resolves the cursor target then routes to the appropriate system.
- * Uses direct store writes — no CommandBuffer — since this runs inside
- * {@code world.execute()}, not inside a ticking system.
- * <p>
- * Input routing table:
- * <ul>
- *   <li>Left + crouching      → dash</li>
- *   <li>Left + block target   → chest interaction (if applicable)</li>
- *   <li>Right                 → weapon swap / Switch Strike confirm</li>
- * </ul>
- */
 public final class PlayerInputListener {
 
     private final PlayerDashSystem dashSystem;
-    private final VoxelTargetResolver targetResolver;
 
-    public PlayerInputListener(@NonNullDecl PlayerDashSystem dashSystem,
-                               @NonNullDecl VoxelTargetResolver targetResolver) {
+    public PlayerInputListener(@NonNullDecl PlayerDashSystem dashSystem) {
         this.dashSystem = dashSystem;
-        this.targetResolver = targetResolver;
     }
 
     public void onMouseButton(@NonNullDecl PlayerMouseButtonEvent event) {
@@ -54,7 +32,7 @@ public final class PlayerInputListener {
         if (world == null) return;
 
         Entity targetEntity = event.getTargetEntity();
-        Vector3i rawTargetBlock = event.getTargetBlock();
+        Vector3i targetBlock = event.getTargetBlock();
         long clientTime = event.getClientUseTime();
 
         world.execute(() -> {
@@ -63,29 +41,9 @@ public final class PlayerInputListener {
 
             Store<EntityStore> store = world.getEntityStore().getStore();
 
-            Vector3i targetBlock = resolveBlockTarget(ref, store, rawTargetBlock, world);
-
             resolveTarget(ref, store, targetEntity, targetBlock, clientTime);
             routeInput(button, player, ref, store, targetBlock);
         });
-    }
-
-    @Nullable
-    private Vector3i resolveBlockTarget(@NonNullDecl Ref<EntityStore> ref,
-                                        @NonNullDecl Store<EntityStore> store,
-                                        @Nullable Vector3i rawTarget,
-                                        @NonNullDecl World world) {
-        if (rawTarget == null) return null;
-        TransformComponent transform = store.getComponent(ref, EntityModule.get().getTransformComponentType());
-        if (transform == null) return null;
-        Vector3d playerFeet = transform.getPosition();
-        if (playerFeet == null) return null;
-
-        PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
-        float camDistance = cam != null ? cam.getEffectiveIsoDistance() : PlayerCameraComponent.ISO_DISTANCE;
-        PlayerOcclusionComponent occlusion = store.getComponent(ref, PlayerOcclusionComponent.getComponentType());
-
-        return targetResolver.resolve(playerFeet, rawTarget, camDistance, occlusion, world);
     }
 
     private void routeInput(MouseButtonType button, Player player,

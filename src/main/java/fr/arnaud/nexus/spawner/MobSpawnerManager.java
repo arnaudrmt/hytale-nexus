@@ -7,7 +7,6 @@ import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
-import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
@@ -28,14 +27,18 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class MobSpawnerManager {
 
+    private final ChestManager chestManager;
+
     private static final String CHEST_BLOCK_KEY = "Furniture_Dungeon_Chest_Epic";
 
     private final List<SpawnerState> spawnerStates = new ArrayList<>();
     private World activeWorld;
 
-    public MobSpawnerManager() {
+    public MobSpawnerManager(ChestManager chestManager) {
+        this.chestManager = chestManager;
     }
 
+    // Replace onLevelLoaded:
     public void onLevelLoaded(World world, LevelConfig config) {
         this.activeWorld = world;
         spawnerStates.clear();
@@ -43,11 +46,13 @@ public final class MobSpawnerManager {
         for (LevelConfig.SpawnerConfig spawnerConfig : config.getSpawners()) {
             spawnerStates.add(new SpawnerState(idSequence++, spawnerConfig));
         }
+        chestManager.onLevelLoaded(world, config);
     }
 
     public void reset() {
         spawnerStates.clear();
         activeWorld = null;
+        chestManager.reset();
     }
 
     public List<SpawnerState> getSpawnerStates() {
@@ -57,6 +62,7 @@ public final class MobSpawnerManager {
     public void tick(float dt, Vector3d position, LevelProgressComponent progress,
                      CommandBuffer<EntityStore> commandBuffer, Ref<EntityStore> playerRef) {
         if (activeWorld == null) return;
+        chestManager.tick(position);
 
         for (SpawnerState state : spawnerStates) {
             if (!state.isTriggered() && progress != null
@@ -140,19 +146,24 @@ public final class MobSpawnerManager {
         state.setChestPosition(chestPos);
 
         activeWorld.execute(() -> {
-
             EntityStore store = activeWorld.getEntityStore();
             int index = SoundEvent.getAssetMap().getIndex("SFX_Portal_Neutral_Open.json");
 
             activeWorld.getPlayerRefs().forEach(playerRef -> {
-                TransformComponent transform = store.getStore().getComponent(playerRef.getReference(), EntityModule.get().getTransformComponentType());
-                SoundUtil.playSoundEvent3dToPlayer(playerRef.getReference(), index, SoundCategory.UI, transform.getPosition(), store.getStore());
+                TransformComponent transform = store.getStore().getComponent(
+                    playerRef.getReference(), EntityModule.get().getTransformComponentType());
+                SoundUtil.playSoundEvent3dToPlayer(
+                    playerRef.getReference(), index, SoundCategory.UI,
+                    transform.getPosition(), store.getStore());
             });
 
-            int x = (int) Math.floor(chestPos.getX());
-            int y = (int) Math.floor(chestPos.getY());
-            int z = (int) Math.floor(chestPos.getZ());
-            activeWorld.setBlock(x, y, z, CHEST_BLOCK_KEY);
+            activeWorld.setBlock(
+                (int) Math.floor(chestPos.getX()),
+                (int) Math.floor(chestPos.getY()),
+                (int) Math.floor(chestPos.getZ()),
+                CHEST_BLOCK_KEY
+            );
+            chestManager.spawnAuraSphere(chestPos);
         });
     }
 
@@ -165,31 +176,8 @@ public final class MobSpawnerManager {
      */
     public boolean tryOpenChest(Vector3d clickedBlockCenter, Ref<EntityStore> playerRef,
                                 Store<EntityStore> store) {
-        for (SpawnerState state : spawnerStates) {
-            if (!state.hasPendingChestLoot()) continue;
-
-            Vector3d chestPos = state.getChestPosition();
-            if (chestPos == null) continue;
-
-            if (!isSameBlock(clickedBlockCenter, chestPos)) continue;
-
-            List<String> loot = state.getPendingChestLoot();
-            state.clearPendingChestLoot();
-
-            int index = SoundEvent.getAssetMap().getIndex("SFX_Chest_Legendary_FirstOpen_Player");
-            Player player = store.getComponent(playerRef, Player.getComponentType());
-            World world = player.getWorld();
-
-            world.execute(() -> {
-                TransformComponent transform = store.getComponent(playerRef, EntityModule.get().getTransformComponentType());
-                SoundUtil.playSoundEvent3dToPlayer(playerRef, index, SoundCategory.UI, transform.getPosition(), store);
-            });
-
-            ejectItems(loot, chestPos, playerRef, store);
-            breakChestBlock(chestPos);
-            return true;
-        }
-        return false;
+        return chestManager.tryOpenChest(
+            clickedBlockCenter, playerRef, store, Collections.unmodifiableList(spawnerStates));
     }
 
     private void ejectItems(List<String> itemIds, Vector3d origin,

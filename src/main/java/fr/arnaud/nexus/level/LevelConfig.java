@@ -15,16 +15,19 @@ public final class LevelConfig {
     private final Position spawnPoint;
     private final Position finishPoint;
     private final List<SpawnerConfig> spawners;
+    private final List<IndependentChestConfig> independentChests;
 
     public LevelConfig(String id, String name, float difficulty,
                        Position spawnPoint, Position finishPoint,
-                       List<SpawnerConfig> spawners) {
+                       List<SpawnerConfig> spawners,
+                       List<IndependentChestConfig> independentChests) {
         this.id = id;
         this.name = name;
         this.difficulty = difficulty;
         this.spawnPoint = spawnPoint;
         this.finishPoint = finishPoint;
         this.spawners = List.copyOf(spawners);
+        this.independentChests = List.copyOf(independentChests);
     }
 
     public String getId() {
@@ -49,6 +52,10 @@ public final class LevelConfig {
 
     public List<SpawnerConfig> getSpawners() {
         return spawners;
+    }
+
+    public List<IndependentChestConfig> getIndependentChests() {
+        return independentChests;
     }
 
     // -------------------------------------------------------------------------
@@ -267,7 +274,7 @@ public final class LevelConfig {
      * Each item rolls independently — a chest can contain any subset, including none.
      * If all rolls fail, the highest-chance item is guaranteed as a fallback.
      */
-    public static final class LootChestConfig {
+    public static class LootChestConfig {
         private final List<LootChestItem> items;
 
         public LootChestConfig(List<LootChestItem> items) {
@@ -300,6 +307,30 @@ public final class LevelConfig {
 
         public float getChance() {
             return chance;
+        }
+    }
+
+    public static final class IndependentChestConfig {
+        private final Position position;
+        private final float triggerRadius;
+        private final List<LootChestItem> items;
+
+        public IndependentChestConfig(Position position, float triggerRadius, List<LootChestItem> items) {
+            this.position = position;
+            this.triggerRadius = triggerRadius;
+            this.items = List.copyOf(items);
+        }
+
+        public Position getPosition() {
+            return position;
+        }
+
+        public float getTriggerRadius() {
+            return triggerRadius;
+        }
+
+        public List<LootChestItem> getItems() {
+            return items;
         }
     }
 
