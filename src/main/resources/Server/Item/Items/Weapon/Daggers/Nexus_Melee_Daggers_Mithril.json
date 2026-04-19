@@ -443,5 +443,5 @@
         }
     },
     "MaxDurability": 220,
-    "DurabilityLossOnHit": 0.1
+    "DurabilityLossOnHit": 0
 }

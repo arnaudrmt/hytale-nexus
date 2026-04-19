@@ -18,8 +18,13 @@ import javax.annotation.Nullable;
  * <ul>
  *   <li>A {@code Long2IntOpenHashMap} of packed position → original block ID
  *       for restoration.</li>
- *   <li>A {@code LongOpenHashSet} packed with {@link BlockUtil#pack} for direct
- *       use with {@code TargetUtil.getTargetBlockAvoidLocations}.</li>
+ *   <li>Parallel maps for original rotation index and filler so oriented
+ *       blocks (stairs, logs, etc.) are restored in their correct state.</li>
+ *   <li>A {@code LongOpenHashSet} of positions that sit inside the
+ *       barrier-protection cylinder; these are replaced with Barrier blocks
+ *       rather than Air so mobs cannot escape through the occlusion hole.</li>
+ *   <li>A {@code LongOpenHashSet} packed with {@link BlockUtil#pack} for
+ *       direct use with {@code TargetUtil.getTargetBlockAvoidLocations}.</li>
  * </ul>
  */
 public final class PlayerOcclusionComponent implements Component<EntityStore> {
@@ -46,6 +51,23 @@ public final class PlayerOcclusionComponent implements Component<EntityStore> {
     private final Long2IntOpenHashMap replacedBlocks = new Long2IntOpenHashMap();
 
     /**
+     * Maps our packed position → original rotation index for restoration.
+     */
+    private final Long2IntOpenHashMap replacedRotations = new Long2IntOpenHashMap();
+
+    /**
+     * Maps our packed position → original filler value for restoration.
+     */
+    private final Long2IntOpenHashMap replacedFillers = new Long2IntOpenHashMap();
+
+    /**
+     * Positions that were replaced with a Barrier block rather than Air.
+     * These form the containment column that prevents mobs from escaping
+     * through the occlusion hole around the player's feet.
+     */
+    private final LongOpenHashSet barrierColumnPositions = new LongOpenHashSet();
+
+    /**
      * The same positions packed with {@link BlockUtil#pack(int, int, int)} so
      * {@code TargetUtil.getTargetBlockAvoidLocations} can skip them directly.
      */
@@ -53,16 +75,24 @@ public final class PlayerOcclusionComponent implements Component<EntityStore> {
 
     public PlayerOcclusionComponent() {
         replacedBlocks.defaultReturnValue(0);
+        replacedRotations.defaultReturnValue(0);
+        replacedFillers.defaultReturnValue(0);
     }
 
-    public void putReplaced(int x, int y, int z, int originalBlockId) {
+    public void putReplaced(int x, int y, int z, int originalBlockId, int rotation, int filler) {
         long key = pack(x, y, z);
         replacedBlocks.put(key, originalBlockId);
+        replacedRotations.put(key, rotation);
+        replacedFillers.put(key, filler);
         blockUtilPackedPositions.add(BlockUtil.pack(x, y, z));
     }
 
     public void removeReplaced(int x, int y, int z) {
-        replacedBlocks.remove(pack(x, y, z));
+        long key = pack(x, y, z);
+        replacedBlocks.remove(key);
+        replacedRotations.remove(key);
+        replacedFillers.remove(key);
+        barrierColumnPositions.remove(key);
         blockUtilPackedPositions.remove(BlockUtil.pack(x, y, z));
     }
 
@@ -72,6 +102,22 @@ public final class PlayerOcclusionComponent implements Component<EntityStore> {
 
     public int getOriginalBlockId(int x, int y, int z) {
         return replacedBlocks.get(pack(x, y, z));
+    }
+
+    public int getOriginalRotation(int x, int y, int z) {
+        return replacedRotations.get(pack(x, y, z));
+    }
+
+    public int getOriginalFiller(int x, int y, int z) {
+        return replacedFillers.get(pack(x, y, z));
+    }
+
+    public void markBarrierColumn(int x, int y, int z) {
+        barrierColumnPositions.add(pack(x, y, z));
+    }
+
+    public boolean isBarrierColumn(int x, int y, int z) {
+        return barrierColumnPositions.contains(pack(x, y, z));
     }
 
     @NonNullDecl
@@ -115,6 +161,9 @@ public final class PlayerOcclusionComponent implements Component<EntityStore> {
     public PlayerOcclusionComponent clone() {
         PlayerOcclusionComponent copy = new PlayerOcclusionComponent();
         copy.replacedBlocks.putAll(this.replacedBlocks);
+        copy.replacedRotations.putAll(this.replacedRotations);
+        copy.replacedFillers.putAll(this.replacedFillers);
+        copy.barrierColumnPositions.addAll(this.barrierColumnPositions);
         copy.blockUtilPackedPositions.addAll(this.blockUtilPackedPositions);
         return copy;
     }

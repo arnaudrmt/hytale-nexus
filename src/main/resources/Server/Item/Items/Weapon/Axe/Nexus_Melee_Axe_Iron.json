@@ -149,7 +149,7 @@
     },
     "DroppedItemAnimation": "Items/Animations/Dropped/Dropped_Diagonal_Left.blockyanim",
     "MaxDurability": 120,
-    "DurabilityLossOnHit": 0.56,
+    "DurabilityLossOnHit": 0,
     "Tags": {
         "Type": [
             "Weapon"

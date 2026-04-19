@@ -38,7 +38,6 @@ import fr.arnaud.nexus.spawner.SpawnerMobDeathSystem;
 import fr.arnaud.nexus.spawner.SpawnerProximitySystem;
 import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import fr.arnaud.nexus.system.NexusStoragePickupGuard;
-import fr.arnaud.nexus.world.BlockInteractionGuard;
 
 public final class NexusInitializer {
 
@@ -129,8 +128,6 @@ public final class NexusInitializer {
         ));
 
         new WeaponSwapSystem(plugin.getWeaponEquipSystem());
-
-        registry.registerSystem(new BlockInteractionGuard.PreventBreak());
     }
 
     private void registerListeners() {

@@ -186,5 +186,5 @@
     },
     "ItemSoundSetId": "ISS_Weapons_Wood",
     "MaxDurability": 300,
-    "DurabilityLossOnHit": 0.5
+    "DurabilityLossOnHit": 0
 }

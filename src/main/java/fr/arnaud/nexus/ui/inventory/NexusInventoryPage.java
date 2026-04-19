@@ -106,6 +106,12 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                                 @Nonnull EventData data) {
         World world = store.getExternalData().getWorld();
 
+        System.out.println("[Nexus] EVENT >> slotClick=" + data.slotClick
+            + " | equipSlotClick=" + data.equipSlotClick
+            + " | action=" + data.action
+            + " | tabClick=" + data.tabClick
+            + " | selectedSlot=" + selectedSlot);
+
         // ── Tab switch ────────────────────────────────────────────────────────
         if (data.tabClick != null) {
             activeTab = data.tabClick.equals("Ranged") ? WeaponTag.RANGED : WeaponTag.MELEE;
@@ -125,7 +131,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             return;
         }
 
-        // ── Enchant choose ────────────────────────────────────────────────────
         if (data.enchantChoose != null) {
             String capturedPayload = data.enchantChoose;
             world.execute(() -> {
@@ -141,7 +146,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             return;
         }
 
-        // ── Enchant upgrade ───────────────────────────────────────────────────
         if (data.enchantUpgrade != null) {
             String capturedPayload = data.enchantUpgrade;
             world.execute(() -> {
@@ -157,10 +161,17 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             return;
         }
 
-        // ── Equip slot click ──────────────────────────────────────────────────
-        if (data.equipSlotClick != null && selectedSlot != null) {
+        if (data.equipSlotClick != null) {
+            System.out.println("[Nexus] EQUIP BRANCH >> selectedSlot=" + selectedSlot);
             WeaponTag targetTag = data.equipSlotClick.equals("Ranged")
                 ? WeaponTag.RANGED : WeaponTag.MELEE;
+
+            if (!isValidWeaponSelectionForEquip(ref, store, selectedSlot, targetTag)) {
+                System.out.println("[Nexus] EQUIP INVALID >> resetting selectedSlot");
+                selectedSlot = null;
+                return;
+            }
+
             String capturedFrom = selectedSlot;
             selectedSlot = null;
 
@@ -181,7 +192,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             return;
         }
 
-        // ── Weapon upgrade click ──────────────────────────────────────────────────
         if (data.weaponUpgrade != null) {
             world.execute(() -> {
                 PlayerWeaponStateComponent state = ref.getStore().getComponent(
@@ -199,12 +209,23 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             return;
         }
 
-        if (data.equipSlotClick != null) return;
+        if (data.slotClick == null) {
+            System.out.println("[Nexus] SLOT NULL >> no slotClick, no other field matched, doing nothing");
+            return;
+        }
 
-        // ── Inventory slot click (select / swap) ──────────────────────────────
-        if (data.slotClick == null) return;
+        int clickedGlobal = Integer.parseInt(data.slotClick.split(":")[1]);
+        int lockedGlobal = InventoryGridPage.STORAGE_CAPACITY + InventoryGridPage.LOCKED_HOTBAR_SLOT;
+        System.out.println("[Nexus] SLOT CLICK >> clickedGlobal=" + clickedGlobal + " | lockedGlobal=" + lockedGlobal);
+
+        if (clickedGlobal == lockedGlobal) {
+            System.out.println("[Nexus] LOCKED SLOT HIT >> resetting selectedSlot");
+            selectedSlot = null;
+            return;
+        }
 
         if (selectedSlot == null) {
+            if (!hasItem(ref, store, data.slotClick)) return;
             selectedSlot = data.slotClick;
             return;
         }
@@ -212,6 +233,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         String capturedFrom = selectedSlot;
         String capturedTo = data.slotClick;
         selectedSlot = null;
+        System.out.println("[Nexus] SWAP >> from=" + capturedFrom + " to=" + capturedTo);
 
         world.execute(() -> {
             try {
@@ -225,6 +247,21 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             InventoryGridPage.populateSlotItems(update, ref, ref.getStore());
             sendUpdate(update, null, false);
         });
+    }
+
+    private boolean hasItem(@Nonnull Ref<EntityStore> ref,
+                            @Nonnull Store<EntityStore> store,
+                            @Nonnull String slotKey) {
+        int globalIndex = Integer.parseInt(slotKey.split(":")[1]);
+        boolean isHotbar = globalIndex >= InventoryGridPage.STORAGE_CAPACITY;
+        short slotIndex = (short) (isHotbar
+            ? globalIndex - InventoryGridPage.STORAGE_CAPACITY
+            : globalIndex);
+        ItemContainer container = InventoryGridPage.getContainer(ref, store,
+            isHotbar ? "Hotbar" : "Storage");
+        if (container == null) return false;
+        ItemStack stack = container.getItemStack(slotIndex);
+        return stack != null && !stack.isEmpty();
     }
 
     // ── Equip helper ──────────────────────────────────────────────────────────
@@ -284,6 +321,32 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             weaponState.activeTag = targetTag;
             Nexus.get().getWeaponEquipSystem().onWeaponEquipped(ref, incomingStack, store);
         }
+    }
+
+    private boolean isValidWeaponSelectionForEquip(@Nonnull Ref<EntityStore> ref,
+                                                   @Nonnull Store<EntityStore> store,
+                                                   @Nullable String pendingSlot,
+                                                   @Nonnull WeaponTag targetTag) {
+        if (pendingSlot == null) return false;
+
+        int globalIndex = Integer.parseInt(pendingSlot.split(":")[1]);
+        boolean isHotbar = globalIndex >= InventoryGridPage.STORAGE_CAPACITY;
+        short slotIndex = (short) (isHotbar
+            ? globalIndex - InventoryGridPage.STORAGE_CAPACITY
+            : globalIndex);
+
+        ItemContainer container = InventoryGridPage.getContainer(ref, store,
+            isHotbar ? "Hotbar" : "Storage");
+        if (container == null) return false;
+
+        ItemStack stack = container.getItemStack(slotIndex);
+        if (stack == null || stack.isEmpty()) return false;
+
+        BsonDocument doc = stack.getMetadata();
+        if (doc == null || !doc.containsKey("nexus_quality_value")) return false;
+
+        WeaponTag itemTag = WeaponBsonSchema.readWeaponTag(doc);
+        return itemTag.isCompatibleWith(targetTag);
     }
 
     // ── Tab visuals ───────────────────────────────────────────────────────────

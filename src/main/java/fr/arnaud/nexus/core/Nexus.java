@@ -57,6 +57,7 @@ public final class Nexus extends JavaPlugin {
     @Override
     protected void setup() {
         new NexusInitializer(this).init();
+
     }
 
     @Override

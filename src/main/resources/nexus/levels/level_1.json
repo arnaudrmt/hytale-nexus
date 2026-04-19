@@ -8,12 +8,13 @@
         "z": 10.5
     },
     "finishPoint": {
-        "x": 200.5,
-        "y": 64.0,
-        "z": 200.5
+        "x": 966.5,
+        "y": 73.0,
+        "z": 321.5
     },
     "spawners": [
         {
+            "_comment": "S1 — Tutorial, Zombies kill-gated",
             "position": {
                 "x": 24.0,
                 "y": 81.0,
@@ -26,69 +27,1459 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 30.0
-                },
-                {
-                    "wave": 2,
-                    "type": "kill",
-                    "value": 0.10
-                },
-                {
-                    "wave": 3,
-                    "type": "time",
-                    "value": 5
+                    "timeout": 20.0
                 }
             ],
             "mobs": [
                 {
-                    "mobId": "Skeleton",
+                    "mobId": "Zombie",
                     "minCount": 3,
-                    "maxCount": 6,
-                    "spawnRate": 0.5,
+                    "maxCount": 4,
+                    "spawnRate": 1.2,
+                    "wave": 1,
+                    "minEssence": 3,
+                    "maxEssence": 8
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Lesser",
+                        "chance": 0.90
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Food_Bread",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Plant_Fruit_Apple",
+                        "chance": 0.70
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S2 — Zombies then Skeleton_Scout, kill-gated",
+            "position": {
+                "x": 83.0,
+                "y": 79.0,
+                "z": 7.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Zombie",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 3,
+                    "maxEssence": 8
+                },
+                {
+                    "mobId": "Skeleton_Scout",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.0,
+                    "wave": 2,
+                    "minEssence": 5,
+                    "maxEssence": 12
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Small",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Food_Bread",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Food_Wildmeat_Raw",
+                        "chance": 0.55
+                    },
+                    {
+                        "itemId": "Plant_Fruit_Berries_Red",
+                        "chance": 0.60
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S3 — Skeletons then Zombies, timed",
+            "position": {
+                "x": 116.0,
+                "y": 74.0,
+                "z": 43.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 7.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Scout",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.0,
                     "wave": 1,
                     "minEssence": 5,
-                    "maxEssence": 15,
-                    "lootTable": {
-                        "items": [
-                            {
-                                "itemId": "Potion_Health_Small",
-                                "chance": 0.25
-                            }
-                        ]
-                    }
+                    "maxEssence": 12
                 },
                 {
                     "mobId": "Zombie",
-                    "minCount": 1,
-                    "maxCount": 2,
-                    "spawnRate": 0.0,
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.9,
+                    "wave": 2,
+                    "minEssence": 3,
+                    "maxEssence": 8
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Small",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Small",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Food_Cheese",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Food_Fish_Grilled",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S4 — Skeleton_Soldier + Skeleton_Fighter, 3-wave large radius",
+            "position": {
+                "x": 137.0,
+                "y": 74.0,
+                "z": 82.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 15.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                },
+                {
+                    "wave": 3,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Scout",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 5,
+                    "maxEssence": 12
+                },
+                {
+                    "mobId": "Skeleton_Soldier",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.0,
+                    "wave": 2,
+                    "minEssence": 8,
+                    "maxEssence": 16
+                },
+                {
+                    "mobId": "Skeleton_Fighter",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.2,
+                    "wave": 3,
+                    "minEssence": 10,
+                    "maxEssence": 20
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Small",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Kebab_Meat",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Food_Wildmeat_Cooked",
+                        "chance": 0.60
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S5 — Skeleton_Soldier + Skeleton_Ranger",
+            "position": {
+                "x": 214.0,
+                "y": 74.0,
+                "z": 62.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 7.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Soldier",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 8,
+                    "maxEssence": 16
+                },
+                {
+                    "mobId": "Skeleton_Ranger",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.1,
                     "wave": 2,
                     "minEssence": 10,
+                    "maxEssence": 20
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Small",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Food_Kebab_Meat",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Salad_Mushroom",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S6 — Zombie horde + Skeleton_Knight",
+            "position": {
+                "x": 220.0,
+                "y": 74.0,
+                "z": 12.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 7.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Zombie",
+                    "minCount": 5,
+                    "maxCount": 7,
+                    "spawnRate": 0.7,
+                    "wave": 1,
+                    "minEssence": 4,
+                    "maxEssence": 10
+                },
+                {
+                    "mobId": "Skeleton_Knight",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 14,
+                    "maxEssence": 26
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Food_Kebab_Fruit",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Salad_Mushroom",
+                        "chance": 0.55
+                    },
+                    {
+                        "itemId": "Weapon_Bomb_Potion_Poison",
+                        "chance": 0.25
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S7 — Skeleton_Archer + Skeleton_Fighter",
+            "position": {
+                "x": 241.0,
+                "y": 73.0,
+                "z": 109.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Archer",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 8,
+                    "maxEssence": 17
+                },
+                {
+                    "mobId": "Skeleton_Fighter",
+                    "minCount": 3,
+                    "maxCount": 4,
+                    "spawnRate": 1.0,
+                    "wave": 2,
+                    "minEssence": 10,
+                    "maxEssence": 20
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.55
+                    },
+                    {
+                        "itemId": "Food_Kebab_Mushroom",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Salad_Berry",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S8 — Feran_Sharptooth intro + Skeleton_Soldier",
+            "position": {
+                "x": 247.0,
+                "y": 74.0,
+                "z": 91.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Sharptooth",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 12,
+                    "maxEssence": 22
+                },
+                {
+                    "mobId": "Skeleton_Soldier",
+                    "minCount": 3,
+                    "maxCount": 4,
+                    "spawnRate": 1.0,
+                    "wave": 2,
+                    "minEssence": 8,
+                    "maxEssence": 16
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.55
+                    },
+                    {
+                        "itemId": "Food_Kebab_Mushroom",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Pie_Pumpkin",
+                        "chance": 0.40
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S9 — Feran pack + Skeleton_Knight",
+            "position": {
+                "x": 313.0,
+                "y": 75.0,
+                "z": 99.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Sharptooth",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 12,
+                    "maxEssence": 22
+                },
+                {
+                    "mobId": "Skeleton_Knight",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 14,
+                    "maxEssence": 26
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Food_Pie_Apple",
+                        "chance": 0.55
+                    },
+                    {
+                        "itemId": "Food_Kebab_Meat",
+                        "chance": 0.65
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S10 — Feran_Longtooth + Skeleton_Archmage",
+            "position": {
+                "x": 340.0,
+                "y": 75.0,
+                "z": 69.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Longtooth",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 14,
                     "maxEssence": 25
                 },
                 {
-                    "mobId": "Dungeon_Skeleton_Sand_Mage",
+                    "mobId": "Skeleton_Archmage",
                     "minCount": 1,
                     "maxCount": 2,
-                    "spawnRate": 0.0,
-                    "wave": 3,
+                    "spawnRate": 2.0,
+                    "wave": 2,
+                    "minEssence": 18,
+                    "maxEssence": 32
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Food_Pie_Apple",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.50
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S11 — First Outlanders, Outlander_Unsworn + Outlander_Initiate",
+            "position": {
+                "x": 371.0,
+                "y": 68.0,
+                "z": 122.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Outlander_Unsworn",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 12,
+                    "maxEssence": 22
+                },
+                {
+                    "mobId": "Outlander_Initiate",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.0,
+                    "wave": 2,
+                    "minEssence": 14,
+                    "maxEssence": 26
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Salad_Caesar",
+                        "chance": 0.50
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S12 — Feran_Longtooth + Outlander_Berserker",
+            "position": {
+                "x": 375.0,
+                "y": 68.0,
+                "z": 176.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Longtooth",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 14,
+                    "maxEssence": 25
+                },
+                {
+                    "mobId": "Outlander_Berserker",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 18,
+                    "maxEssence": 32
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Salad_Caesar",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S13 — Outlander_Marauder + Skeleton_Knight",
+            "position": {
+                "x": 355.0,
+                "y": 74.0,
+                "z": 297.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Outlander_Marauder",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 16,
+                    "maxEssence": 28
+                },
+                {
+                    "mobId": "Skeleton_Knight",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 14,
+                    "maxEssence": 26
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.55
+                    },
+                    {
+                        "itemId": "Food_Pie_Apple",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Salad_Caesar",
+                        "chance": 0.60
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S14 — Feran_Burrower swarm + Outlander_Hunter",
+            "position": {
+                "x": 417.0,
+                "y": 71.0,
+                "z": 346.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 10.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Burrower",
+                    "minCount": 5,
+                    "maxCount": 7,
+                    "spawnRate": 0.6,
+                    "wave": 1,
+                    "minEssence": 14,
+                    "maxEssence": 24
+                },
+                {
+                    "mobId": "Outlander_Hunter",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.3,
+                    "wave": 2,
                     "minEssence": 20,
+                    "maxEssence": 36
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Food_Pie_Apple",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Weapon_Bomb_Potion_Poison",
+                        "chance": 0.30
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S15 — Outlander_Berserker + Outlander_Marauder",
+            "position": {
+                "x": 487.0,
+                "y": 74.0,
+                "z": 365.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 4.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Outlander_Berserker",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 18,
+                    "maxEssence": 32
+                },
+                {
+                    "mobId": "Outlander_Marauder",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 0.8,
+                    "wave": 2,
+                    "minEssence": 18,
+                    "maxEssence": 32
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Food_Salad_Caesar",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S16 — Feran_Longtooth + Outlander_Stalker",
+            "position": {
+                "x": 537.0,
+                "y": 69.0,
+                "z": 372.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 7.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Longtooth",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 16,
+                    "maxEssence": 28
+                },
+                {
+                    "mobId": "Outlander_Stalker",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.4,
+                    "wave": 2,
+                    "minEssence": 22,
+                    "maxEssence": 38
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Signature_Small",
+                        "chance": 0.40
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S17 — Outlander_Brute + Outlander_Sorcerer",
+            "position": {
+                "x": 633.0,
+                "y": 69.0,
+                "z": 385.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 7.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Outlander_Brute",
+                    "minCount": 2,
+                    "maxCount": 4,
+                    "spawnRate": 1.2,
+                    "wave": 1,
+                    "minEssence": 22,
+                    "maxEssence": 40
+                },
+                {
+                    "mobId": "Outlander_Sorcerer",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 24,
+                    "maxEssence": 42
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Pie_Apple",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Signature_Small",
+                        "chance": 0.50
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S18 — Feran_Burrower ambush + Outlander_Priest",
+            "position": {
+                "x": 680.0,
+                "y": 64.0,
+                "z": 401.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 7.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Burrower",
+                    "minCount": 5,
+                    "maxCount": 7,
+                    "spawnRate": 0.7,
+                    "wave": 1,
+                    "minEssence": 16,
+                    "maxEssence": 28
+                },
+                {
+                    "mobId": "Outlander_Priest",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.0,
+                    "wave": 2,
+                    "minEssence": 28,
+                    "maxEssence": 48
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Food_Salad_Caesar",
+                        "chance": 0.60
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.50
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S19 — Outlander_Stalker pack tight radius",
+            "position": {
+                "x": 681.0,
+                "y": 64.0,
+                "z": 363.0
+            },
+            "triggerRadius": 5.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 18.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Outlander_Stalker",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 24,
+                    "maxEssence": 42
+                },
+                {
+                    "mobId": "Outlander_Brute",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 26,
+                    "maxEssence": 46
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S20 — Feran_Longtooth + Outlander_Sorcerer endgame mix",
+            "position": {
+                "x": 722.0,
+                "y": 64.0,
+                "z": 251.0
+            },
+            "triggerRadius": 5.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Feran_Longtooth",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 20,
+                    "maxEssence": 35
+                },
+                {
+                    "mobId": "Outlander_Sorcerer",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 28,
                     "maxEssence": 50
                 }
             ],
             "lootChest": {
                 "items": [
                     {
-                        "itemId": "Nexus_Ranged_Staff_Copper",
-                        "chance": 1
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.85
                     },
                     {
-                        "itemId": "Potion_Health_Small",
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.70
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
                         "chance": 0.75
                     },
                     {
-                        "itemId": "Bow_Wood",
-                        "chance": 0.30
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.50
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S21 — Elite gauntlet, Outlander_Brute + Outlander_Priest",
+            "position": {
+                "x": 803.0,
+                "y": 65.0,
+                "z": 301.0
+            },
+            "triggerRadius": 5.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Outlander_Brute",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.1,
+                    "wave": 1,
+                    "minEssence": 28,
+                    "maxEssence": 50
+                },
+                {
+                    "mobId": "Outlander_Priest",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.0,
+                    "wave": 2,
+                    "minEssence": 35,
+                    "maxEssence": 60
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.90
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.60
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S22 — Final corridor, Outlander_Stalker + Outlander_Sorcerer",
+            "position": {
+                "x": 910.0,
+                "y": 63.0,
+                "z": 321.0
+            },
+            "triggerRadius": 5.0,
+            "spawnRadius": 3.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 20.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Outlander_Stalker",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 30,
+                    "maxEssence": 55
+                },
+                {
+                    "mobId": "Outlander_Sorcerer",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 35,
+                    "maxEssence": 65
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.95
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.80
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.70
                     }
                 ]
             }
@@ -96,24 +1487,488 @@
     ],
     "independentChests": [
         {
+            "_comment": "IC 1 — Opening, basics",
             "position": {
-                "x": 53.0,
-                "y": 81.0,
+                "x": 40.0,
+                "y": 73.0,
+                "z": -9.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Bread",
+                    "chance": 0.90
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Plant_Fruit_Apple",
+                    "chance": 0.80
+                },
+                {
+                    "itemId": "Potion_Health_Lesser",
+                    "chance": 0.70
+                }
+            ]
+        },
+        {
+            "_comment": "IC 2 — Early, raw food",
+            "position": {
+                "x": 132.0,
+                "y": 78.0,
                 "z": 1.0
             },
             "triggerRadius": 3.0,
             "items": [
                 {
-                    "itemId": "Nexus_Melee_Axe_Iron",
-                    "chance": 1
+                    "itemId": "Food_Wildmeat_Raw",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.80
+                },
+                {
+                    "itemId": "Food_Fish_Raw",
+                    "chance": 0.70
                 },
                 {
                     "itemId": "Potion_Health_Small",
-                    "chance": 0.90
+                    "chance": 0.65
+                }
+            ]
+        },
+        {
+            "_comment": "IC 3 — Early, vegetables",
+            "position": {
+                "x": 137.0,
+                "y": 74.0,
+                "z": 38.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Cheese",
+                    "chance": 0.80
                 },
                 {
-                    "itemId": "Potion_Flow_Small",
-                    "chance": 0.40
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Plant_Crop_Potato_Item",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Plant_Crop_Onion_Item",
+                    "chance": 0.60
+                }
+            ]
+        },
+        {
+            "_comment": "IC 4 — Mid-early, cooked food",
+            "position": {
+                "x": 170.0,
+                "y": 74.0,
+                "z": 108.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Fish_Grilled",
+                    "chance": 0.80
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Food_Wildmeat_Cooked",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Small",
+                    "chance": 0.65
+                }
+            ]
+        },
+        {
+            "_comment": "IC 5 — Mid-early, kebabs",
+            "position": {
+                "x": 212.0,
+                "y": 74.0,
+                "z": 93.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Kebab_Vegetable",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Kebab_Mushroom",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Health_Small",
+                    "chance": 0.70
+                }
+            ]
+        },
+        {
+            "_comment": "IC 6 — Mid-early, kebab + stamina",
+            "position": {
+                "x": 211.0,
+                "y": 74.0,
+                "z": 44.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Kebab_Meat",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Kebab_Fruit",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Stamina_Small",
+                    "chance": 0.60
+                }
+            ]
+        },
+        {
+            "_comment": "IC 7 — Mid, salads",
+            "position": {
+                "x": 258.0,
+                "y": 76.0,
+                "z": 33.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Salad_Berry",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Salad_Mushroom",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Health_Small",
+                    "chance": 0.70
+                }
+            ]
+        },
+        {
+            "_comment": "IC 8 — Mid, kebabs + stamina",
+            "position": {
+                "x": 237.0,
+                "y": 76.0,
+                "z": 56.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Kebab_Meat",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Kebab_Mushroom",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Stamina_Small",
+                    "chance": 0.60
+                }
+            ]
+        },
+        {
+            "_comment": "IC 9 — Mid, salad caesar + health",
+            "position": {
+                "x": 277.0,
+                "y": 74.0,
+                "z": 123.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Salad_Caesar",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Salad_Berry",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Potion_Health_Small",
+                    "chance": 0.75
+                }
+            ]
+        },
+        {
+            "_comment": "IC 10 — Mid, first pies",
+            "position": {
+                "x": 347.0,
+                "y": 69.0,
+                "z": 113.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Pumpkin",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Pie_Apple",
+                    "chance": 0.60
+                },
+                {
+                    "itemId": "Potion_Health_Small",
+                    "chance": 0.75
+                }
+            ]
+        },
+        {
+            "_comment": "IC 11 — Mid-late, pies + health",
+            "position": {
+                "x": 374.0,
+                "y": 71.0,
+                "z": 235.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Pie_Pumpkin",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Health",
+                    "chance": 0.70
+                }
+            ]
+        },
+        {
+            "_comment": "IC 12 — Mid-late, pies + stamina",
+            "position": {
+                "x": 358.0,
+                "y": 74.0,
+                "z": 330.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Pie_Apple",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Stamina",
+                    "chance": 0.60
+                }
+            ]
+        },
+        {
+            "_comment": "IC 13 — Late-mid, caesar + greater health",
+            "position": {
+                "x": 453.0,
+                "y": 74.0,
+                "z": 378.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Salad_Caesar",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Health_Greater",
+                    "chance": 0.65
+                }
+            ]
+        },
+        {
+            "_comment": "IC 14 — Late-mid, pies + signature lesser",
+            "position": {
+                "x": 504.0,
+                "y": 74.0,
+                "z": 376.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Apple",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Potion_Health_Greater",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Signature_Lesser",
+                    "chance": 0.45
+                }
+            ]
+        },
+        {
+            "_comment": "IC 15 — Late, best food + greater potions",
+            "position": {
+                "x": 578.0,
+                "y": 69.0,
+                "z": 417.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Salad_Caesar",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Potion_Health_Greater",
+                    "chance": 0.70
+                }
+            ]
+        },
+        {
+            "_comment": "IC 16 — Late, pies + signature small",
+            "position": {
+                "x": 662.0,
+                "y": 69.0,
+                "z": 369.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Apple",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.70
+                },
+                {
+                    "itemId": "Potion_Signature_Small",
+                    "chance": 0.50
+                }
+            ]
+        },
+        {
+            "_comment": "IC 17 — Endgame prep",
+            "position": {
+                "x": 683.0,
+                "y": 64.0,
+                "z": 428.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.80
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Signature_Small",
+                    "chance": 0.55
+                }
+            ]
+        },
+        {
+            "_comment": "IC 18 — Pre-finish, best potions",
+            "position": {
+                "x": 886.0,
+                "y": 65.0,
+                "z": 281.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.55
                 }
             ]
         }

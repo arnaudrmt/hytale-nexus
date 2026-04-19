@@ -10,11 +10,11 @@
         {
             "Id": "SoulHarvestMultiplier",
             "DisplayName": "Essence Bonus",
-            "Type": "Flat",
+            "Type": "Curve",
             "Values": {
-                "1": 0.50,
-                "2": 0.75,
-                "3": 1.00,
+                "1": 0.10,
+                "2": 0.25,
+                "3": 0.75,
                 "4": 1.50,
                 "5": 2.00
             }

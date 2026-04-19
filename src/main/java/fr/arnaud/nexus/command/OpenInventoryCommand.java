@@ -29,15 +29,6 @@ public final class OpenInventoryCommand extends AbstractPlayerCommand {
         @Nonnull PlayerRef playerRef,
         @Nonnull World world
     ) {
-        Player player = store.getComponent(ref, Player.getComponentType());
-        /*InventoryPage page = new InventoryPage(playerRef);
-        if (player != null) {
-            player.getPageManager().openCustomPageWithWindows(
-                ref, store,
-                new InventoryPage(playerRef),
-                new NexusInventoryWindow(ref, store)
-            );
-        }*/
 
         world.execute(() -> {
             if (!ref.isValid()) return;
