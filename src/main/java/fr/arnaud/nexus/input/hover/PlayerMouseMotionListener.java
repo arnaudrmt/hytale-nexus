@@ -2,6 +2,7 @@ package fr.arnaud.nexus.input.hover;
 
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.math.vector.Vector3i;
 import com.hypixel.hytale.server.core.entity.Entity;
 import com.hypixel.hytale.server.core.entity.entities.Player;
@@ -12,10 +13,9 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.camera.PlayerCameraComponent;
+import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.input.VoxelTargetResolver;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
-
-import javax.annotation.Nullable;
 
 public final class PlayerMouseMotionListener {
 
@@ -56,6 +56,7 @@ public final class PlayerMouseMotionListener {
                 if (resolved != null) handleBlockTarget(resolved, hoverState, playerRef);
             } else {
                 hoverState.clear();
+                unlockHead(ref, store);
             }
 
             store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), hoverState);
@@ -63,23 +64,39 @@ public final class PlayerMouseMotionListener {
     }
 
     private void handleEntityTarget(
-        @NonNullDecl Entity targetEntity,
-        @NonNullDecl PlayerHoverStateComponent hoverState,
-        @NonNullDecl PlayerRef playerRef,
-        @NonNullDecl Ref<EntityStore> ref,
-        @NonNullDecl Store<EntityStore> store
+        Entity targetEntity,
+        PlayerHoverStateComponent hoverState,
+        PlayerRef playerRef,
+        Ref<EntityStore> ref,
+        Store<EntityStore> store
     ) {
-        String entityTypeId = resolveEntityTypeId(targetEntity, store);
-        if (entityTypeId == null || !CursorHoverAllowlist.isInteractableEntity(entityTypeId)) {
-            hoverState.clear();
-            return;
-        }
 
         int entityId = targetEntity.getNetworkId();
-        if (hoverState.isHighlightingEntity(entityId)) return;
 
+        HeadLockComponent lock = store.getComponent(ref, HeadLockComponent.getComponentType());
+        if (lock != null && lock.getLockedEntityNetworkId() != entityId) {
+            lockHeadOnEntity(targetEntity, ref, store, lock);
+        } else if (lock != null && !lock.isActive()) {
+            lockHeadOnEntity(targetEntity, ref, store, lock);
+        }
+
+        if (hoverState.isHighlightingEntity(entityId)) return;
         HoverHighlightDispatcher.highlightEntity(targetEntity, playerRef, ref, store);
         hoverState.recordEntity(entityId);
+    }
+
+    private static void lockHeadOnEntity(Entity target, Ref<EntityStore> ref,
+                                         Store<EntityStore> store, HeadLockComponent lock) {
+        lock.lockOnEntity(new Vector3f(Float.NaN, Float.NaN, Float.NaN), 3f, target.getNetworkId());
+        store.putComponent(ref, HeadLockComponent.getComponentType(), lock);
+    }
+
+    private static void unlockHead(Ref<EntityStore> ref, Store<EntityStore> store) {
+        HeadLockComponent lock = store.getComponent(ref, HeadLockComponent.getComponentType());
+        if (lock != null && lock.isActive()) {
+            lock.unlock();
+            store.putComponent(ref, HeadLockComponent.getComponentType(), lock);
+        }
     }
 
     private void handleBlockTarget(
@@ -91,14 +108,5 @@ public final class PlayerMouseMotionListener {
 
         HoverHighlightDispatcher.highlightBlock(block, playerRef);
         hoverState.recordBlock(block);
-    }
-
-    @Nullable
-    private String resolveEntityTypeId(
-        @NonNullDecl Entity targetEntity,
-        @NonNullDecl Store<EntityStore> store
-    ) {
-        // TODO: replace with the correct NPC role/entity type lookup once confirmed.
-        return null;
     }
 }

@@ -17,6 +17,8 @@ import fr.arnaud.nexus.command.AdminWeaponCommand;
 import fr.arnaud.nexus.command.OpenInventoryCommand;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.feature.breach.*;
+import fr.arnaud.nexus.feature.combat.HeadLockComponent;
+import fr.arnaud.nexus.feature.combat.HeadTrackingSystem;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
 import fr.arnaud.nexus.feature.combat.PlayerLocomotionSystem;
 import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeBossHitSystem;
@@ -65,6 +67,8 @@ public final class NexusInitializer {
     private void registerComponents() {
         var registry = plugin.getEntityStoreRegistry();
 
+        HeadLockComponent.setComponentType(registry.registerComponent(HeadLockComponent.class, HeadLockComponent::new));
+
         RunSessionComponent.setComponentType(registry.registerComponent(RunSessionComponent.class, "Nexus_RunSession", RunSessionComponent.CODEC));
 
         PlayerCameraComponent.setComponentType(registry.registerComponent(PlayerCameraComponent.class, PlayerCameraComponent::new));
@@ -97,6 +101,8 @@ public final class NexusInitializer {
 
     private void registerSystems() {
         var registry = plugin.getEntityStoreRegistry();
+
+        registry.registerSystem(new HeadTrackingSystem());
 
         registry.registerSystem(new PlayerCameraSystem());
         registry.registerSystem(new CameraOcclusionSystem());

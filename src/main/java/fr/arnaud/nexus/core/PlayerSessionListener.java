@@ -14,6 +14,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.camera.PlayerCameraComponent;
 import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
+import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
 import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeComponent;
 import fr.arnaud.nexus.feature.movement.PlayerDashComponent;
@@ -80,6 +81,7 @@ public final class PlayerSessionListener {
 
     private static void bootstrapComponents(@NonNullDecl Ref<EntityStore> ref,
                                             @NonNullDecl Store<EntityStore> store) {
+        store.putComponent(ref, HeadLockComponent.getComponentType(), new HeadLockComponent());
         store.putComponent(ref, PlayerCameraComponent.getComponentType(), new PlayerCameraComponent());
         store.putComponent(ref, PlayerBodyStateComponent.getComponentType(), new PlayerBodyStateComponent());
         store.putComponent(ref, PlayerDashComponent.getComponentType(), new PlayerDashComponent());
