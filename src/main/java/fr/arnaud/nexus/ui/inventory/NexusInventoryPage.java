@@ -76,12 +76,17 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         // Enchantment slot bindings (also registers choose/upgrade event bindings)
         EnchantmentGridPage.appendSlotBindings(cmd, event);
 
+        // Core wheel bindings
+        CoreWheelPage.appendBindings(event);
+
         applyTabVisuals(cmd, activeTab);
         EnchantmentGridPage.populateSlots(cmd, ref, store, activeTab);
         InventoryGridPage.populateSlotItems(cmd, ref, store);
         InventoryGridPage.populateEquipSlots(cmd, ref, store);
         CharacterStatsPage.populate(cmd, ref, store);
         WeaponStatsPage.populate(cmd, ref, store, activeTab);
+        CoreWheelPage.populate(cmd, ref, store);
+        cmd.set("#CoreWheelContent.Visible", false);
     }
 
     private static void setEquipSlotIcon(@Nonnull UICommandBuilder cmd,
@@ -106,12 +111,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                                 @Nonnull EventData data) {
         World world = store.getExternalData().getWorld();
 
-        System.out.println("[Nexus] EVENT >> slotClick=" + data.slotClick
-            + " | equipSlotClick=" + data.equipSlotClick
-            + " | action=" + data.action
-            + " | tabClick=" + data.tabClick
-            + " | selectedSlot=" + selectedSlot);
-
         // ── Tab switch ────────────────────────────────────────────────────────
         if (data.tabClick != null) {
             activeTab = data.tabClick.equals("Ranged") ? WeaponTag.RANGED : WeaponTag.MELEE;
@@ -128,6 +127,26 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
 
         if ("Drop".equals(data.action)) {
             selectedSlot = null;
+            return;
+        }
+
+        if (data.coreWheelHover != null) {
+            UICommandBuilder update = new UICommandBuilder();
+            CoreWheelPage.handleHover(update, data.coreWheelHover);
+            sendUpdate(update, null, false);
+            return;
+        }
+
+        if (data.coreSelect != null) {
+            String captured = data.coreSelect;
+            world.execute(() -> {
+                boolean changed = CoreWheelPage.handleSelect(ref, ref.getStore(), captured);
+                if (changed) {
+                    UICommandBuilder update = new UICommandBuilder();
+                    CoreWheelPage.populate(update, ref, ref.getStore());
+                    sendUpdate(update, null, false);
+                }
+            });
             return;
         }
 
@@ -387,6 +406,10 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                 (d, v) -> d.enchantUpgrade = v, d -> d.enchantUpgrade)
             .addField(new KeyedCodec<>("WeaponUpgrade", Codec.STRING),
                 (d, v) -> d.weaponUpgrade = v, d -> d.weaponUpgrade)
+            .addField(new KeyedCodec<>("CoreWheelHover", Codec.STRING),
+                (d, v) -> d.coreWheelHover = v, d -> d.coreWheelHover)
+            .addField(new KeyedCodec<>("CoreSelect", Codec.STRING),
+                (d, v) -> d.coreSelect = v, d -> d.coreSelect)
             .build();
 
         public String slotClick;
@@ -396,6 +419,8 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         public String enchantChoose;
         public String enchantUpgrade;
         public String weaponUpgrade;
+        public String coreWheelHover;
+        public String coreSelect;
 
         public EventData() {
         }

@@ -8,10 +8,12 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
+import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.camera.CameraOcclusionSystem;
 import fr.arnaud.nexus.camera.PlayerCameraComponent;
 import fr.arnaud.nexus.camera.PlayerCameraSystem;
 import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
+import fr.arnaud.nexus.command.AdminCoreCommand;
 import fr.arnaud.nexus.command.AdminStatsCommand;
 import fr.arnaud.nexus.command.AdminWeaponCommand;
 import fr.arnaud.nexus.command.OpenInventoryCommand;
@@ -59,7 +61,6 @@ public final class NexusInitializer {
 
     private void initializeLoaders() {
         WeaponStatConfigLoader.load();
-
         EnchantmentRegistry.get().loadAll();
         EnchantmentRegistrar.registerAll();
     }
@@ -70,6 +71,8 @@ public final class NexusInitializer {
         HeadLockComponent.setComponentType(registry.registerComponent(HeadLockComponent.class, HeadLockComponent::new));
 
         RunSessionComponent.setComponentType(registry.registerComponent(RunSessionComponent.class, "Nexus_RunSession", RunSessionComponent.CODEC));
+
+        ActiveCoreComponent.setComponentType(registry.registerComponent(ActiveCoreComponent.class, "Nexus_ActiveCore", ActiveCoreComponent.CODEC));
 
         PlayerCameraComponent.setComponentType(registry.registerComponent(PlayerCameraComponent.class, PlayerCameraComponent::new));
         PlayerOcclusionComponent.setComponentType(registry.registerComponent(PlayerOcclusionComponent.class, PlayerOcclusionComponent::new));
@@ -89,11 +92,7 @@ public final class NexusInitializer {
 
         WeaponInstanceComponent.setComponentType(registry.registerComponent(WeaponInstanceComponent.class, WeaponInstanceComponent::new));
         PlayerWeaponStateComponent.setComponentType(
-            registry.registerComponent(
-                PlayerWeaponStateComponent.class,
-                "Nexus_PlayerWeaponState",
-                PlayerWeaponStateComponent.CODEC
-            )
+            registry.registerComponent(PlayerWeaponStateComponent.class, "Nexus_PlayerWeaponState", PlayerWeaponStateComponent.CODEC)
         );
 
         registry.registerComponent(InventoryComponent.Storage.class, InventoryComponent.Storage::new);
@@ -109,12 +108,13 @@ public final class NexusInitializer {
 
         registry.registerSystem(new PlayerLocomotionSystem());
 
+        registry.registerSystem(plugin.getDashAbility());
+
         registry.registerSystem(new SwitchStrikeBossHitSystem());
         new SwitchStrikePacketInterceptor();
-        registry.registerSystem(plugin.getSwitchStrikeTriggerSystem());
+        registry.registerSystem(plugin.getSwitchStrikeAbility());
         registry.registerSystem(plugin.getSwitchStrikeExecutionSystem());
 
-        // Three enchant damage systems replacing the old single interceptor
         registry.registerSystem(new EnchantmentDamageInterceptor.OnHitSystem());
         registry.registerSystem(new EnchantmentDamageInterceptor.OnReceiveHitSystem());
         registry.registerSystem(new EnchantmentDamageInterceptor.OnKillSystem());
@@ -143,7 +143,7 @@ public final class NexusInitializer {
         events.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);
 
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getPlayerStatsManager()::onAssetsLoaded);
-        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getSwitchStrikeTriggerSystem()::onAssetsLoaded);
+        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getSwitchStrikeAbility()::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getStatIndexResolver()::onAssetsLoaded);
 
         events.registerGlobal(PlayerMouseButtonEvent.class, plugin.getPlayerInputListener()::onMouseButton);
@@ -161,5 +161,6 @@ public final class NexusInitializer {
             plugin.getWeaponUpgradeService()
         ));
         registry.registerCommand(new OpenInventoryCommand());
+        registry.registerCommand(new AdminCoreCommand());
     }
 }

@@ -11,16 +11,16 @@ import com.hypixel.hytale.server.core.entity.movement.MovementStatesComponent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.ability.CoreAbilityRouter;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.movement.PlayerDashSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 public final class PlayerInputListener {
 
-    private final PlayerDashSystem dashSystem;
+    private final CoreAbilityRouter coreAbilityRouter;
 
-    public PlayerInputListener(@NonNullDecl PlayerDashSystem dashSystem) {
-        this.dashSystem = dashSystem;
+    public PlayerInputListener(@NonNullDecl CoreAbilityRouter coreAbilityRouter) {
+        this.coreAbilityRouter = coreAbilityRouter;
     }
 
     public void onMouseButton(@NonNullDecl PlayerMouseButtonEvent event) {
@@ -52,9 +52,10 @@ public final class PlayerInputListener {
         if (button == MouseButtonType.Left) {
             if (targetBlock != null && tryChestInteraction(targetBlock, ref, store)) return;
 
-            MovementStatesComponent movStates = store.getComponent(ref, MovementStatesComponent.getComponentType());
+            MovementStatesComponent movStates =
+                store.getComponent(ref, MovementStatesComponent.getComponentType());
             if (movStates != null && movStates.getMovementStates().crouching) {
-                dashSystem.tryDash(player, ref, store);
+                coreAbilityRouter.tryActivate(player, ref, store);
             }
         }
     }
@@ -71,7 +72,8 @@ public final class PlayerInputListener {
 
     private static void resolveTarget(Ref<EntityStore> ref, Store<EntityStore> store,
                                       Entity targetEntity, Vector3i targetBlock, long clientTime) {
-        PlayerCursorTargetComponent cursor = store.getComponent(ref, PlayerCursorTargetComponent.getComponentType());
+        PlayerCursorTargetComponent cursor =
+            store.getComponent(ref, PlayerCursorTargetComponent.getComponentType());
         if (cursor == null) return;
 
         if (targetEntity != null) {

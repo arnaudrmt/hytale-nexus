@@ -12,6 +12,7 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.camera.PlayerCameraComponent;
 import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
 import fr.arnaud.nexus.feature.combat.HeadLockComponent;
@@ -36,7 +37,6 @@ public final class PlayerSessionListener {
         var store = ref.getStore();
         World currentWorld = store.getExternalData().getWorld();
 
-        // 1. If the player is ALREADY in ANY Nexus world, do nothing.
         if (currentWorld.getName().contains("Nexus")) {
             if (store.getComponent(ref, PlayerCameraComponent.getComponentType()) == null) {
                 bootstrapComponents(ref, store);
@@ -58,7 +58,6 @@ public final class PlayerSessionListener {
             ? new Transform(transform.getPosition().clone(), transform.getRotation().clone())
             : new Transform(new Vector3d(0.5, 80.0, 0.5), Vector3f.FORWARD);
 
-        // Prep the bootstrap instructions for when they arrive at the targeted world.
         pending.thenAccept(nexusWorld -> {
             nexusWorld.execute(() -> {
                 EntityStore entityStore = nexusWorld.getEntityStore();
@@ -72,8 +71,6 @@ public final class PlayerSessionListener {
             });
         });
 
-        // 2. Safely defer the teleport to the world's tick thread.
-        // This prevents the "getPositionComponent called async" stack trace from WorldMapTracker.
         currentWorld.execute(() -> {
             InstancesPlugin.teleportPlayerToLoadingInstance(ref, store, pending, returnLocation);
         });
@@ -89,13 +86,15 @@ public final class PlayerSessionListener {
         store.putComponent(ref, SwitchStrikeComponent.getComponentType(), new SwitchStrikeComponent());
         store.putComponent(ref, PlayerOcclusionComponent.getComponentType(), new PlayerOcclusionComponent());
         store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), new PlayerHoverStateComponent());
+
+        // ActiveCoreComponent is persistent — only initialise if missing (e.g. first ever join).
+        if (store.getComponent(ref, ActiveCoreComponent.getComponentType()) == null) {
+            store.putComponent(ref, ActiveCoreComponent.getComponentType(), new ActiveCoreComponent());
+        }
+
         if (store.getComponent(ref, InventoryComponent.Storage.getComponentType()) == null) {
             store.putComponent(ref, InventoryComponent.Storage.getComponentType(),
                 new InventoryComponent.Storage(InventoryComponent.DEFAULT_STORAGE_CAPACITY));
-        }
-        if (store.getComponent(ref, InventoryComponent.Storage.getComponentType()) == null) {
-            InventoryComponent.Storage storage = new InventoryComponent.Storage(InventoryComponent.DEFAULT_STORAGE_CAPACITY);
-            store.putComponent(ref, InventoryComponent.Storage.getComponentType(), storage);
         }
     }
 }
