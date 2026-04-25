@@ -191,9 +191,11 @@ Group #Root {
               Left: @ItemGridSpecialSlotLeftPos + @DefaultItemSlotSize + 9
             );
             Background: "Inventory/Slots/SpecialSlotTemporary.png";
+            HitTestVisible: true;
 
             Button #RangedEquipButton {
               Style: @RightSideButtonDefaultStyle;
+              HitTestVisible: true;
             }
 
             ItemIcon #RangedEquippedIcon {
@@ -233,13 +235,13 @@ Group #Root {
                 }
 
                 Group #MeleeInactive {
-                  Background: "Inventory/Icons/MeleeWeaponIcon.png";
+                  Background: "Inventory/Icons/CharacterPanelStatIconMelee.png";
                   Anchor: (Width: 48, Height: 48);
                   Visible: false;
                 }
 
                 Group #MeleeActive {
-                  Background: "Inventory/Icons/MeleeWeaponActiveIcon.png";
+                  Background: "Inventory/Icons/CharacterPanelStatIconMeleeActive.png";
                   Anchor: (Width: 48, Height: 48);
 
                   Group {
@@ -255,7 +257,7 @@ Group #Root {
                 TextTooltipStyle: @ButtonTextTooltipStyle;
 
                 Group {
-                  Background: "Inventory/Icons/PocketCraftingDisabledIcon.png";
+                  Background: "Inventory/Icons/CharacterPanelStatIconMelee.png";
                   Anchor: (Width: 48, Height: 48, Top: 10);
                 }
               }
@@ -282,13 +284,13 @@ Group #Root {
                 }
 
                 Group #RangedInactive {
-                  Background: "Inventory/Icons/RangedWeaponIcon.png";
+                  Background: "Inventory/Icons/CharacterPanelStatIconRanged.png";
                   Anchor: (Width: 48, Height: 48, Top: 12);
                   Visible: false;
                 }
 
                 Group #RangedActive {
-                  Background: "Inventory/Icons/RangedWeaponActiveIcon.png";
+                  Background: "Inventory/Icons/CharacterPanelStatIconRangedActive.png";
                   Anchor: (Width: 48, Height: 48, Top: 12);
 
                   Group {
@@ -304,7 +306,7 @@ Group #Root {
                 TextTooltipStyle: @ButtonTextTooltipStyle;
 
                 Group {
-                  Background: "Inventory/Icons/RangedWeaponIcon.png";
+                  Background: "Inventory/Icons/CharacterPanelStatIconRanged.png";
                   Anchor: (Width: 48, Height: 48, Top: 12);
                 }
               }
@@ -312,17 +314,18 @@ Group #Root {
           }
 
           Button #CoreWheel {
-
             Anchor: (Width: 310, Height: 310, Bottom: -100, Left: @ItemGridSpecialSlotLeftPos - 116);
+            HitTestVisible: false;
 
             Button #CoreWheelSlot {
               Anchor: (Width: 64, Height: 64, Bottom: 110);
               Background: (TexturePath: "Inventory/Icons/CharacterPanelStatIconHealth.png");
-
+              HitTestVisible: false;
             }
 
             Group #CoreWheelContent {
               Visible: false;
+              HitTestVisible: false;
 
               Group {
                 HitTestVisible: false;
@@ -361,6 +364,7 @@ Group #Root {
                 TooltipText: "Dash";
                 Background: (TexturePath: "Inventory/Ability/Icons/DashAbility.png");
                 TextTooltipStyle: @ButtonTextTooltipStyle;
+                HitTestVisible: false;
                 Group #CoreSlot0Icon {
                   HitTestVisible: false;
                   Anchor: (Width: 64, Height: 64);
@@ -372,6 +376,7 @@ Group #Root {
                 TooltipText: "Switch Strike";
                 Background: (TexturePath: "Inventory/Ability/Icons/SwitchStrikeAbility.png");
                 TextTooltipStyle: @ButtonTextTooltipStyle;
+                HitTestVisible: false;
                 Group #CoreSlot1Icon {
                   HitTestVisible: false;
                   Anchor: (Width: 64, Height: 64);
@@ -383,6 +388,7 @@ Group #Root {
                 TooltipText: "";
                 //Background: (TexturePath: "Inventory/Icons/IconLock.png");
                 TextTooltipStyle: @ButtonTextTooltipStyle;
+                HitTestVisible: false;
                 Group #CoreSlot2Icon {
                   HitTestVisible: false;
                   Anchor: (Width: 64, Height: 64);
@@ -394,6 +400,7 @@ Group #Root {
                 TooltipText: "";
                 //Background: (TexturePath: "Inventory/Icons/IconLock.png");
                 TextTooltipStyle: @ButtonTextTooltipStyle;
+                HitTestVisible: false;
                 Group #CoreSlot3Icon {
                   HitTestVisible: false;
                   Anchor: (Width: 64, Height: 64);
@@ -405,6 +412,7 @@ Group #Root {
                 Anchor: (Width: 33, Height: 33, Top: 250, Left: 140);
                 TooltipText: "Unequip Core";
                 TextTooltipStyle: @ButtonTextTooltipStyle;
+                HitTestVisible: false;
                 Group {
                   HitTestVisible: false;
                   Background: (TexturePath: "Inventory/Ability/ItemSlotSelectorEmptyIcon.png");

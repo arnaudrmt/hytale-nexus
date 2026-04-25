@@ -100,7 +100,27 @@ Group {
         Group #EnchantIcon {
           Anchor: (Width: 48, Height: 48);
           Background: "Inventory/Slots/SlotCommon.png";
-          Group { Background: "Inventory/Icons/CharacterPanelStatIconHealth.png"; Anchor: (Full: 8); }
+
+          Group #IconEnchantBloodlust      { Visible: false; Background: "Inventory/Enchants/EnchantBloodlustIcon.png";        Anchor: (Full: 8); }
+          Group #IconEnchantCripple        { Visible: false; Background: "Inventory/Enchants/EnchantCrippleIcon.png";           Anchor: (Full: 8); }
+          Group #IconEnchantCriticalStrike { Visible: false; Background: "Inventory/Enchants/EnchantCriticalStrikeIcon.png";    Anchor: (Full: 8); }
+          Group #IconEnchantFireAspect     { Visible: false; Background: "Inventory/Enchants/EnchantFireAspectIcon.png";        Anchor: (Full: 8); }
+          Group #IconEnchantFortitude      { Visible: false; Background: "Inventory/Enchants/EnchantFortitudeIcon.png";         Anchor: (Full: 8); }
+          Group #IconEnchantFreezeAspect   { Visible: false; Background: "Inventory/Enchants/EnchantFreezeAspectIcon.png";      Anchor: (Full: 8); }
+          Group #IconEnchantGambler        { Visible: false; Background: "Inventory/Enchants/EnchantGamblerIcon.png";           Anchor: (Full: 8); }
+          Group #IconEnchantHealthBoost    { Visible: false; Background: "Inventory/Enchants/EnchantHealthBoostIcon.png";       Anchor: (Full: 8); }
+          Group #IconEnchantKnockback      { Visible: false; Background: "Inventory/Enchants/EnchantKnockbackIcon.png";         Anchor: (Full: 8); }
+          Group #IconEnchantLifeDrain      { Visible: false; Background: "Inventory/Enchants/EnchantLifeDrainIcon.png";         Anchor: (Full: 8); }
+          Group #IconEnchantPoison         { Visible: false; Background: "Inventory/Enchants/EnchantPoisonIcon.png";            Anchor: (Full: 8); }
+          Group #IconEnchantResilience     { Visible: false; Background: "Inventory/Enchants/EnchantResilienceIcon.png";        Anchor: (Full: 8); }
+          Group #IconEnchantSharpness      { Visible: false; Background: "Inventory/Enchants/EnchantSharpnessIcon.png";         Anchor: (Full: 8); }
+          Group #IconEnchantSoulHarvest    { Visible: false; Background: "Inventory/Enchants/EnchantSoulHarvestIcon.png";       Anchor: (Full: 8); }
+          Group #IconEnchantStaminaBoost   { Visible: false; Background: "Inventory/Enchants/EnchantStaminaBoostIcon.png";      Anchor: (Full: 8); }
+          Group #IconEnchantSwiftness      { Visible: false; Background: "Inventory/Enchants/EnchantSwiftnessIcon.png";         Anchor: (Full: 8); }
+          Group #IconEnchantSwiftnessOnKill{ Visible: false; Background: "Inventory/Enchants/EnchantSwiftnessOnKillIcon.png";   Anchor: (Full: 8); }
+          Group #IconEnchantThorns         { Visible: false; Background: "Inventory/Enchants/EnchantThornsIcon.png";            Anchor: (Full: 8); }
+          Group #IconEnchantVampirism      { Visible: false; Background: "Inventory/Enchants/EnchantVampirismIcon.png";         Anchor: (Full: 8); }
+          Group #IconEnchantWarding        { Visible: false; Background: "Inventory/Enchants/EnchantWardingIcon.png";           Anchor: (Full: 8); }
         }
 
         Group {

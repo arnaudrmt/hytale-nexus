@@ -89,27 +89,16 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         cmd.set("#CoreWheelContent.Visible", false);
     }
 
-    private static void setEquipSlotIcon(@Nonnull UICommandBuilder cmd,
-                                         @Nonnull String iconSelector,
-                                         @Nullable BsonDocument doc,
-                                         @Nonnull WeaponTag tag) {
-        if (doc == null) {
-            cmd.setNull(iconSelector + ".ItemId");
-            return;
-        }
-        String itemId = doc.containsKey("archetype_id")
-            ? doc.getString("archetype_id").getValue()
-            : (tag == WeaponTag.MELEE
-               ? "Nexus_Melee_Sword_Default"
-               : "Nexus_Ranged_Staff_Default");
-        cmd.set(iconSelector + ".ItemId", itemId);
-    }
-
     @Override
     public void handleDataEvent(@Nonnull Ref<EntityStore> ref,
                                 @Nonnull Store<EntityStore> store,
                                 @Nonnull EventData data) {
         World world = store.getExternalData().getWorld();
+
+        System.out.println("[Nexus] EVENT >> slotClick=" + data.slotClick
+            + " | equipSlotClick=" + data.equipSlotClick
+            + " | tabClick=" + data.tabClick
+            + " | weaponUpgrade=" + data.weaponUpgrade);
 
         // ── Tab switch ────────────────────────────────────────────────────────
         if (data.tabClick != null) {
@@ -127,6 +116,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
 
         if ("Drop".equals(data.action)) {
             selectedSlot = null;
+            // TODO: Implement Drop System
             return;
         }
 
@@ -392,24 +382,33 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
     public static class EventData {
         public static final BuilderCodec<EventData> CODEC = BuilderCodec
             .builder(EventData.class, EventData::new)
-            .addField(new KeyedCodec<>("SlotClick", Codec.STRING),
+            .append(new KeyedCodec<>("SlotClick", Codec.STRING),
                 (d, v) -> d.slotClick = v, d -> d.slotClick)
-            .addField(new KeyedCodec<>("TabClick", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("TabClick", Codec.STRING),
                 (d, v) -> d.tabClick = v, d -> d.tabClick)
-            .addField(new KeyedCodec<>("Action", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("Action", Codec.STRING),
                 (d, v) -> d.action = v, d -> d.action)
-            .addField(new KeyedCodec<>("EquipSlotClick", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("EquipSlotClick", Codec.STRING),
                 (d, v) -> d.equipSlotClick = v, d -> d.equipSlotClick)
-            .addField(new KeyedCodec<>("EnchantChoose", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("EnchantChoose", Codec.STRING),
                 (d, v) -> d.enchantChoose = v, d -> d.enchantChoose)
-            .addField(new KeyedCodec<>("EnchantUpgrade", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("EnchantUpgrade", Codec.STRING),
                 (d, v) -> d.enchantUpgrade = v, d -> d.enchantUpgrade)
-            .addField(new KeyedCodec<>("WeaponUpgrade", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("WeaponUpgrade", Codec.STRING),
                 (d, v) -> d.weaponUpgrade = v, d -> d.weaponUpgrade)
-            .addField(new KeyedCodec<>("CoreWheelHover", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("CoreWheelHover", Codec.STRING),
                 (d, v) -> d.coreWheelHover = v, d -> d.coreWheelHover)
-            .addField(new KeyedCodec<>("CoreSelect", Codec.STRING),
+            .add()
+            .append(new KeyedCodec<>("CoreSelect", Codec.STRING),
                 (d, v) -> d.coreSelect = v, d -> d.coreSelect)
+            .add()
             .build();
 
         public String slotClick;

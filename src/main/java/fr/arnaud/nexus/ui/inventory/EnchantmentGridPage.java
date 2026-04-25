@@ -163,8 +163,11 @@ public final class EnchantmentGridPage {
         cmd.set(base + " #EnchantLevel.Text", "Level " + currentLevel);
         cmd.set(base + " #EnchantDesc.Text", def.getDescription());
 
-        // Stamp one row per stat into #EnchantStatRows
-        // Clear first to avoid rows stacking on repeated updates
+        for (EnchantmentDefinition e : EnchantmentRegistry.get().getAllDefinitions()) {
+            cmd.set(base + " #EnchantIcon " + enchantIconElementId(e.getId()) + ".Visible", false);
+        }
+        cmd.set(base + " #EnchantIcon " + enchantIconElementId(slot.chosen()) + ".Visible", true);
+
         List<EnchantmentStatDefinition> stats = def.getStats();
         String statsContainer = base + " #EnchantStatRows";
         cmd.clear(statsContainer);
@@ -363,5 +366,9 @@ public final class EnchantmentGridPage {
             case 5 -> "V";
             default -> String.valueOf(level);
         };
+    }
+
+    private static String enchantIconElementId(String enchantmentId) {
+        return "#Icon" + enchantmentId.replace("_", "");
     }
 }
