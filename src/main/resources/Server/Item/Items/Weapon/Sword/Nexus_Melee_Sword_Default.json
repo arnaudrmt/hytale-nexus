@@ -8,6 +8,7 @@
     "Icon": "Icons/ItemsGenerated/Weapon_Sword_Steel_Rusty.png",
     "Quality": "Common",
     "ItemLevel": 15,
+    "DurabilityLossOnHit": 0,
     "Utility": {
         "Compatible": true
     },

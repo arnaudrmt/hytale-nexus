@@ -12,6 +12,7 @@ import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.inventory.transaction.ItemStackTransaction;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.modules.entity.item.ItemComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 
 import javax.annotation.Nonnull;
@@ -34,20 +35,20 @@ public final class InventoryUtils {
                                           @Nonnull ItemStack stack) {
         ItemContainer storage = getStorage(ref, store);
         if (storage == null) {
-            dropItem(ref, store, stack);
+            spawnItemDrop(ref, store, stack);
             return false;
         }
 
         // Only consider the first 27 slots
         if (getStorageUsedSlots(ref, store) >= MAX_STORAGE_SLOTS) {
-            dropItem(ref, store, stack);
+            spawnItemDrop(ref, store, stack);
             return false;
         }
 
         ItemStackTransaction transaction = storage.addItemStack(stack);
         ItemStack remainder = transaction.getRemainder();
         if (!ItemStack.isEmpty(remainder)) {
-            dropItem(ref, store, remainder);
+            spawnItemDrop(ref, store, remainder);
             return false;
         }
         return true;
@@ -72,9 +73,9 @@ public final class InventoryUtils {
     /**
      * Drops an item at the player's current world position.
      */
-    public static void dropItem(@Nonnull Ref<EntityStore> ref,
-                                @Nonnull Store<EntityStore> store,
-                                @Nonnull ItemStack stack) {
+    public static void spawnItemDrop(@Nonnull Ref<EntityStore> ref,
+                                     @Nonnull Store<EntityStore> store,
+                                     @Nonnull ItemStack stack) {
         TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
         Vector3d position = transform != null
             ? transform.getPosition()
@@ -82,6 +83,39 @@ public final class InventoryUtils {
 
         Holder<EntityStore> itemHolder = ItemComponent.generateItemDrop(
             store, stack, position, Vector3f.ZERO, 0f, 0.2f, 0f);
+        if (itemHolder != null) {
+            store.addEntity(itemHolder, AddReason.SPAWN);
+        }
+    }
+
+    /**
+     * Removes an item from a container slot and drops it in the world
+     * slightly in front of the player so it isn't instantly picked up.
+     */
+    public static void dropItemFromInventory(@Nonnull Ref<EntityStore> ref,
+                                             @Nonnull Store<EntityStore> store,
+                                             @Nonnull ItemContainer container,
+                                             short slotIndex) {
+        ItemStack stack = container.getItemStack(slotIndex);
+        if (stack == null || stack.isEmpty()) return;
+
+        container.removeItemStackFromSlot(slotIndex, stack.getQuantity());
+
+        TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
+        Vector3d base = transform != null ? transform.getPosition() : new Vector3d(0, 0, 0);
+
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        float yaw = playerRef != null ? playerRef.getHeadRotation().getX() : 0f;
+
+        double throwDistance = 2.5;
+        Vector3d position = new Vector3d(
+            base.getX() - Math.sin(yaw) * throwDistance,
+            base.getY() + 0.5,
+            base.getZ() + Math.cos(yaw) * throwDistance
+        );
+
+        Holder<EntityStore> itemHolder = ItemComponent.generateItemDrop(
+            store, stack, position, Vector3f.ZERO, 1.5f, 0.2f, 0f);
         if (itemHolder != null) {
             store.addEntity(itemHolder, AddReason.SPAWN);
         }

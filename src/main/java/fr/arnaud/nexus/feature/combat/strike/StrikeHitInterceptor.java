@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.feature.combat.switchstrike;
+package fr.arnaud.nexus.feature.combat.strike;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -8,14 +8,14 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DamageEventSystem;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import com.hypixel.hytale.server.npc.entities.NPCEntity;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-import java.util.Set;
-
-public final class SwitchStrikeBossHitSystem extends DamageEventSystem {
-
-    static final Set<String> BOSS_ROLE_IDS = Set.of("Nexus_TestBoss_NPC_Role");
+/**
+ * During the HIT_WINDOW phase, registers any damaged entity as a Strike target.
+ * During the COMBO phase, folds incoming damage on frozen targets into the per-target
+ * combo accumulator and cancels the real damage event.
+ */
+public final class StrikeHitInterceptor extends DamageEventSystem {
 
     @NonNullDecl
     @Override
@@ -33,21 +33,24 @@ public final class SwitchStrikeBossHitSystem extends DamageEventSystem {
         Ref<EntityStore> attackerRef = entitySource.getRef();
         if (attackerRef == null || !attackerRef.isValid()) return;
 
-        SwitchStrikeComponent switchStrike =
-            store.getComponent(attackerRef, SwitchStrikeComponent.getComponentType());
-        if (switchStrike == null) return;
+        StrikeComponent strike = store.getComponent(attackerRef, StrikeComponent.getComponentType());
+        if (strike == null) return;
 
         Ref<EntityStore> targetRef = chunk.getReferenceTo(index);
-        NPCEntity npc = store.getComponent(targetRef, NPCEntity.getComponentType());
-        if (!isBoss(npc)) return;
 
-        switchStrike.markBossHit(targetRef);
-        cmd.run(s -> s.putComponent(attackerRef, SwitchStrikeComponent.getComponentType(), switchStrike));
-    }
-
-    private boolean isBoss(NPCEntity npc) {
-        if (npc == null) return false;
-        String roleId = npc.getNPCTypeId();
-        return roleId != null && BOSS_ROLE_IDS.contains(roleId);
+        switch (strike.getState()) {
+            case HIT_WINDOW -> {
+                strike.registerHitTarget(targetRef);
+                cmd.run(s -> s.putComponent(attackerRef, StrikeComponent.getComponentType(), strike));
+            }
+            case COMBO -> {
+                boolean tracked = strike.registerComboHit(targetRef, damage.getInitialAmount());
+                if (tracked) {
+                    damage.setCancelled(true);
+                    cmd.run(s -> s.putComponent(attackerRef, StrikeComponent.getComponentType(), strike));
+                }
+            }
+            default -> { /* IDLE — nothing to do */ }
+        }
     }
 }

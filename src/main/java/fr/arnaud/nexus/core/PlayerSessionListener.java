@@ -17,7 +17,7 @@ import fr.arnaud.nexus.camera.PlayerCameraComponent;
 import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
 import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
-import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeComponent;
+import fr.arnaud.nexus.feature.combat.strike.StrikeComponent;
 import fr.arnaud.nexus.feature.movement.PlayerDashComponent;
 import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import fr.arnaud.nexus.input.hover.PlayerHoverStateComponent;
@@ -83,7 +83,7 @@ public final class PlayerSessionListener {
         store.putComponent(ref, PlayerBodyStateComponent.getComponentType(), new PlayerBodyStateComponent());
         store.putComponent(ref, PlayerDashComponent.getComponentType(), new PlayerDashComponent());
         store.putComponent(ref, PlayerCursorTargetComponent.getComponentType(), new PlayerCursorTargetComponent());
-        store.putComponent(ref, SwitchStrikeComponent.getComponentType(), new SwitchStrikeComponent());
+        store.putComponent(ref, StrikeComponent.getComponentType(), new StrikeComponent());
         store.putComponent(ref, PlayerOcclusionComponent.getComponentType(), new PlayerOcclusionComponent());
         store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), new PlayerHoverStateComponent());
 

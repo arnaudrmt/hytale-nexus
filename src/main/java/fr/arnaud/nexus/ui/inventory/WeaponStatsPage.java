@@ -23,8 +23,6 @@ public final class WeaponStatsPage {
     private WeaponStatsPage() {
     }
 
-    // ── Main populate ─────────────────────────────────────────────────────────
-
     static void populate(@Nonnull UICommandBuilder cmd,
                          @Nonnull Ref<EntityStore> ref,
                          @Nonnull Store<EntityStore> store,
@@ -51,22 +49,15 @@ public final class WeaponStatsPage {
         int quality = WeaponBsonSchema.readQuality(doc);
         String name = WeaponBsonSchema.readName(doc);
 
-        // ── Icon ──────────────────────────────────────────────────────────────
         cmd.set("#WeaponIcon.ItemId", archetypeId);
-
-        // ── Level label (left of name, coloured by level tier) ────────────────
         cmd.set("#WeaponLevel.Text", "[Lvl. " + level + "]");
-
-        // ── Weapon name (always white) ────────────────────────────────────────
         cmd.set("#WeaponName.Text", Message.translation(name));
 
-        // ── Quality label coloured by quality ─────────────────────────────────
         String qualityColor = QualityMapper.toColor(quality);
-        String qualityName = qualityName(quality);
+        String qualityName = QualityMapper.toName(quality);
         cmd.set("#WeaponRarity.Text", qualityName);
         cmd.set("#WeaponRarity.Style.TextColor", qualityColor);
 
-        // ── Stats ─────────────────────────────────────────────────────────────
         if (!WeaponStatRegistry.get().isReady()) {
             renderEmpty(cmd);
             return;
@@ -77,7 +68,6 @@ public final class WeaponStatsPage {
         cmd.set("#WeaponHealthAdder.Text", formatFlat(current.healthBoost));
         cmd.set("#WeaponMovementSpeedAdder.Text", formatFlat(current.movementSpeedBoost));
 
-        // ── Upgrade button ────────────────────────────────────────────────────
         PlayerStatsManager statsManager = Nexus.get().getPlayerStatsManager();
         float balance = statsManager.isReady()
             ? statsManager.getEssenceDust(ref, store) : 0f;
@@ -88,8 +78,6 @@ public final class WeaponStatsPage {
         cmd.set("#UpgradeButton.Disabled", !canAfford);
         cmd.set("#UpgradeButton.TooltipText", buildWeaponUpgradeTooltip(doc, level, cost));
     }
-
-    // ── Weapon upgrade tooltip ────────────────────────────────────────────────
 
     private static String buildWeaponUpgradeTooltip(@Nonnull BsonDocument doc,
                                                     int currentLevel,
@@ -107,8 +95,6 @@ public final class WeaponStatsPage {
             + "Movement Speed: " + formatDelta(speedDelta, false);
     }
 
-    // ── Empty state ───────────────────────────────────────────────────────────
-
     private static void renderEmpty(@Nonnull UICommandBuilder cmd) {
         cmd.setNull("#WeaponIcon.ItemId");
         cmd.set("#WeaponLevel.Text", "");
@@ -121,20 +107,12 @@ public final class WeaponStatsPage {
         cmd.set("#UpgradeButton.Disabled", true);
     }
 
-    // ── Formatting helpers ────────────────────────────────────────────────────
-
-    /**
-     * Damage multiplier as a percentage delta: 1.25 → "+25%"
-     */
     private static String formatDamage(double multiplier) {
         double pct = (multiplier - 1.0) * 100.0;
         if (pct == 0) return "0%";
         return (pct > 0 ? "+" : "") + Math.round(pct) + "%";
     }
 
-    /**
-     * Flat value with sign: 250.0 → "+250"
-     */
     private static String formatFlat(double value) {
         if (value == 0) return "0";
         if (value == Math.floor(value))
@@ -155,16 +133,5 @@ public final class WeaponStatsPage {
         int c = Math.round(cost);
         if (c < 1000) return String.valueOf(c);
         return (c / 1000) + " " + String.format("%03d", c % 1000);
-    }
-
-    private static String qualityName(int quality) {
-        return switch (quality) {
-            case 0 -> "Common";
-            case 1 -> "Uncommon";
-            case 2 -> "Rare";
-            case 3 -> "Epic";
-            case 4 -> "Legendary";
-            default -> "Developer";
-        };
     }
 }

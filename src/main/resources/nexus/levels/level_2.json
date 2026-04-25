@@ -1,0 +1,17 @@
+{
+    "id": "level_2",
+    "name": "The Shattered Forest",
+    "difficulty": 1.0,
+    "spawnPoint": {
+        "x": 2000.5,
+        "y": 80.0,
+        "z": 0.5
+    },
+    "finishPoint": {
+        "x": 966.5,
+        "y": 73.0,
+        "z": 321.5
+    },
+    "spawners": [],
+    "independentChests": []
+}

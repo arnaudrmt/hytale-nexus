@@ -2,6 +2,7 @@
     "id": "level_1",
     "name": "The Shattered Forest",
     "difficulty": 1.0,
+    "nextLevelId": "level_2",
     "spawnPoint": {
         "x": 10.5,
         "y": 64.0,
@@ -58,6 +59,10 @@
                     {
                         "itemId": "Plant_Fruit_Apple",
                         "chance": 0.70
+                    },
+                    {
+                        "itemId": "Nexus_Core_Dash",
+                        "chance": 1
                     }
                 ]
             }

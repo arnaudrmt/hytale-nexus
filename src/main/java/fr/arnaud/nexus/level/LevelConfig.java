@@ -16,11 +16,13 @@ public final class LevelConfig {
     private final Position finishPoint;
     private final List<SpawnerConfig> spawners;
     private final List<IndependentChestConfig> independentChests;
+    private final String nextLevelId;
 
     public LevelConfig(String id, String name, float difficulty,
                        Position spawnPoint, Position finishPoint,
                        List<SpawnerConfig> spawners,
-                       List<IndependentChestConfig> independentChests) {
+                       List<IndependentChestConfig> independentChests,
+                       String nextLevelId) {
         this.id = id;
         this.name = name;
         this.difficulty = difficulty;
@@ -28,6 +30,7 @@ public final class LevelConfig {
         this.finishPoint = finishPoint;
         this.spawners = List.copyOf(spawners);
         this.independentChests = List.copyOf(independentChests);
+        this.nextLevelId = nextLevelId;
     }
 
     public String getId() {
@@ -56,6 +59,11 @@ public final class LevelConfig {
 
     public List<IndependentChestConfig> getIndependentChests() {
         return independentChests;
+    }
+
+    @Nullable
+    public String getNextLevelId() {
+        return nextLevelId;
     }
 
     // -------------------------------------------------------------------------

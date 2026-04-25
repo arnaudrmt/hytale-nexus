@@ -1,27 +1,40 @@
 package fr.arnaud.nexus.ability;
 
-/**
- * Registry of all equippable Core ability identifiers.
- * The string key is what gets persisted via {@link ActiveCoreComponent}.
- */
 public enum CoreAbility {
 
-    DASH("dash"),
-    SWITCH_STRIKE("switch_strike");
+    DASH(
+        "dash",
+        "Dash",
+        "Hold Ctrl and click to dash towards your cursor."
+    ),
+    SWITCH_STRIKE(
+        "switch_strike",
+        "Switch Strike",
+        "When your ability damages an enemy, switch your weapon at the moment of impact to trigger a powerful combo."
+    );
 
     private final String id;
+    private final String displayName;
+    private final String description;
 
-    CoreAbility(String id) {
+    CoreAbility(String id, String displayName, String description) {
         this.id = id;
+        this.displayName = displayName;
+        this.description = description;
     }
 
     public String getId() {
         return id;
     }
 
-    /**
-     * @return null if no match — callers must handle gracefully (empty slot is valid).
-     */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public static CoreAbility fromId(String id) {
         if (id == null) return null;
         for (CoreAbility ability : values()) {

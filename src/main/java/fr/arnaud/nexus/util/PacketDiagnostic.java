@@ -66,7 +66,6 @@ public final class PacketDiagnostic {
                 Object val = f.get(packet);
                 if (val != null) {
                     String str = val.toString();
-                    // Truncate large payloads (commands arrays etc.)
                     if (str.length() > 120) str = str.substring(0, 120) + "...";
                     sb.append(f.getName()).append("=").append(str).append(", ");
                 }

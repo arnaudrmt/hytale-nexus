@@ -32,6 +32,10 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
     private volatile String selectedSlot = null;
     private volatile WeaponTag activeTab;
 
+    private volatile java.util.concurrent.ScheduledFuture<?> coreWheelCloseTask = null;
+    private static final java.util.concurrent.ScheduledExecutorService WHEEL_SCHEDULER =
+        java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+
     public NexusInventoryPage(@Nonnull PlayerRef playerRef) {
         super(playerRef, CustomPageLifetime.CanDismiss, EventData.CODEC);
     }
@@ -95,12 +99,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                                 @Nonnull EventData data) {
         World world = store.getExternalData().getWorld();
 
-        System.out.println("[Nexus] EVENT >> slotClick=" + data.slotClick
-            + " | equipSlotClick=" + data.equipSlotClick
-            + " | tabClick=" + data.tabClick
-            + " | weaponUpgrade=" + data.weaponUpgrade);
-
-        // ── Tab switch ────────────────────────────────────────────────────────
         if (data.tabClick != null) {
             activeTab = data.tabClick.equals("Ranged") ? WeaponTag.RANGED : WeaponTag.MELEE;
             selectedSlot = null;
@@ -114,16 +112,42 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             return;
         }
 
-        if ("Drop".equals(data.action)) {
-            selectedSlot = null;
-            // TODO: Implement Drop System
+        if (data.action != null && data.action.startsWith("Drop:")) {
+            int globalIndex = Integer.parseInt(data.action.split(":")[1]);
+            boolean isHotbar = globalIndex >= InventoryGridPage.STORAGE_CAPACITY;
+            short slotIndex = (short) (isHotbar
+                ? globalIndex - InventoryGridPage.STORAGE_CAPACITY
+                : globalIndex);
+
+            ItemContainer container = InventoryGridPage.getContainer(ref, store,
+                isHotbar ? "Hotbar" : "Storage");
+            if (container == null) return;
+
+            world.execute(() -> {
+                InventoryUtils.dropItemFromInventory(ref, ref.getStore(), container, slotIndex);
+                UICommandBuilder update = new UICommandBuilder();
+                InventoryGridPage.populateSlotItems(update, ref, ref.getStore());
+                sendUpdate(update, null, false);
+            });
             return;
         }
 
         if (data.coreWheelHover != null) {
-            UICommandBuilder update = new UICommandBuilder();
-            CoreWheelPage.handleHover(update, data.coreWheelHover);
-            sendUpdate(update, null, false);
+            if ("Enter".equals(data.coreWheelHover)) {
+                if (coreWheelCloseTask != null) {
+                    coreWheelCloseTask.cancel(false);
+                    coreWheelCloseTask = null;
+                }
+                UICommandBuilder update = new UICommandBuilder();
+                CoreWheelPage.handleHover(update, "Enter");
+                sendUpdate(update, null, false);
+            } else {
+                coreWheelCloseTask = WHEEL_SCHEDULER.schedule(() -> {
+                    UICommandBuilder update = new UICommandBuilder();
+                    CoreWheelPage.handleHover(update, "Leave");
+                    sendUpdate(update, null, false);
+                }, 200, java.util.concurrent.TimeUnit.MILLISECONDS);
+            }
             return;
         }
 
@@ -273,8 +297,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         return stack != null && !stack.isEmpty();
     }
 
-    // ── Equip helper ──────────────────────────────────────────────────────────
-
     private void handleEquip(@Nonnull Ref<EntityStore> ref,
                              @Nonnull Store<EntityStore> store,
                              @Nonnull String fromSlotKey,
@@ -316,7 +338,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         container.removeItemStackFromSlot(slotIndex, (short) 1);
         weaponState.setDocument(targetTag, incomingDoc.clone());
 
-        // If this weapon tag is the one currently held in hotbar slot 0, update it
         if (targetTag == weaponState.activeTag) {
             String archetypeId = incomingDoc.containsKey("archetype_id")
                 ? incomingDoc.getString("archetype_id").getValue() : "unknown";
@@ -358,8 +379,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         return itemTag.isCompatibleWith(targetTag);
     }
 
-    // ── Tab visuals ───────────────────────────────────────────────────────────
-
     private void applyTabVisuals(@Nonnull UICommandBuilder cmd, @Nonnull WeaponTag tab) {
         boolean isMelee = tab == WeaponTag.MELEE;
 
@@ -376,8 +395,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         cmd.set("#RangedButtonBgDefault.Visible", isMelee);
         cmd.set("#RangedButtonBgActive.Visible", !isMelee);
     }
-
-    // ── EventData ─────────────────────────────────────────────────────────────
 
     public static class EventData {
         public static final BuilderCodec<EventData> CODEC = BuilderCodec
@@ -427,8 +444,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
 
     private void pushFullStatsUpdate(@Nonnull Ref<EntityStore> ref) {
         reequipActiveWeapon(ref, ref.getStore());
-        // Defer UI populate to the next world execute so WeaponPassiveApplicator.apply
-        // (which runs inside its own world.execute) has fully completed before we read stats
         ref.getStore().getExternalData().getWorld().execute(() -> {
             if (!ref.isValid()) return;
             UICommandBuilder update = new UICommandBuilder();

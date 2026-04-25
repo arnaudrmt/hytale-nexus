@@ -13,7 +13,7 @@
         },
         {
             "Quality": 1,
-            "LevelCostBase": 100,
+            "LevelCostBase": 10,
             "LevelCostCurve": 1.1,
             "DamageMultiplierBase": 1.20,
             "DamageMultiplierCurve": 1.2,
@@ -24,7 +24,7 @@
         },
         {
             "Quality": 2,
-            "LevelCostBase": 100,
+            "LevelCostBase": 30,
             "LevelCostCurve": 1.10,
             "DamageMultiplierBase": 1.00,
             "DamageMultiplierCurve": 1.05,
@@ -35,7 +35,7 @@
         },
         {
             "Quality": 3,
-            "LevelCostBase": 500,
+            "LevelCostBase": 100,
             "LevelCostCurve": 1.15,
             "DamageMultiplierBase": 1.08,
             "DamageMultiplierCurve": 1.15,
@@ -46,7 +46,7 @@
         },
         {
             "Quality": 4,
-            "LevelCostBase": 1000,
+            "LevelCostBase": 250,
             "LevelCostCurve": 1.25,
             "DamageMultiplierBase": 1.30,
             "DamageMultiplierCurve": 1.30,

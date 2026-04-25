@@ -1,7 +1,3 @@
-// NexusEnchantSlot.ui
-// One enchantment slot. Instantiated 3× by EnchantmentGridPage.java.
-// Initial Visible states are set programmatically after append.
-
 $C = "../Common.ui";
 
 @ButtonTextTooltipStyle = TextTooltipStyle(

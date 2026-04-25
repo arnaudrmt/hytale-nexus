@@ -9,12 +9,15 @@ import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
+import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.input.PlayerInputListener;
 import fr.arnaud.nexus.level.LevelConfig;
+import fr.arnaud.nexus.level.LevelManager;
 import fr.arnaud.nexus.level.LevelProgressComponent;
 import fr.arnaud.nexus.spawner.loot.LootRoller;
 
@@ -30,18 +33,23 @@ public final class MobSpawnerManager {
     private final ChestManager chestManager;
 
     private static final String CHEST_BLOCK_KEY = "Furniture_Dungeon_Chest_Epic";
+    private static final float PORTAL_TRIGGER_RADIUS = 2.0f;
 
     private final List<SpawnerState> spawnerStates = new ArrayList<>();
     private World activeWorld;
+
+    private boolean portalSpawned = false;
+    private boolean levelTransitionTriggered = false;
 
     public MobSpawnerManager(ChestManager chestManager) {
         this.chestManager = chestManager;
     }
 
-    // Replace onLevelLoaded:
     public void onLevelLoaded(World world, LevelConfig config) {
         this.activeWorld = world;
         spawnerStates.clear();
+        portalSpawned = false;
+        levelTransitionTriggered = false;
         int idSequence = 0;
         for (LevelConfig.SpawnerConfig spawnerConfig : config.getSpawners()) {
             spawnerStates.add(new SpawnerState(idSequence++, spawnerConfig));
@@ -52,6 +60,8 @@ public final class MobSpawnerManager {
     public void reset() {
         spawnerStates.clear();
         activeWorld = null;
+        portalSpawned = false;
+        levelTransitionTriggered = false;
         chestManager.reset();
     }
 
@@ -64,6 +74,14 @@ public final class MobSpawnerManager {
         if (activeWorld == null) return;
         chestManager.tick(position);
 
+        if (!portalSpawned && areAllSpawnersComplete()) {
+            spawnFinishPortal();
+        }
+
+        if (portalSpawned && !levelTransitionTriggered) {
+            checkPortalProximity(position, playerRef, commandBuffer);
+        }
+
         for (SpawnerState state : spawnerStates) {
             if (!state.isTriggered() && progress != null
                 && progress.triggeredSpawners.contains(state.getId())) {
@@ -73,9 +91,64 @@ public final class MobSpawnerManager {
             if (!state.isTriggered()) {
                 checkProximityTrigger(state, position, progress, commandBuffer, playerRef);
             } else {
-                tickActiveSpawner(state, dt);
+                tickActiveSpawner(state, dt, playerRef, progress, commandBuffer);
             }
         }
+    }
+
+    private boolean areAllSpawnersComplete() {
+        if (spawnerStates.isEmpty()) return false;
+        SpawnerState last = spawnerStates.get(spawnerStates.size() - 1);
+        if (last.getConfig().hasLootChest()) {
+            return last.isChestSpawned();
+        }
+        return last.isTriggered() && last.getAliveMobsInCurrentWave() == 0
+            && last.getTotalMobsInCurrentWave() > 0;
+    }
+
+    private void spawnFinishPortal() {
+        portalSpawned = true;
+    }
+
+    private void checkPortalProximity(Vector3d position, Ref<EntityStore> playerRef,
+                                      CommandBuffer<EntityStore> commandBuffer) {
+        LevelConfig.Position pos = Nexus.get().getLevelManager().getCurrentConfig().getFinishPoint();
+        double dx = position.getX() - pos.getX();
+        double dy = position.getY() - pos.getY();
+        double dz = position.getZ() - pos.getZ();
+
+        if (dx * dx + dy * dy + dz * dz > PORTAL_TRIGGER_RADIUS * PORTAL_TRIGGER_RADIUS) return;
+
+        levelTransitionTriggered = true;
+        transitionToNextLevel(playerRef, commandBuffer);
+    }
+
+    private void transitionToNextLevel(Ref<EntityStore> playerRef,
+                                       CommandBuffer<EntityStore> commandBuffer) {
+        LevelManager levelManager = Nexus.get().getLevelManager();
+        String nextLevelId = levelManager.getCurrentConfig().getNextLevelId();
+        if (nextLevelId == null) return;
+
+        boolean loaded = levelManager.loadLevel(nextLevelId);
+        if (!loaded) return;
+
+        LevelConfig nextConfig = levelManager.getCurrentConfig();
+        LevelConfig.Position spawn = nextConfig.getSpawnPoint();
+        Vector3d spawnPos = new Vector3d(spawn.getX(), spawn.getY(), spawn.getZ());
+
+        onLevelLoaded(activeWorld, nextConfig);
+
+        LevelProgressComponent progress = commandBuffer.getComponent(
+            playerRef, LevelProgressComponent.getComponentType());
+        if (progress != null) {
+            progress.checkpointX = (float) spawn.getX();
+            progress.checkpointY = (float) spawn.getY();
+            progress.checkpointZ = (float) spawn.getZ();
+            commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
+        }
+
+        commandBuffer.run(s -> s.addComponent(playerRef, Teleport.getComponentType(),
+            Teleport.createForPlayer(spawnPos, Vector3f.FORWARD)));
     }
 
     private void checkProximityTrigger(SpawnerState state, Vector3d position,
@@ -109,7 +182,10 @@ public final class MobSpawnerManager {
         }
     }
 
-    private void tickActiveSpawner(SpawnerState state, float dt) {
+    private void tickActiveSpawner(SpawnerState state, float dt,
+                                   Ref<EntityStore> playerRef,
+                                   LevelProgressComponent progress,
+                                   CommandBuffer<EntityStore> commandBuffer) {
         tickSpawnRateDrip(state, dt);
 
         if (!state.getConfig().hasWaves()) return;
@@ -117,7 +193,7 @@ public final class MobSpawnerManager {
         int currentWave = state.getActiveWave();
         LevelConfig.WaveConfig nextWaveConfig = findWaveConfig(state, currentWave + 1);
         if (nextWaveConfig == null) {
-            checkFinalWaveCompletion(state);
+            checkFinalWaveCompletion(state, playerRef, progress, commandBuffer);
             return;
         }
 
@@ -127,7 +203,10 @@ public final class MobSpawnerManager {
         }
     }
 
-    private void checkFinalWaveCompletion(SpawnerState state) {
+    private void checkFinalWaveCompletion(SpawnerState state,
+                                          Ref<EntityStore> playerRef,
+                                          LevelProgressComponent progress,
+                                          CommandBuffer<EntityStore> commandBuffer) {
         if (state.isChestSpawned()) return;
         if (state.getAliveMobsInCurrentWave() > 0) return;
         if (state.getTotalMobsInCurrentWave() == 0) return;
@@ -135,6 +214,14 @@ public final class MobSpawnerManager {
 
         state.markChestSpawned();
         spawnLootChest(state);
+
+        if (progress != null) {
+            LevelConfig.Position pos = state.getConfig().getPosition();
+            progress.checkpointX = (float) pos.getX();
+            progress.checkpointY = (float) pos.getY();
+            progress.checkpointZ = (float) pos.getZ() + 1.5f;
+            commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
+        }
     }
 
     private void spawnLootChest(SpawnerState state) {
@@ -168,9 +255,9 @@ public final class MobSpawnerManager {
     }
 
     /**
-     * Called by {@link PlayerInputListener} when a player left-clicks
-     * a block. Checks if the clicked position matches any pending chest, ejects the loot
-     * as flying item drops, and breaks the chest block.
+     * Called by {@link PlayerInputListener} when a player left-clicks a block.
+     * Checks if the clicked position matches any pending chest, ejects the loot,
+     * and breaks the chest block.
      *
      * @return true if the click was consumed by a chest interaction
      */
@@ -178,27 +265,6 @@ public final class MobSpawnerManager {
                                 Store<EntityStore> store) {
         return chestManager.tryOpenChest(
             clickedBlockCenter, playerRef, store, Collections.unmodifiableList(spawnerStates));
-    }
-
-    private void ejectItems(List<String> itemIds, Vector3d origin,
-                            Ref<EntityStore> playerRef, Store<EntityStore> store) {
-        Random rng = ThreadLocalRandom.current();
-
-        for (String itemId : itemIds) {
-            float velX = (rng.nextFloat() - 0.5f) * 1.2f;
-            float velY = 0.4f + rng.nextFloat() * 0.5f;
-            float velZ = (rng.nextFloat() - 0.5f) * 1.2f;
-
-            com.hypixel.hytale.server.core.inventory.ItemStack itemStack = buildLootStack(itemId);
-
-            com.hypixel.hytale.component.Holder<EntityStore> itemHolder =
-                com.hypixel.hytale.server.core.modules.entity.item.ItemComponent
-                    .generateItemDrop(store, itemStack, origin, Vector3f.ZERO, velX, velY, velZ);
-
-            if (itemHolder != null) {
-                store.addEntity(itemHolder, com.hypixel.hytale.component.AddReason.SPAWN);
-            }
-        }
     }
 
     private com.hypixel.hytale.server.core.inventory.ItemStack buildLootStack(String itemId) {
@@ -219,21 +285,6 @@ public final class MobSpawnerManager {
 
     private static boolean isNexusWeapon(String itemId) {
         return itemId.startsWith("Nexus_Melee_") || itemId.startsWith("Nexus_Ranged_");
-    }
-
-    private void breakChestBlock(Vector3d chestPos) {
-        activeWorld.execute(() -> {
-            int x = (int) Math.floor(chestPos.getX());
-            int y = (int) Math.floor(chestPos.getY());
-            int z = (int) Math.floor(chestPos.getZ());
-            activeWorld.setBlock(x, y, z, "Empty");
-        });
-    }
-
-    private static boolean isSameBlock(Vector3d a, Vector3d b) {
-        return (int) Math.floor(a.getX()) == (int) Math.floor(b.getX())
-            && (int) Math.floor(a.getY()) == (int) Math.floor(b.getY())
-            && (int) Math.floor(a.getZ()) == (int) Math.floor(b.getZ());
     }
 
     private void tickTimeWaveTransition(SpawnerState state, LevelConfig.WaveConfig nextWave, float dt) {

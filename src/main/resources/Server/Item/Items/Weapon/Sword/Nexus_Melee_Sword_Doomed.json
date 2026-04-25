@@ -19,6 +19,7 @@
     },
     "ItemLevel": 30,
     "MaxDurability": 75,
+    "DurabilityLossOnHit": 0,
     "InteractionVars": {
         "Swing_Left_Damage": {
             "Interactions": [

@@ -1,20 +1,7 @@
 package fr.arnaud.nexus.ui.inventory;
 
-/**
- * Maps a quality integer (or enchantment level used as quality) to a
- * hex colour string and a slot background image path.
- * <p>
- * Scale:
- * 0 → Common     → grey   #9d9d9d   Inventory/Slots/SlotCommon.png
- * 1 → Uncommon   → green  #1eff00   Inventory/Slots/SlotUncommon.png
- * 2 → Rare       → blue   #0070dd   Inventory/Slots/SlotRare.png
- * 3 → Epic       → purple #a335ee   Inventory/Slots/SlotEpic.png
- * 4 → Legendary  → gold   #ff8000   Inventory/Slots/SlotLegendary.png
- * 5+ → Developer → red    #ff0000   Inventory/Slots/SlotDeveloper.png
- */
 public final class QualityMapper {
 
-    // Hex colours
     public static final String COLOR_COMMON = "#9d9d9d";
     public static final String COLOR_UNCOMMON = "#1eff00";
     public static final String COLOR_RARE = "#0070dd";
@@ -22,7 +9,6 @@ public final class QualityMapper {
     public static final String COLOR_LEGENDARY = "#FFD700";
     public static final String COLOR_DEVELOPER = "#ff0000";
 
-    // Slot image paths
     public static final String SLOT_COMMON = "Inventory/Slots/SlotCommon.png";
     public static final String SLOT_UNCOMMON = "Inventory/Slots/SlotUncommon.png";
     public static final String SLOT_RARE = "Inventory/Slots/SlotRare.png";
@@ -30,7 +16,6 @@ public final class QualityMapper {
     public static final String SLOT_LEGENDARY = "Inventory/Slots/SlotLegendary.png";
     public static final String SLOT_DEVELOPER = "Inventory/Slots/SlotDeveloper.png";
 
-    // Quality names
     public static final String NAME_COMMON = "Common";
     public static final String NAME_UNCOMMON = "Uncommon";
     public static final String NAME_RARE = "Rare";

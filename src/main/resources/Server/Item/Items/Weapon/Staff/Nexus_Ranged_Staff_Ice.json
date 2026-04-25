@@ -9,6 +9,7 @@
     "Icon": "Icons/ItemsGenerated/Weapon_Staff_Crystal_Ice.png",
     "Quality": "Rare",
     "ItemLevel": 50,
+    "DurabilityLossOnHit": 0,
     "Recipe": {
         "TimeSeconds": 5,
         "Input": [

@@ -63,6 +63,7 @@ public final class LevelConfigLoader {
         String id = root.get("id").getAsString();
         String name = root.get("name").getAsString();
         float difficulty = root.get("difficulty").getAsFloat();
+        String nextLevelId = root.has("nextLevelId") ? root.get("nextLevelId").getAsString() : null;
 
         LevelConfig.Position spawnPoint = parsePosition(root.getAsJsonObject("spawnPoint"));
         LevelConfig.Position finishPoint = parsePosition(root.getAsJsonObject("finishPoint"));
@@ -81,7 +82,7 @@ public final class LevelConfigLoader {
         }
 
 
-        return new LevelConfig(id, name, difficulty, spawnPoint, finishPoint, spawners, independentChests);
+        return new LevelConfig(id, name, difficulty, spawnPoint, finishPoint, spawners, independentChests, nextLevelId);
     }
 
     private static LevelConfig.Position parsePosition(JsonObject obj) {

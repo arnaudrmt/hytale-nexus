@@ -44,6 +44,7 @@ public final class HoverHighlightDispatcher {
         @NonNullDecl Vector3i block,
         @NonNullDecl PlayerRef playerRef
     ) {
+
         Position center = new Position(
             block.getX() + 0.5,
             block.getY() + 1.5,

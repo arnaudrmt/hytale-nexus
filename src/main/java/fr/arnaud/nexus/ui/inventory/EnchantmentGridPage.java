@@ -29,8 +29,6 @@ public final class EnchantmentGridPage {
     private EnchantmentGridPage() {
     }
 
-    // ── Stamp slots + register bindings ──────────────────────────────────────
-
     static void appendSlotBindings(@Nonnull UICommandBuilder cmd,
                                    @Nonnull UIEventBuilder event) {
         cmd.appendInline("#EnchantSlotCards",
@@ -58,15 +56,11 @@ public final class EnchantmentGridPage {
         }
     }
 
-    // ── Populate all slots from the active weapon ─────────────────────────────
-
     static void populateSlots(@Nonnull UICommandBuilder cmd,
                               @Nonnull Ref<EntityStore> ref,
                               @Nonnull Store<EntityStore> store,
                               @Nonnull WeaponTag activeTab) {
 
-        // Read directly from the BSON document — always available regardless of
-        // whether WeaponInstanceComponent has been set by the equip system yet.
         List<EnchantmentSlot> slots = getEnchantmentSlots(ref, store, activeTab);
 
         PlayerStatsManager statsManager = Nexus.get().getPlayerStatsManager();
@@ -82,10 +76,6 @@ public final class EnchantmentGridPage {
         }
     }
 
-    /**
-     * Reads enchantment slots from PlayerWeaponStateComponent's BSON document.
-     * This is the source of truth — WeaponInstanceComponent may not exist yet.
-     */
     @Nullable
     private static List<EnchantmentSlot> getEnchantmentSlots(@Nonnull Ref<EntityStore> ref,
                                                              @Nonnull Store<EntityStore> store,
@@ -102,8 +92,6 @@ public final class EnchantmentGridPage {
         return WeaponBsonSchema.readEnchantmentSlots(doc);
     }
 
-    // ── Populate a single slot ────────────────────────────────────────────────
-
     private static void populateSlot(@Nonnull UICommandBuilder cmd,
                                      int i,
                                      @Nonnull EnchantmentSlot slot,
@@ -116,8 +104,6 @@ public final class EnchantmentGridPage {
             populateActiveState(cmd, i, slot, essence);
         }
     }
-
-    // ── Choice state ──────────────────────────────────────────────────────────
 
     private static void populateChoiceState(@Nonnull UICommandBuilder cmd,
                                             int i,
@@ -145,8 +131,6 @@ public final class EnchantmentGridPage {
         }
     }
 
-    // ── Active state ──────────────────────────────────────────────────────────
-
     private static void populateActiveState(@Nonnull UICommandBuilder cmd,
                                             int i,
                                             @Nonnull EnchantmentSlot slot,
@@ -156,8 +140,6 @@ public final class EnchantmentGridPage {
         if (def == null) return;
 
         int currentLevel = slot.currentLevel();
-
-        // Enchant icon slot background uses level as quality tier
 
         cmd.set(base + " #EnchantName.Text", def.getName() + " " + toRoman(currentLevel));
         cmd.set(base + " #EnchantLevel.Text", "Level " + currentLevel);
@@ -173,7 +155,6 @@ public final class EnchantmentGridPage {
         cmd.clear(statsContainer);
         for (int s = 0; s < stats.size(); s++) {
             EnchantmentStatDefinition stat = stats.get(s);
-            // Create a row group inline
             cmd.appendInline(statsContainer,
                 "Group { LayoutMode: Left; Anchor: (Height: 28, Top: 4); }");
             String rowBase = statsContainer + "[" + s + "]";
@@ -200,8 +181,6 @@ public final class EnchantmentGridPage {
         }
     }
 
-    // ── Enchant upgrade tooltip ───────────────────────────────────────────────
-
     private static String buildEnchantUpgradeTooltip(@Nonnull EnchantmentDefinition def,
                                                      int currentLevel,
                                                      int nextLevel,
@@ -222,7 +201,7 @@ public final class EnchantmentGridPage {
                 sb.append(stat.getDisplayName())
                   .append("  ")
                   .append(formatStatValue(stat, currentLevel))
-                  .append(" → ")
+                  .append(" -> ")
                   .append(formatStatValue(stat, nextLevel))
                   .append(" (")
                   .append(delta > 0 ? "+" : "")
@@ -232,8 +211,6 @@ public final class EnchantmentGridPage {
         }
         return sb.toString().stripTrailing();
     }
-
-    // ── Handle choose event ───────────────────────────────────────────────────
 
     static boolean handleChoose(@Nonnull Ref<EntityStore> ref,
                                 @Nonnull Store<EntityStore> store,
@@ -274,13 +251,10 @@ public final class EnchantmentGridPage {
 
         statsManager.removeEssenceDust(ref, store, cost);
 
-        // Mutate the slot in the list, write back to the document
         slots.set(slotIndex, slot.withChoice(chosenId));
         WeaponBsonSchema.writeEnchantmentSlots(doc, slots);
         return true;
     }
-
-    // ── Handle upgrade event ──────────────────────────────────────────────────
 
     static boolean handleUpgrade(@Nonnull Ref<EntityStore> ref,
                                  @Nonnull Store<EntityStore> store,
@@ -325,8 +299,6 @@ public final class EnchantmentGridPage {
         WeaponBsonSchema.writeEnchantmentSlots(doc, slots);
         return true;
     }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static void setSlotVisible(@Nonnull UICommandBuilder cmd,
                                        int i,

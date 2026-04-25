@@ -9,23 +9,17 @@ import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
-import fr.arnaud.nexus.camera.CameraOcclusionSystem;
-import fr.arnaud.nexus.camera.PlayerCameraComponent;
-import fr.arnaud.nexus.camera.PlayerCameraSystem;
-import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
+import fr.arnaud.nexus.camera.*;
 import fr.arnaud.nexus.command.AdminCoreCommand;
 import fr.arnaud.nexus.command.AdminStatsCommand;
 import fr.arnaud.nexus.command.AdminWeaponCommand;
 import fr.arnaud.nexus.command.OpenInventoryCommand;
 import fr.arnaud.nexus.component.RunSessionComponent;
-import fr.arnaud.nexus.feature.breach.*;
 import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.feature.combat.HeadTrackingSystem;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
 import fr.arnaud.nexus.feature.combat.PlayerLocomotionSystem;
-import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeBossHitSystem;
-import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeComponent;
-import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikePacketInterceptor;
+import fr.arnaud.nexus.feature.combat.strike.*;
 import fr.arnaud.nexus.feature.movement.PlayerDashComponent;
 import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import fr.arnaud.nexus.input.hover.PlayerHoverStateComponent;
@@ -38,6 +32,7 @@ import fr.arnaud.nexus.item.weapon.stats.WeaponStatConfigLoader;
 import fr.arnaud.nexus.item.weapon.system.PlayerWeaponInitSystem;
 import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
 import fr.arnaud.nexus.level.LevelProgressComponent;
+import fr.arnaud.nexus.spawner.PlayerRespawnSystem;
 import fr.arnaud.nexus.spawner.SpawnerMobDeathSystem;
 import fr.arnaud.nexus.spawner.SpawnerProximitySystem;
 import fr.arnaud.nexus.spawner.SpawnerTagComponent;
@@ -83,9 +78,7 @@ public final class NexusInitializer {
         PlayerCursorTargetComponent.setComponentType(registry.registerComponent(PlayerCursorTargetComponent.class, PlayerCursorTargetComponent::new));
         PlayerHoverStateComponent.setComponentType(registry.registerComponent(PlayerHoverStateComponent.class, PlayerHoverStateComponent::new));
 
-        SwitchStrikeComponent.setComponentType(registry.registerComponent(SwitchStrikeComponent.class, SwitchStrikeComponent::new));
-        FrozenTargetComponent.setComponentType(registry.registerComponent(FrozenTargetComponent.class, FrozenTargetComponent::new));
-        BreachSequenceComponent.setComponentType(registry.registerComponent(BreachSequenceComponent.class, BreachSequenceComponent::new));
+        StrikeComponent.setComponentType(registry.registerComponent(StrikeComponent.class, StrikeComponent::new));
 
         LevelProgressComponent.setComponentType(registry.registerComponent(LevelProgressComponent.class, "Nexus_LevelProgress", LevelProgressComponent.CODEC));
         SpawnerTagComponent.setComponentType(registry.registerComponent(SpawnerTagComponent.class, "Nexus_SpawnerTag", SpawnerTagComponent.CODEC));
@@ -96,6 +89,8 @@ public final class NexusInitializer {
         );
 
         registry.registerComponent(InventoryComponent.Storage.class, InventoryComponent.Storage::new);
+
+        StrikePendingComponent.setComponentType(registry.registerComponent(StrikePendingComponent.class, StrikePendingComponent::new));
     }
 
     private void registerSystems() {
@@ -110,19 +105,13 @@ public final class NexusInitializer {
 
         registry.registerSystem(plugin.getDashAbility());
 
-        registry.registerSystem(new SwitchStrikeBossHitSystem());
-        new SwitchStrikePacketInterceptor();
-        registry.registerSystem(plugin.getSwitchStrikeAbility());
-        registry.registerSystem(plugin.getSwitchStrikeExecutionSystem());
+        registry.registerSystem(new StrikeSystem());
+        registry.registerSystem(new StrikeHitInterceptor());
+        new StrikePacketInterceptor(plugin.getPlayerStatsManager());
 
         registry.registerSystem(new EnchantmentDamageInterceptor.OnHitSystem());
         registry.registerSystem(new EnchantmentDamageInterceptor.OnReceiveHitSystem());
         registry.registerSystem(new EnchantmentDamageInterceptor.OnKillSystem());
-
-        registry.registerSystem(new BreachSequenceSystem());
-        registry.registerSystem(new BreachDamageInterceptor());
-        registry.registerSystem(new BreachFreezeSystem());
-        registry.registerSystem(new BreachFreezeAttackInterceptor());
 
         registry.registerSystem(new SpawnerProximitySystem());
         registry.registerSystem(new SpawnerMobDeathSystem());
@@ -133,7 +122,11 @@ public final class NexusInitializer {
             EntityModule.get().getPlayerSpatialResourceType()
         ));
 
+        registry.registerSystem(new PlayerRespawnSystem());
+
         new WeaponSwapSystem(plugin.getWeaponEquipSystem());
+
+        registry.registerSystem(new MobBarrierEnforcementSystem());
     }
 
     private void registerListeners() {
@@ -143,7 +136,6 @@ public final class NexusInitializer {
         events.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);
 
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getPlayerStatsManager()::onAssetsLoaded);
-        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getSwitchStrikeAbility()::onAssetsLoaded);
         events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getStatIndexResolver()::onAssetsLoaded);
 
         events.registerGlobal(PlayerMouseButtonEvent.class, plugin.getPlayerInputListener()::onMouseButton);

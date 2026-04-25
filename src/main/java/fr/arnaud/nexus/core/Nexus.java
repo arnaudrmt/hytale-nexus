@@ -5,7 +5,7 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import fr.arnaud.nexus.ability.CoreAbilityRouter;
 import fr.arnaud.nexus.ability.impl.DashAbility;
 import fr.arnaud.nexus.ability.impl.SwitchStrikeAbility;
-import fr.arnaud.nexus.feature.combat.switchstrike.SwitchStrikeExecutionSystem;
+import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.input.PlayerInputListener;
 import fr.arnaud.nexus.input.VoxelTargetResolver;
 import fr.arnaud.nexus.input.hover.PlayerMouseMotionListener;
@@ -16,7 +16,6 @@ import fr.arnaud.nexus.item.weapon.system.StatIndexResolver;
 import fr.arnaud.nexus.item.weapon.system.WeaponEquipSystem;
 import fr.arnaud.nexus.level.LevelManager;
 import fr.arnaud.nexus.level.NexusWorldLoadSystem;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.spawner.ChestManager;
 import fr.arnaud.nexus.spawner.MobSpawnerManager;
 import fr.arnaud.nexus.ui.inventory.InventoryPacketInterceptor;
@@ -37,8 +36,6 @@ public final class Nexus extends JavaPlugin {
     private final DashAbility dashAbility = new DashAbility();
     private final SwitchStrikeAbility switchStrikeAbility = new SwitchStrikeAbility();
     private final CoreAbilityRouter coreAbilityRouter = new CoreAbilityRouter(dashAbility);
-
-    private final SwitchStrikeExecutionSystem switchStrikeExecutionSystem = new SwitchStrikeExecutionSystem();
 
     private final PlayerInputListener playerInputListener = new PlayerInputListener(coreAbilityRouter);
     private final PlayerMouseMotionListener playerMouseMotionListener = new PlayerMouseMotionListener(voxelTargetResolver);
@@ -76,22 +73,71 @@ public final class Nexus extends JavaPlugin {
         return instance;
     }
 
-    public PacketDiagnostic getPacketDiagnostic() { return packetDiagnostic; }
-    public InventoryPacketInterceptor getInventoryPacketInterceptor() { return inventoryPacketInterceptor; }
-    public PlayerStatsManager getPlayerStatsManager() { return playerStatsManager; }
-    public VoxelTargetResolver getVoxelTargetResolver() { return voxelTargetResolver; }
-    public DashAbility getDashAbility() { return dashAbility; }
-    public SwitchStrikeAbility getSwitchStrikeAbility() { return switchStrikeAbility; }
-    public CoreAbilityRouter getCoreAbilityRouter() { return coreAbilityRouter; }
-    public SwitchStrikeExecutionSystem getSwitchStrikeExecutionSystem() { return switchStrikeExecutionSystem; }
-    public PlayerInputListener getPlayerInputListener() { return playerInputListener; }
-    public PlayerMouseMotionListener getPlayerMouseMotionListener() { return playerMouseMotionListener; }
-    public NexusWorldLoadSystem getNexusWorldLoadSystem() { return nexusWorldLoadSystem; }
-    public LevelManager getLevelManager() { return levelManager; }
-    public MobSpawnerManager getMobSpawnerManager() { return mobSpawnerManager; }
-    public EnchantmentPoolService getEnchantmentPoolService() { return enchantmentPoolService; }
-    public StatIndexResolver getStatIndexResolver() { return statIndexResolver; }
-    public WeaponEquipSystem getWeaponEquipSystem() { return weaponEquipSystem; }
-    public WeaponGenerator getWeaponGenerator() { return weaponGenerator; }
-    public WeaponUpgradeService getWeaponUpgradeService() { return weaponUpgradeService; }
+    public PacketDiagnostic getPacketDiagnostic() {
+        return packetDiagnostic;
+    }
+
+    public InventoryPacketInterceptor getInventoryPacketInterceptor() {
+        return inventoryPacketInterceptor;
+    }
+
+    public PlayerStatsManager getPlayerStatsManager() {
+        return playerStatsManager;
+    }
+
+    public VoxelTargetResolver getVoxelTargetResolver() {
+        return voxelTargetResolver;
+    }
+
+    public DashAbility getDashAbility() {
+        return dashAbility;
+    }
+
+    public SwitchStrikeAbility getSwitchStrikeAbility() {
+        return switchStrikeAbility;
+    }
+
+    public CoreAbilityRouter getCoreAbilityRouter() {
+        return coreAbilityRouter;
+    }
+
+    public PlayerInputListener getPlayerInputListener() {
+        return playerInputListener;
+    }
+
+    public PlayerMouseMotionListener getPlayerMouseMotionListener() {
+        return playerMouseMotionListener;
+    }
+
+    public NexusWorldLoadSystem getNexusWorldLoadSystem() {
+        return nexusWorldLoadSystem;
+    }
+
+    public LevelManager getLevelManager() {
+        return levelManager;
+    }
+
+    public MobSpawnerManager getMobSpawnerManager() {
+        return mobSpawnerManager;
+    }
+
+    public EnchantmentPoolService getEnchantmentPoolService() {
+        return enchantmentPoolService;
+    }
+
+    public StatIndexResolver getStatIndexResolver() {
+        return statIndexResolver;
+    }
+
+    public WeaponEquipSystem getWeaponEquipSystem() {
+        return weaponEquipSystem;
+    }
+
+    public WeaponGenerator getWeaponGenerator() {
+        return weaponGenerator;
+    }
+
+    public WeaponUpgradeService getWeaponUpgradeService() {
+        return weaponUpgradeService;
+    }
 }

@@ -13,6 +13,8 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.ability.ActiveCoreComponent;
+import fr.arnaud.nexus.ability.CoreAbility;
 import fr.arnaud.nexus.level.LevelConfig;
 import fr.arnaud.nexus.spawner.loot.LootRoller;
 
@@ -124,6 +126,45 @@ public final class ChestManager {
             collectIndependentChestCandidates());
     }
 
+    private void grantLoot(List<String> itemIds, Vector3d origin,
+                           Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        for (String itemId : itemIds) {
+            if (isNexusCore(itemId)) {
+                unlockCore(itemId, playerRef, store);
+            } else {
+                ejectSingleItem(itemId, origin, store);
+            }
+        }
+    }
+
+    private void unlockCore(String itemId, Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        // itemId format: "Nexus_Core_Dash" → strip prefix → "Dash" → lowercase → "dash"
+        String abilityId = itemId.substring("Nexus_Core_".length()).toLowerCase();
+        CoreAbility ability = CoreAbility.fromId(abilityId);
+        if (ability == null) return;
+
+        ActiveCoreComponent core = store.getComponent(playerRef, ActiveCoreComponent.getComponentType());
+        if (core == null) return;
+
+        core.unlock(ability);
+        store.putComponent(playerRef, ActiveCoreComponent.getComponentType(), core);
+    }
+
+    private void ejectSingleItem(String itemId, Vector3d origin, Store<EntityStore> store) {
+        Random rng = ThreadLocalRandom.current();
+        float velX = (rng.nextFloat() - 0.5f) * 1.2f;
+        float velY = 0.4f + rng.nextFloat() * 0.5f;
+        float velZ = (rng.nextFloat() - 0.5f) * 1.2f;
+
+        com.hypixel.hytale.server.core.inventory.ItemStack stack = buildLootStack(itemId);
+        var holder = com.hypixel.hytale.server.core.modules.entity.item.ItemComponent
+            .generateItemDrop(store, stack, origin, Vector3f.ZERO, velX, velY, velZ);
+
+        if (holder != null) {
+            store.addEntity(holder, AddReason.SPAWN);
+        }
+    }
+
     // -------------------------------------------------------------------------
 
     private List<ChestCandidate> collectSpawnerChestCandidates(List<SpawnerState> states) {
@@ -163,7 +204,7 @@ public final class ChestManager {
             candidate.clearAction().run();
 
             playOpenSound(playerRef, store);
-            ejectItems(loot, candidate.position(), store);
+            grantLoot(loot, candidate.position(), playerRef, store);
             breakChestBlock(candidate.position());
             return true;
         }
@@ -211,11 +252,16 @@ public final class ChestManager {
                 }
             }
         }
+
         return new com.hypixel.hytale.server.core.inventory.ItemStack(itemId, 1);
     }
 
     private static boolean isNexusWeapon(String itemId) {
         return itemId.startsWith("Nexus_Melee_") || itemId.startsWith("Nexus_Ranged_");
+    }
+
+    private static boolean isNexusCore(String itemId) {
+        return itemId.startsWith("Nexus_Core_");
     }
 
     private void breakChestBlock(Vector3d pos) {

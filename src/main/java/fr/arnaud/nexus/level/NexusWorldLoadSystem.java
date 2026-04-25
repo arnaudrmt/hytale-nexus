@@ -57,7 +57,7 @@ public final class NexusWorldLoadSystem {
     }
 
     private void onNexusWorldReady(World world) {
-        NexusWorldSetup.apply(world.getWorldConfig());
+        //NexusWorldSetup.apply(world.getWorldConfig());
 
         LevelManager levelManager = Nexus.get().getLevelManager();
 

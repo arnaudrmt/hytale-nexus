@@ -19,7 +19,6 @@ public final class InventoryGridPage {
 
     static final int STORAGE_CAPACITY = 27;
     static final int HOTBAR_CAPACITY = 9;
-    // Hotbar slot 0 is the equipped weapon slot — locked, never bound, never rendered as item
     static final int LOCKED_HOTBAR_SLOT = 0;
     private static final int COLS = 9;
 
@@ -39,21 +38,18 @@ public final class InventoryGridPage {
             cmd.append(container + "[" + rowIndex + "]", "Pages/NexusInventorySlot.ui");
             String slotPath = container + "[" + rowIndex + "][" + col + "]";
 
-            // Skip binding for locked hotbar slot 0
             boolean isLockedSlot = (slotOffset == STORAGE_CAPACITY && i == LOCKED_HOTBAR_SLOT);
             if (!isLockedSlot) {
-                // Left click — select / swap
                 event.addEventBinding(CustomUIEventBindingType.Activating,
                     slotPath,
                     com.hypixel.hytale.server.core.ui.builder.EventData.of(
                         "SlotClick", "Storage:" + (slotOffset + i)),
                     false);
 
-                // Right click — cancel selection
                 event.addEventBinding(CustomUIEventBindingType.RightClicking,
                     slotPath,
                     com.hypixel.hytale.server.core.ui.builder.EventData.of(
-                        "Action", "Drop"),
+                        "Action", "Drop:" + (slotOffset + i)),
                     false);
             }
 
@@ -103,7 +99,7 @@ public final class InventoryGridPage {
     static void swapSlots(@Nonnull Ref<EntityStore> ref,
                           @Nonnull Store<EntityStore> store,
                           @Nonnull String from, @Nonnull String to) {
-        // Guard: never allow swaps involving locked hotbar slot 0
+
         int fromGlobal = Integer.parseInt(from.split(":")[1]);
         int toGlobal = Integer.parseInt(to.split(":")[1]);
         int lockedGlobal = STORAGE_CAPACITY + LOCKED_HOTBAR_SLOT;
@@ -134,8 +130,6 @@ public final class InventoryGridPage {
             boolean isLockedSlot = isHotbar && i == LOCKED_HOTBAR_SLOT;
 
             if (isLockedSlot) {
-                // Show the tool slot background instead of item
-                // Instead of cmd.set(...Background...) which won't work:
                 cmd.setNull(slotPath + " #SlotItemIcon.ItemId");
                 cmd.set(slotPath + " #SlotAmount.Text", "");
                 cmd.set(slotPath + " #SlotNumber.Text", "");

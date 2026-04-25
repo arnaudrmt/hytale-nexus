@@ -7,6 +7,7 @@
     ],
     "Quality": "Uncommon",
     "ItemLevel": 10,
+    "DurabilityLossOnHit": 0,
     "Model": "Items/Weapons/Staff/Copper.blockymodel",
     "Texture": "Items/Weapons/Staff/Copper_Texture.png",
     "PlayerAnimationsId": "Staff",

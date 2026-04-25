@@ -156,6 +156,10 @@ public final class PlayerOcclusionComponent implements Component<EntityStore> {
         return new int[]{x, y, z};
     }
 
+    public LongOpenHashSet getBarrierColumnPositions() {
+        return barrierColumnPositions;
+    }
+
     @NonNullDecl
     @Override
     public PlayerOcclusionComponent clone() {
