@@ -195,12 +195,8 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         }
 
         if (data.equipSlotClick != null) {
-            System.out.println("[Nexus] EQUIP BRANCH >> selectedSlot=" + selectedSlot);
-            WeaponTag targetTag = data.equipSlotClick.equals("Ranged")
-                ? WeaponTag.RANGED : WeaponTag.MELEE;
 
             if (!isValidWeaponSelectionForEquip(ref, store, selectedSlot, targetTag)) {
-                System.out.println("[Nexus] EQUIP INVALID >> resetting selectedSlot");
                 selectedSlot = null;
                 return;
             }
@@ -243,16 +239,13 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         }
 
         if (data.slotClick == null) {
-            System.out.println("[Nexus] SLOT NULL >> no slotClick, no other field matched, doing nothing");
             return;
         }
 
         int clickedGlobal = Integer.parseInt(data.slotClick.split(":")[1]);
         int lockedGlobal = InventoryGridPage.STORAGE_CAPACITY + InventoryGridPage.LOCKED_HOTBAR_SLOT;
-        System.out.println("[Nexus] SLOT CLICK >> clickedGlobal=" + clickedGlobal + " | lockedGlobal=" + lockedGlobal);
 
         if (clickedGlobal == lockedGlobal) {
-            System.out.println("[Nexus] LOCKED SLOT HIT >> resetting selectedSlot");
             selectedSlot = null;
             return;
         }
@@ -266,7 +259,6 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         String capturedFrom = selectedSlot;
         String capturedTo = data.slotClick;
         selectedSlot = null;
-        System.out.println("[Nexus] SWAP >> from=" + capturedFrom + " to=" + capturedTo);
 
         world.execute(() -> {
             try {

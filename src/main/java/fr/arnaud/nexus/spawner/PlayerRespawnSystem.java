@@ -11,15 +11,26 @@ import com.hypixel.hytale.server.core.modules.entity.damage.DeathComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.RespawnSystems;
 import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.level.LevelConfig;
 import fr.arnaud.nexus.level.LevelProgressComponent;
+import org.jetbrains.annotations.NotNull;
 
 public final class PlayerRespawnSystem extends RespawnSystems.OnRespawnSystem {
 
     @Override
     public Query<EntityStore> getQuery() {
         return Player.getComponentType();
+    }
+
+    @Override
+    public void onComponentAdded(@NotNull Ref<EntityStore> ref, @NotNull DeathComponent component, @NotNull Store<EntityStore> store, @NotNull CommandBuffer<EntityStore> commandBuffer) {
+
+        RunSessionComponent session = store.getComponent(ref, RunSessionComponent.getComponentType());
+        if (session != null) {
+            session.incrementDeathCount();
+        }
     }
 
     @Override
@@ -45,4 +56,6 @@ public final class PlayerRespawnSystem extends RespawnSystems.OnRespawnSystem {
 
         return new Vector3d(0.5, 80.0, 0.5);
     }
+
+
 }

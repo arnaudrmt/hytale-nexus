@@ -15,6 +15,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.camera.PlayerCameraComponent;
 import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
+import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
 import fr.arnaud.nexus.feature.combat.strike.StrikeComponent;
@@ -87,7 +88,10 @@ public final class PlayerSessionListener {
         store.putComponent(ref, PlayerOcclusionComponent.getComponentType(), new PlayerOcclusionComponent());
         store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), new PlayerHoverStateComponent());
 
-        // ActiveCoreComponent is persistent — only initialise if missing (e.g. first ever join).
+        if (store.getComponent(ref, RunSessionComponent.getComponentType()) == null) {
+            store.putComponent(ref, RunSessionComponent.getComponentType(), new RunSessionComponent());
+        }
+
         if (store.getComponent(ref, ActiveCoreComponent.getComponentType()) == null) {
             store.putComponent(ref, ActiveCoreComponent.getComponentType(), new ActiveCoreComponent());
         }

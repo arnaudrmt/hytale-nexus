@@ -10,10 +10,7 @@ import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.camera.*;
-import fr.arnaud.nexus.command.AdminCoreCommand;
-import fr.arnaud.nexus.command.AdminStatsCommand;
-import fr.arnaud.nexus.command.AdminWeaponCommand;
-import fr.arnaud.nexus.command.OpenInventoryCommand;
+import fr.arnaud.nexus.command.*;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.feature.combat.HeadTrackingSystem;
@@ -32,6 +29,7 @@ import fr.arnaud.nexus.item.weapon.stats.WeaponStatConfigLoader;
 import fr.arnaud.nexus.item.weapon.system.PlayerWeaponInitSystem;
 import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
 import fr.arnaud.nexus.level.LevelProgressComponent;
+import fr.arnaud.nexus.session.PlayerSessionTracker;
 import fr.arnaud.nexus.spawner.PlayerRespawnSystem;
 import fr.arnaud.nexus.spawner.SpawnerMobDeathSystem;
 import fr.arnaud.nexus.spawner.SpawnerProximitySystem;
@@ -127,6 +125,7 @@ public final class NexusInitializer {
         new WeaponSwapSystem(plugin.getWeaponEquipSystem());
 
         registry.registerSystem(new MobBarrierEnforcementSystem());
+        registry.registerSystem(new PlayerSessionTracker());
     }
 
     private void registerListeners() {
@@ -154,5 +153,6 @@ public final class NexusInitializer {
         ));
         registry.registerCommand(new OpenInventoryCommand());
         registry.registerCommand(new AdminCoreCommand());
+        registry.registerCommand(new AdminRunCommand());
     }
 }

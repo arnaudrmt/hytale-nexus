@@ -1,11 +1,15 @@
 package fr.arnaud.nexus.level;
 
 import com.hypixel.hytale.builtin.instances.InstancesPlugin;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.util.EventTitleUtil;
 import fr.arnaud.nexus.core.Nexus;
 
 import java.util.concurrent.CompletableFuture;
@@ -69,6 +73,14 @@ public final class NexusWorldLoadSystem {
         }
 
         Nexus.get().getMobSpawnerManager().onLevelLoaded(world, levelManager.getCurrentConfig());
+
+        world.execute(() -> {
+            Store<EntityStore> store = world.getEntityStore().getStore();
+            LevelConfig config = levelManager.getCurrentConfig();
+            Message primary = Message.translation("nexus.level.title").param("name", config.getName());
+            Message secondary = Message.translation("nexus.level.subtitle").param("difficulty", config.getDifficulty());
+            EventTitleUtil.showEventTitleToWorld(primary, secondary, true, null, 4.0f, 1.5f, 1.5f, store);
+        });
 
         Nexus.get().getLogger().at(Level.INFO)
              .log("Level loaded: " + levelManager.getLevelName()

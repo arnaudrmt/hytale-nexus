@@ -9,7 +9,6 @@ import com.hypixel.hytale.protocol.SoundCategory;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
-import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -17,8 +16,8 @@ import com.hypixel.hytale.server.npc.NPCPlugin;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.input.PlayerInputListener;
 import fr.arnaud.nexus.level.LevelConfig;
-import fr.arnaud.nexus.level.LevelManager;
 import fr.arnaud.nexus.level.LevelProgressComponent;
+import fr.arnaud.nexus.level.LevelTransitionService;
 import fr.arnaud.nexus.spawner.loot.LootRoller;
 
 import javax.annotation.Nullable;
@@ -31,6 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public final class MobSpawnerManager {
 
     private final ChestManager chestManager;
+    private LevelTransitionService levelTransitionService;
 
     private static final String CHEST_BLOCK_KEY = "Furniture_Dungeon_Chest_Epic";
     private static final float PORTAL_TRIGGER_RADIUS = 2.0f;
@@ -120,35 +120,7 @@ public final class MobSpawnerManager {
         if (dx * dx + dy * dy + dz * dz > PORTAL_TRIGGER_RADIUS * PORTAL_TRIGGER_RADIUS) return;
 
         levelTransitionTriggered = true;
-        transitionToNextLevel(playerRef, commandBuffer);
-    }
-
-    private void transitionToNextLevel(Ref<EntityStore> playerRef,
-                                       CommandBuffer<EntityStore> commandBuffer) {
-        LevelManager levelManager = Nexus.get().getLevelManager();
-        String nextLevelId = levelManager.getCurrentConfig().getNextLevelId();
-        if (nextLevelId == null) return;
-
-        boolean loaded = levelManager.loadLevel(nextLevelId);
-        if (!loaded) return;
-
-        LevelConfig nextConfig = levelManager.getCurrentConfig();
-        LevelConfig.Position spawn = nextConfig.getSpawnPoint();
-        Vector3d spawnPos = new Vector3d(spawn.getX(), spawn.getY(), spawn.getZ());
-
-        onLevelLoaded(activeWorld, nextConfig);
-
-        LevelProgressComponent progress = commandBuffer.getComponent(
-            playerRef, LevelProgressComponent.getComponentType());
-        if (progress != null) {
-            progress.checkpointX = (float) spawn.getX();
-            progress.checkpointY = (float) spawn.getY();
-            progress.checkpointZ = (float) spawn.getZ();
-            commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
-        }
-
-        commandBuffer.run(s -> s.addComponent(playerRef, Teleport.getComponentType(),
-            Teleport.createForPlayer(spawnPos, Vector3f.FORWARD)));
+        getLevelTransitionService().onPortalEntered(playerRef, commandBuffer, activeWorld);
     }
 
     private void checkProximityTrigger(SpawnerState state, Vector3d position,
@@ -415,5 +387,12 @@ public final class MobSpawnerManager {
         if (entry.getMinCount() == entry.getMaxCount()) return entry.getMinCount();
         return entry.getMinCount()
             + ThreadLocalRandom.current().nextInt(entry.getMaxCount() - entry.getMinCount() + 1);
+    }
+
+    private LevelTransitionService getLevelTransitionService() {
+        if (levelTransitionService == null) {
+            levelTransitionService = new LevelTransitionService(Nexus.get().getLevelManager());
+        }
+        return levelTransitionService;
     }
 }

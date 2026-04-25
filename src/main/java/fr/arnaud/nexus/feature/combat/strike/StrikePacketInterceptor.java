@@ -63,7 +63,6 @@ public final class StrikePacketInterceptor {
             }
 
             drainStamina(ref, store);
-            // Add marker — StrikeSystem consumes it next tick via CommandBuffer, avoiding archetype race
             store.putComponent(ref, StrikePendingComponent.getComponentType(), new StrikePendingComponent());
         });
     }

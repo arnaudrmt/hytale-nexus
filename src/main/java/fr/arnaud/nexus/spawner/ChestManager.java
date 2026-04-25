@@ -6,13 +6,16 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.protocol.SoundCategory;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import com.hypixel.hytale.server.core.util.EventTitleUtil;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.ability.CoreAbility;
 import fr.arnaud.nexus.level.LevelConfig;
@@ -138,7 +141,6 @@ public final class ChestManager {
     }
 
     private void unlockCore(String itemId, Ref<EntityStore> playerRef, Store<EntityStore> store) {
-        // itemId format: "Nexus_Core_Dash" → strip prefix → "Dash" → lowercase → "dash"
         String abilityId = itemId.substring("Nexus_Core_".length()).toLowerCase();
         CoreAbility ability = CoreAbility.fromId(abilityId);
         if (ability == null) return;
@@ -148,6 +150,16 @@ public final class ChestManager {
 
         core.unlock(ability);
         store.putComponent(playerRef, ActiveCoreComponent.getComponentType(), core);
+
+        PlayerRef playerRefComponent = store.getComponent(playerRef, PlayerRef.getComponentType());
+        if (playerRefComponent != null) {
+            EventTitleUtil.showEventTitleToPlayer(
+                playerRefComponent,
+                Message.translation("nexus.core.unlocked.title").param("ability", ability.getDisplayName()),
+                Message.translation("nexus.core.unlocked.subtitle"),
+                true
+            );
+        }
     }
 
     private void ejectSingleItem(String itemId, Vector3d origin, Store<EntityStore> store) {

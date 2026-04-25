@@ -9,6 +9,7 @@ import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DeathComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.DeathSystems;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
@@ -60,6 +61,11 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         float soulHarvestBonus = getSoulHarvestBonus(killerRef, store, essence);
         if (soulHarvestBonus > 0f) {
             psm.addEssenceDust(killerRef, store, soulHarvestBonus);
+        }
+
+        RunSessionComponent session = store.getComponent(killerRef, RunSessionComponent.getComponentType());
+        if (session != null) {
+            session.incrementKillCount();
         }
     }
 

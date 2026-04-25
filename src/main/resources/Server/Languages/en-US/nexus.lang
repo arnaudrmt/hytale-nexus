@@ -1,3 +1,7 @@
 plugin.loaded=Project Nexus: Loaded.
 plugin.started=Project Nexus: Started.
 plugin.stopped=Project Nexus: Stopped.
+core.unlocked.title = Core Unlocked: {ability}
+core.unlocked.subtitle = A new ability is now available.
+level.title = {name}
+level.subtitle = Welcome, adventurer.
