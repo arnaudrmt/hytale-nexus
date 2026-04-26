@@ -38,29 +38,44 @@ public final class PlayerMouseMotionListener {
             if (ref == null || !ref.isValid()) return;
 
             Store<EntityStore> store = world.getEntityStore().getStore();
-
-            PlayerHoverStateComponent hoverState = store.getComponent(ref, PlayerHoverStateComponent.getComponentType());
-            if (hoverState == null) return;
-
-            PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
-            if (playerRef == null) return;
-
-            if (targetEntity != null) {
-                handleEntityTarget(targetEntity, hoverState, playerRef, ref, store);
-            } else if (targetBlock != null) {
-                TransformComponent transform = store.getComponent(ref, EntityModule.get().getTransformComponentType());
-                PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
-                if (transform == null) return;
-                float camDistance = cam != null ? cam.getEffectiveIsoDistance() : PlayerCameraComponent.ISO_DISTANCE;
-                Vector3i resolved = targetResolver.resolve(transform.getPosition(), targetBlock, camDistance, world);
-                if (resolved != null) handleBlockTarget(resolved, hoverState, playerRef);
-            } else {
-                hoverState.clear();
-                unlockHead(ref, store);
+            if (store.isProcessing()) {
+                // Re-queue for next task queue drain, after tick completes
+                world.execute(() -> applyHoverUpdate(player, world, ref, store, targetEntity, targetBlock));
+                return;
             }
 
-            store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), hoverState);
+            applyHoverUpdate(player, world, ref, store, targetEntity, targetBlock);
         });
+    }
+
+    private void applyHoverUpdate(
+        Player player, World world,
+        Ref<EntityStore> ref, Store<EntityStore> store,
+        Entity targetEntity, Vector3i targetBlock
+    ) {
+        if (!ref.isValid()) return;
+
+        PlayerHoverStateComponent hoverState = store.getComponent(ref, PlayerHoverStateComponent.getComponentType());
+        if (hoverState == null) return;
+
+        PlayerRef playerRef = store.getComponent(ref, PlayerRef.getComponentType());
+        if (playerRef == null) return;
+
+        if (targetEntity != null) {
+            handleEntityTarget(targetEntity, hoverState, playerRef, ref, store);
+        } else if (targetBlock != null) {
+            TransformComponent transform = store.getComponent(ref, EntityModule.get().getTransformComponentType());
+            PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
+            if (transform == null) return;
+            float camDistance = cam != null ? cam.getEffectiveIsoDistance() : PlayerCameraComponent.ISO_DISTANCE;
+            Vector3i resolved = targetResolver.resolve(transform.getPosition(), targetBlock, camDistance, world);
+            if (resolved != null) handleBlockTarget(resolved, hoverState, playerRef);
+        } else {
+            hoverState.clear();
+            unlockHead(ref, store);
+        }
+
+        store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), hoverState);
     }
 
     private void handleEntityTarget(

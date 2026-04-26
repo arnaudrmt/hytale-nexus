@@ -18,7 +18,6 @@ import java.util.List;
 public final class RunSessionComponent implements Component<EntityStore> {
 
     public static final int KILL_BONUS = 50;
-    public static final int SWITCH_STRIKE_BONUS = 200;
     public static final int DEATH_PENALTY = 100;
 
     private long accumulatedPlayMs;
@@ -42,6 +41,8 @@ public final class RunSessionComponent implements Component<EntityStore> {
     private float totalDamageTaken;
     private int killCount;
     private int deathCount;
+    private float essenceDustSnapshot;
+    private boolean tutorialCompleted;
 
     public RunSessionComponent() {
         long now = System.currentTimeMillis();
@@ -52,7 +53,8 @@ public final class RunSessionComponent implements Component<EntityStore> {
     private RunSessionComponent(long accumulatedPlayMs, long accumulatedCurrentLevelMs,
                                 List<Long> levelSplitMs,
                                 float totalDamageDealt, float totalDamageTaken,
-                                int killCount, int deathCount) {
+                                int killCount, int deathCount,
+                                float essenceDustSnapshot, boolean tutorialCompleted) {
         this.accumulatedPlayMs = accumulatedPlayMs;
         this.accumulatedCurrentLevelMs = accumulatedCurrentLevelMs;
         this.levelSplitMs = new ArrayList<>(levelSplitMs);
@@ -63,6 +65,8 @@ public final class RunSessionComponent implements Component<EntityStore> {
         long now = System.currentTimeMillis();
         sessionStartMs = now;
         currentLevelSessionStartMs = now;
+        this.essenceDustSnapshot = essenceDustSnapshot;
+        this.tutorialCompleted = tutorialCompleted;
     }
 
     // --- Session lifecycle ---
@@ -145,6 +149,18 @@ public final class RunSessionComponent implements Component<EntityStore> {
         deathCount++;
     }
 
+    public void setEssenceDustSnapshot(float value) {
+        essenceDustSnapshot = value;
+    }
+
+    public void markTutorialCompleted(boolean value) {
+        this.tutorialCompleted = value;
+    }
+
+    public void markTutorialCompleted() {
+        this.tutorialCompleted = true;
+    }
+
     // --- Accessors ---
 
     public int getKillCount() {
@@ -161,6 +177,14 @@ public final class RunSessionComponent implements Component<EntityStore> {
 
     public float getTotalDamageTaken() {
         return totalDamageTaken;
+    }
+
+    public float getEssenceDustSnapshot() {
+        return essenceDustSnapshot;
+    }
+
+    public boolean isTutorialCompleted() {
+        return tutorialCompleted;
     }
 
     // --- Codec ---
@@ -182,6 +206,10 @@ public final class RunSessionComponent implements Component<EntityStore> {
             (c, v) -> c.killCount = v, c -> c.killCount).add()
         .append(new KeyedCodec<>("DeathCount", Codec.INTEGER),
             (c, v) -> c.deathCount = v, c -> c.deathCount).add()
+        .append(new KeyedCodec<>("EssenceDustSnapshot", Codec.FLOAT),
+            (c, v) -> c.essenceDustSnapshot = v, c -> c.essenceDustSnapshot).add()
+        .append(new KeyedCodec<>("TutorialCompleted", Codec.BOOLEAN),
+            (c, v) -> c.tutorialCompleted = v, c -> c.tutorialCompleted).add()
         .build();
 
     // --- ECS boilerplate ---
@@ -205,6 +233,6 @@ public final class RunSessionComponent implements Component<EntityStore> {
         return new RunSessionComponent(
             accumulatedPlayMs, accumulatedCurrentLevelMs, levelSplitMs,
             totalDamageDealt, totalDamageTaken,
-            killCount, deathCount);
+            killCount, deathCount, essenceDustSnapshot, tutorialCompleted);
     }
 }

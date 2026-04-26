@@ -21,22 +21,23 @@ public final class WeaponConfigCalculator {
     public static float calculateDamageMultiplier(BsonDocument doc) {
         int currentLevel = WeaponBsonSchema.readLevel(doc);
         float base = getWeaponStatCurves(doc).damageBase();
-        float curve = getWeaponStatCurves(doc).damageCurve();
-        return base * (float) Math.pow(curve, currentLevel - 1);
+        float increment = getWeaponStatCurves(doc).damageCurve();
+        return base + (increment * (currentLevel - 1));
     }
 
     public static float calculateHealthBoost(BsonDocument doc) {
         int currentLevel = WeaponBsonSchema.readLevel(doc);
-        float base = getWeaponStatCurves(doc).healthBase();
-        float flat = getWeaponStatCurves(doc).healthFlat();
-        return base + (flat * currentLevel);
+        WeaponStatCurves curves = getWeaponStatCurves(doc);
+        float raw = curves.healthBase() + (curves.healthFlat() * currentLevel);
+        return curves.healthCap() > 0 ? Math.min(raw, curves.healthCap()) : raw;
     }
+
 
     public static float calculateMovementSpeedBoost(BsonDocument doc) {
         int currentLevel = WeaponBsonSchema.readLevel(doc);
-        float base = getWeaponStatCurves(doc).speedBase();
-        float flat = getWeaponStatCurves(doc).speedFlat();
-        return base + (flat * currentLevel);
+        WeaponStatCurves curves = getWeaponStatCurves(doc);
+        float raw = curves.speedBase() + (curves.speedFlat() * currentLevel);
+        return curves.speedCap() > 0 ? Math.min(raw, curves.speedCap()) : raw;
     }
 
     public static WeaponStatCurves getWeaponStatCurves(BsonDocument doc) {

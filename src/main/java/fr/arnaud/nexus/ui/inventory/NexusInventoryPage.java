@@ -196,6 +196,9 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
 
         if (data.equipSlotClick != null) {
 
+            WeaponTag targetTag = data.equipSlotClick.equals("Ranged")
+                ? WeaponTag.RANGED : WeaponTag.MELEE;
+
             if (!isValidWeaponSelectionForEquip(ref, store, selectedSlot, targetTag)) {
                 selectedSlot = null;
                 return;

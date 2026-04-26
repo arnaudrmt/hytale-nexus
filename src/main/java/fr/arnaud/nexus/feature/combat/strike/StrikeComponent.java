@@ -22,13 +22,13 @@ import java.util.Map;
  */
 public final class StrikeComponent implements Component<EntityStore> {
 
-    public enum State {IDLE, HIT_WINDOW, COMBO}
+    public enum State {IDLE, HIT_WINDOW, SWITCH_WINDOW, COMBO}
 
-    public static final float HIT_COLLECTION_SECONDS = 2.0f;
+    public static final float HIT_COLLECTION_SECONDS = 5.0f;
     public static final float COMBO_WINDOW_REAL_SECONDS = 5.0f;
     public static final float COMBO_WINDOW_SECONDS = COMBO_WINDOW_REAL_SECONDS * 0.3f;
-    
-    public static final float STAMINA_COST_RATIO = 0.75f;
+
+    public static final float STAMINA_COST_RATIO = 0.50f;
 
     @Nullable
     private static ComponentType<EntityStore, StrikeComponent> componentType;
@@ -63,6 +63,13 @@ public final class StrikeComponent implements Component<EntityStore> {
     public void openComboWindow() {
         state = State.COMBO;
         stateTimer = COMBO_WINDOW_SECONDS;
+    }
+
+    public static final float SWITCH_WINDOW_SECONDS = 5.0f;
+
+    public void openSwitchWindow() {
+        state = State.SWITCH_WINDOW;
+        stateTimer = SWITCH_WINDOW_SECONDS;
     }
 
     public void reset() {
@@ -120,6 +127,10 @@ public final class StrikeComponent implements Component<EntityStore> {
 
     public State getState() {
         return state;
+    }
+
+    public float getStateTimer() {
+        return stateTimer;
     }
 
     // ── Component boilerplate ─────────────────────────────────────────────────

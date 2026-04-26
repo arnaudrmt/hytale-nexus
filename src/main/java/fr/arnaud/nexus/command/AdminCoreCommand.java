@@ -52,7 +52,7 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
                 case "unequip" -> handleUnequip(context, store, ref);
                 case "info" -> handleInfo(context, store, ref);
                 default -> context.sendMessage(
-                    Message.raw("§cUsage: /nexuscore <unlock|equip|unequip|info> [coreId]")
+                    Message.raw("Usage: /nexuscore <unlock|equip|unequip|info> [coreId]")
                 );
             }
         });
@@ -68,8 +68,8 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
         boolean wasNew = core.unlock(ability);
         store.putComponent(ref, ActiveCoreComponent.getComponentType(), core);
         context.sendMessage(wasNew
-            ? Message.raw("§aUnlocked Core: §f" + ability.getId())
-            : Message.raw("§7Core §f" + ability.getId() + "§7 was already unlocked.")
+            ? Message.raw("Unlocked Core: " + ability.getId())
+            : Message.raw("Core " + ability.getId() + " was already unlocked.")
         );
     }
 
@@ -82,13 +82,13 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
 
         if (!core.equip(ability)) {
             context.sendMessage(Message.raw(
-                "§cCore §f" + ability.getId() + "§c is not unlocked. Use §f/nexuscore unlock " + ability.getId() + "§c first."
+                "Core " + ability.getId() + " is not unlocked. Use /nexuscore unlock " + ability.getId() + " first."
             ));
             return;
         }
 
         store.putComponent(ref, ActiveCoreComponent.getComponentType(), core);
-        context.sendMessage(Message.raw("§aCore equipped: §f" + ability.getId()));
+        context.sendMessage(Message.raw("Core equipped: " + ability.getId()));
     }
 
     private void handleUnequip(CommandContext context, Store<EntityStore> store, Ref<EntityStore> ref) {
@@ -97,7 +97,7 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
 
         core.unequip();
         store.putComponent(ref, ActiveCoreComponent.getComponentType(), core);
-        context.sendMessage(Message.raw("§aCore slot cleared."));
+        context.sendMessage(Message.raw("Core slot cleared."));
     }
 
     private void handleInfo(CommandContext context, Store<EntityStore> store, Ref<EntityStore> ref) {
@@ -105,17 +105,17 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
         if (core == null) return;
 
         CoreAbility equipped = core.getEquippedCore();
-        String equippedDisplay = equipped != null ? "§f" + equipped.getId() : "§7(none)";
+        String equippedDisplay = equipped != null ? "" + equipped.getId() : "(none)";
 
-        StringJoiner unlocked = new StringJoiner("§7, §f", "§f", "");
+        StringJoiner unlocked = new StringJoiner(", ", "", "");
         if (core.getUnlockedCores().isEmpty()) {
-            unlocked.add("§7(none)");
+            unlocked.add("(none)");
         } else {
             core.getUnlockedCores().forEach(a -> unlocked.add(a.getId()));
         }
 
         context.sendMessage(Message.raw(
-            "§7Equipped: " + equippedDisplay + "\n§7Unlocked: " + unlocked
+            "Equipped: " + equippedDisplay + "\nUnlocked: " + unlocked
         ));
     }
 
@@ -125,12 +125,12 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
     private CoreAbility resolveAbilityArg(CommandContext context) {
         String id = coreIdArg.get(context);
         if (id == null) {
-            context.sendMessage(Message.raw("§cMissing coreId. Valid ids: " + validIds()));
+            context.sendMessage(Message.raw("Missing coreId. Valid ids: " + validIds()));
             return null;
         }
         CoreAbility ability = CoreAbility.fromId(id.toLowerCase());
         if (ability == null) {
-            context.sendMessage(Message.raw("§cUnknown Core: §f" + id + "§c. Valid ids: " + validIds()));
+            context.sendMessage(Message.raw("Unknown Core: " + id + ". Valid ids: " + validIds()));
         }
         return ability;
     }
@@ -140,7 +140,7 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
                                             Ref<EntityStore> ref) {
         ActiveCoreComponent core = store.getComponent(ref, ActiveCoreComponent.getComponentType());
         if (core == null) {
-            context.sendMessage(Message.raw("§cPlayer is missing ActiveCoreComponent."));
+            context.sendMessage(Message.raw("Player is missing ActiveCoreComponent."));
         }
         return core;
     }

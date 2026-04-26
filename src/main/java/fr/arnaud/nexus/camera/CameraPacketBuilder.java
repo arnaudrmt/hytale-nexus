@@ -36,8 +36,7 @@ public final class CameraPacketBuilder {
         s.rotation = new Direction(ISO_YAW_RAD, ISO_PITCH_RAD, 0f);
         s.movementForceRotation = new Direction(ISO_YAW_RAD, 0f, 0f);
 
-        s.applyLookType = ApplyLookType.LocalPlayerLookOrientation;
-        s.allowPitchControls = false;
+        s.applyLookType = ApplyLookType.Rotation;
 
         s.mouseInputTargetType = MouseInputTargetType.Any;
         s.mouseInputType = MouseInputType.LookAtPlane;
@@ -75,7 +74,6 @@ public final class CameraPacketBuilder {
         s.rotationType = RotationType.Custom;
         s.rotation = new Direction(ISO_YAW_RAD, lerp(ISO_PITCH_RAD, 0f, eased), 0f);
         s.applyLookType = ApplyLookType.Rotation;
-        s.allowPitchControls = false;
 
         s.mouseInputTargetType = MouseInputTargetType.None;
         s.mouseInputType = MouseInputType.LookAtTarget;
@@ -102,7 +100,6 @@ public final class CameraPacketBuilder {
         s.rotationType = RotationType.Custom;
         s.rotation = new Direction(ISO_YAW_RAD, lerp(0f, ISO_PITCH_RAD, eased), 0f);
         s.applyLookType = ApplyLookType.Rotation;
-        s.allowPitchControls = false;
 
         s.mouseInputTargetType = MouseInputTargetType.None;
         s.mouseInputType = MouseInputType.LookAtTarget;

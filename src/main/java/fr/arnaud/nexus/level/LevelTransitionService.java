@@ -2,6 +2,7 @@ package fr.arnaud.nexus.level;
 
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.Message;
@@ -15,6 +16,9 @@ import fr.arnaud.nexus.event.RunCompletedEvent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public final class LevelTransitionService {
 
@@ -33,6 +37,7 @@ public final class LevelTransitionService {
                                 @NonNullDecl World world) {
         RunSessionComponent session = cmd.getComponent(playerRef, RunSessionComponent.getComponentType());
         if (session != null) {
+            session.pauseSession();
             session.recordLevelSplit();
             cmd.run(s -> s.putComponent(playerRef, RunSessionComponent.getComponentType(), session));
         }
@@ -75,16 +80,48 @@ public final class LevelTransitionService {
             cmd.run(s -> s.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress));
         }
 
-        cmd.run(s -> s.addComponent(playerRef, Teleport.getComponentType(),
-            Teleport.createForPlayer(spawnPos, Vector3f.FORWARD)));
+        showLoadingTitle(world);
+        preloadLevelChunks(nextConfig, world)
+            .thenRun(() -> world.execute(() -> {
+                cmd.run(s -> s.addComponent(playerRef, Teleport.getComponentType(),
+                    Teleport.createForPlayer(spawnPos, Vector3f.FORWARD)));
+                showLevelTitle(nextConfig, world);
+            }));
+    }
 
-        showLevelTitle(nextConfig, world);
+    private CompletableFuture<Void> preloadLevelChunks(LevelConfig config, World world) {
+        LevelConfig.Position spawn = config.getSpawnPoint();
+        List<CompletableFuture<?>> futures = new ArrayList<>();
+
+        // Always pre-load spawn chunk
+        futures.add(loadChunkAt(spawn.getX(), spawn.getZ(), world));
+
+        // Pre-load every spawner chunk — NPCs cannot spawn in unloaded chunks
+        for (LevelConfig.SpawnerConfig spawner : config.getSpawners()) {
+            LevelConfig.Position pos = spawner.getPosition();
+            futures.add(loadChunkAt(pos.getX(), pos.getZ(), world));
+        }
+
+        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+    }
+
+    private CompletableFuture<?> loadChunkAt(double x, double z, World world) {
+        long chunkIndex = ChunkUtil.indexChunkFromBlock((int) x, (int) z);
+        return world.getChunkStore().getChunkReferenceAsync(chunkIndex, 4);
+    }
+
+    private void showLoadingTitle(@NonNullDecl World world) {
+        world.execute(() -> {
+            var store = world.getEntityStore().getStore();
+            Message msg = Message.translation("nexus.level.loading");
+            EventTitleUtil.showEventTitleToWorld(msg, Message.translation("nexus.level.loading.subtitle"), true, null, 0f, 99f, 0f, store);
+        });
     }
 
     private void showLevelTitle(@NonNullDecl LevelConfig config, @NonNullDecl World world) {
         world.execute(() -> {
             var store = world.getEntityStore().getStore();
-            Message primary   = Message.translation("nexus.level.title").param("name", config.getName());
+            Message primary = Message.translation("nexus.level.title").param("name", config.getName());
             Message secondary = Message.translation("nexus.level.subtitle").param("difficulty", config.getDifficulty());
             EventTitleUtil.showEventTitleToWorld(primary, secondary, true, null, 4.0f, 1.5f, 1.5f, store);
         });

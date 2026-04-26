@@ -59,7 +59,7 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
                 case "stats" -> handlePrintStats(context, store, ref);
                 case "levelup" -> handleLevelUp(context, store, ref);
                 case "essence" -> handleEssence(context, store, ref, param1Arg.get(context));
-                default -> context.sendMessage(Message.raw("§cUnknown subcommand. Use: give, stats, levelup, essence"));
+                default -> context.sendMessage(Message.raw("Unknown subcommand. Use: give, stats, levelup, essence"));
             }
         });
     }
@@ -80,7 +80,7 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
 
         InventoryComponent.Hotbar hotbar = store.getComponent(ref, InventoryComponent.Hotbar.getComponentType());
         if (hotbar == null) {
-            context.sendMessage(Message.raw("§cPlayer has no hotbar component."));
+            context.sendMessage(Message.raw("Player has no hotbar component."));
             return;
         }
 
@@ -95,7 +95,7 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
     ) {
         WeaponInstanceComponent instance = store.getComponent(ref, WeaponInstanceComponent.getComponentType());
         if (instance == null) {
-            context.sendMessage(Message.raw("§cNo weapon equipped."));
+            context.sendMessage(Message.raw("No weapon equipped."));
             return;
         }
     }
@@ -107,13 +107,13 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
     ) {
         InventoryComponent.Hotbar hotbar = store.getComponent(ref, InventoryComponent.Hotbar.getComponentType());
         if (hotbar == null) {
-            context.sendMessage(Message.raw("§cNo hotbar found."));
+            context.sendMessage(Message.raw("No hotbar found."));
             return;
         }
 
         ItemStack stack = hotbar.getInventory().getItemStack((short) 0);
         if (stack == null || stack.getMetadata() == null) {
-            context.sendMessage(Message.raw("§cNo weapon in slot 0."));
+            context.sendMessage(Message.raw("No weapon in slot 0."));
             return;
         }
 
@@ -126,10 +126,10 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
 
         } else {
             context.sendMessage(Message.raw(
-                "§cUpgrade failed: " + result.failureReason() +
+                "Upgrade failed: " + result.failureReason() +
                     (result.requiredEssence() > 0
-                        ? "\n§7Required: §f" + String.format("%.1f", result.requiredEssence()) +
-                          " §7/ Balance: §f" + String.format("%.1f", result.currentBalance())
+                        ? "\nRequired: " + String.format("%.1f", result.requiredEssence()) +
+                          " / Balance: " + String.format("%.1f", result.currentBalance())
                         : "")
             ));
         }
@@ -145,15 +145,15 @@ public final class AdminWeaponCommand extends AbstractPlayerCommand {
         try {
             amount = Float.parseFloat(amountArg);
         } catch (NumberFormatException e) {
-            context.sendMessage(Message.raw("§cAmount must be a number."));
+            context.sendMessage(Message.raw("Amount must be a number."));
             return;
         }
 
         statsManager.addEssenceDust(ref, store, amount);
         float newBalance = statsManager.getEssenceDust(ref, store);
         context.sendMessage(Message.raw(
-            "§aAdded §f" + String.format("%.1f", amount) + " §aEssence Dust\n" +
-                "§7New balance: §f" + String.format("%.1f", newBalance)
+            "Added " + String.format("%.1f", amount) + " Essence Dust\n" +
+                "New balance: " + String.format("%.1f", newBalance)
         ));
     }
 }

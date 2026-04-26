@@ -4,9 +4,9 @@
     "difficulty": 1.0,
     "nextLevelId": "level_2",
     "spawnPoint": {
-        "x": 10.5,
-        "y": 64.0,
-        "z": 10.5
+        "x": 0.5,
+        "y": 80.0,
+        "z": 0.5
     },
     "finishPoint": {
         "x": 966.5,
@@ -28,7 +28,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -81,13 +81,13 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -215,13 +215,13 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 3,
@@ -297,7 +297,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -369,7 +369,7 @@
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -431,7 +431,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -503,7 +503,7 @@
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -565,7 +565,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -637,7 +637,7 @@
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -699,7 +699,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -756,7 +756,7 @@
             "_comment": "S12 — Feran_Longtooth + Outlander_Berserker",
             "position": {
                 "x": 375.0,
-                "y": 68.0,
+                "y": 70.0,
                 "z": 176.0
             },
             "triggerRadius": 10.0,
@@ -771,7 +771,7 @@
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -815,6 +815,10 @@
                     {
                         "itemId": "Food_Salad_Caesar",
                         "chance": 0.55
+                    },
+                    {
+                        "itemId": "Nexus_Melee_Axe_Iron",
+                        "chance": 1
                     }
                 ]
             }
@@ -833,7 +837,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -844,8 +848,8 @@
             "mobs": [
                 {
                     "mobId": "Outlander_Marauder",
-                    "minCount": 3,
-                    "maxCount": 5,
+                    "minCount": 1,
+                    "maxCount": 2,
                     "spawnRate": 0.9,
                     "wave": 1,
                     "minEssence": 16,
@@ -854,7 +858,7 @@
                 {
                     "mobId": "Skeleton_Knight",
                     "minCount": 2,
-                    "maxCount": 3,
+                    "maxCount": 2,
                     "spawnRate": 1.2,
                     "wave": 2,
                     "minEssence": 14,
@@ -887,7 +891,7 @@
             }
         },
         {
-            "_comment": "S14 — Feran_Burrower swarm + Outlander_Hunter",
+            "_comment": "S14 — Outlander_Hunter",
             "position": {
                 "x": 417.0,
                 "y": 71.0,
@@ -898,34 +902,20 @@
             "waves": [
                 {
                     "wave": 1,
-                    "type": "time",
-                    "value": 10
-                },
-                {
-                    "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
                 {
-                    "mobId": "Feran_Burrower",
+                    "mobId": "Outlander_Hunter",
                     "minCount": 5,
                     "maxCount": 7,
                     "spawnRate": 0.6,
                     "wave": 1,
                     "minEssence": 14,
                     "maxEssence": 24
-                },
-                {
-                    "mobId": "Outlander_Hunter",
-                    "minCount": 2,
-                    "maxCount": 3,
-                    "spawnRate": 1.3,
-                    "wave": 2,
-                    "minEssence": 20,
-                    "maxEssence": 36
                 }
             ],
             "lootChest": {
@@ -967,7 +957,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -978,8 +968,8 @@
             "mobs": [
                 {
                     "mobId": "Outlander_Berserker",
-                    "minCount": 3,
-                    "maxCount": 5,
+                    "minCount": 1,
+                    "maxCount": 3,
                     "spawnRate": 0.9,
                     "wave": 1,
                     "minEssence": 18,
@@ -987,8 +977,8 @@
                 },
                 {
                     "mobId": "Outlander_Marauder",
-                    "minCount": 3,
-                    "maxCount": 5,
+                    "minCount": 1,
+                    "maxCount": 3,
                     "spawnRate": 0.8,
                     "wave": 2,
                     "minEssence": 18,
@@ -1039,7 +1029,7 @@
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -1101,7 +1091,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -1155,7 +1145,7 @@
             }
         },
         {
-            "_comment": "S18 — Feran_Burrower ambush + Outlander_Priest",
+            "_comment": "S18 — Outlander_Priest",
             "position": {
                 "x": 680.0,
                 "y": 64.0,
@@ -1173,18 +1163,18 @@
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
                 {
-                    "mobId": "Feran_Burrower",
-                    "minCount": 5,
-                    "maxCount": 7,
-                    "spawnRate": 0.7,
-                    "wave": 1,
-                    "minEssence": 16,
-                    "maxEssence": 28
+                    "mobId": "Outlander_Stalker",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.4,
+                    "wave": 2,
+                    "minEssence": 22,
+                    "maxEssence": 38
                 },
                 {
                     "mobId": "Outlander_Priest",
@@ -1235,7 +1225,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 18.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -1307,7 +1297,7 @@
                     "wave": 2,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 }
             ],
             "mobs": [
@@ -1369,7 +1359,7 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
@@ -1425,7 +1415,7 @@
         {
             "_comment": "S22 — Final corridor, Outlander_Stalker + Outlander_Sorcerer",
             "position": {
-                "x": 910.0,
+                "x": 890.0,
                 "y": 63.0,
                 "z": 321.0
             },
@@ -1436,10 +1426,16 @@
                     "wave": 1,
                     "type": "kill",
                     "value": 0.75,
-                    "timeout": 20.0
+                    "timeout": 0.0
                 },
                 {
                     "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
                     "type": "time",
                     "value": 10
                 }
@@ -1456,12 +1452,21 @@
                 },
                 {
                     "mobId": "Outlander_Sorcerer",
-                    "minCount": 2,
-                    "maxCount": 3,
+                    "minCount": 5,
+                    "maxCount": 7,
                     "spawnRate": 1.5,
                     "wave": 2,
                     "minEssence": 35,
                     "maxEssence": 65
+                },
+                {
+                    "mobId": "Outlander_Brute",
+                    "minCount": 1,
+                    "maxCount": 3,
+                    "spawnRate": 1.1,
+                    "wave": 3,
+                    "minEssence": 28,
+                    "maxEssence": 50
                 }
             ],
             "lootChest": {
@@ -1485,6 +1490,14 @@
                     {
                         "itemId": "Potion_Signature_Greater",
                         "chance": 0.70
+                    },
+                    {
+                        "itemId": "Nexus_Core_Switch_Strike",
+                        "chance": 1
+                    },
+                    {
+                        "itemId": "Nexus_Ranged_Staff_Copper",
+                        "chance": 1
                     }
                 ]
             }

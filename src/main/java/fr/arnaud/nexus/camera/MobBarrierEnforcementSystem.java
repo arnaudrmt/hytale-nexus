@@ -20,8 +20,6 @@ import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-import java.util.logging.Level;
-
 /**
  * Re-materializes barrier blocks from the occlusion hole when a mob enters
  * their radius, preventing mobs from escaping the arena.
@@ -190,7 +188,6 @@ public final class MobBarrierEnforcementSystem extends EntityTickingSystem<Entit
     private void ensureBarrierIdCached() {
         if (barrierBlockId == Integer.MIN_VALUE) {
             barrierBlockId = BlockType.getAssetMap().getIndex("Barrier");
-            Nexus.get().getLogger().at(Level.INFO).log("[MOB_BARRIER] Barrier block ID cached as: %d", barrierBlockId);
         }
     }
 }

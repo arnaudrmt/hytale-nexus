@@ -2,22 +2,26 @@ package fr.arnaud.nexus.level;
 
 import com.hypixel.hytale.builtin.instances.InstancesPlugin;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.universe.Universe;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.EventTitleUtil;
 import fr.arnaud.nexus.core.Nexus;
 
+import java.time.Instant;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public final class NexusWorldLoadSystem {
 
     private static final String NEXUS_INSTANCE_TEMPLATE = "Nexus";
+    private static final String NEXUS_WORLD_KEY = "nexus-persistent";
     private static final String DEFAULT_WORLD_NAME = "default";
     private static final String STARTING_LEVEL_ID = "level_1";
 
@@ -27,7 +31,7 @@ public final class NexusWorldLoadSystem {
     public void onWorldStart(StartWorldEvent event) {
         World world = event.getWorld();
 
-        if (world.getName().contains("Nexus")) {
+        if (world.getName().toLowerCase().contains("nexus")) {
             if (pendingNexusWorld == null) {
                 nexusWorld = world;
                 pendingNexusWorld = CompletableFuture.completedFuture(world);
@@ -36,34 +40,44 @@ public final class NexusWorldLoadSystem {
             return;
         }
 
-        if (!DEFAULT_WORLD_NAME.equals(world.getName())) {
-            return;
+        if (!DEFAULT_WORLD_NAME.equals(world.getName())) return;
+        if (pendingNexusWorld != null) return;
+
+        Universe universe = Universe.get();
+
+        if (universe.isWorldLoadable(NEXUS_WORLD_KEY)) {
+            pendingNexusWorld = universe.loadWorld(NEXUS_WORLD_KEY)
+                                        .thenApply(w -> {
+                                            nexusWorld = w;
+                                            onNexusWorldReady(w);
+                                            return w;
+                                        })
+                                        .exceptionally(ex -> {
+                                            Nexus.get().getLogger().at(Level.SEVERE)
+                                                 .log("Failed to load Nexus world: " + ex.getMessage());
+                                            return null;
+                                        });
+        } else {
+            Transform returnPoint = new Transform(new Vector3d(0.5, 80.0, 0.5), Vector3f.FORWARD);
+            pendingNexusWorld = InstancesPlugin.get()
+                                               .spawnInstance(NEXUS_INSTANCE_TEMPLATE, NEXUS_WORLD_KEY, world, returnPoint)
+                                               .thenApply(w -> {
+                                                   nexusWorld = w;
+                                                   onNexusWorldReady(w);
+                                                   return w;
+                                               })
+                                               .exceptionally(ex -> {
+                                                   Nexus.get().getLogger().at(Level.SEVERE)
+                                                        .log("Failed to spawn Nexus world: " + ex.getMessage());
+                                                   return null;
+                                               });
         }
-
-        if (pendingNexusWorld != null) {
-            return;
-        }
-
-        Transform returnPoint = new Transform(new Vector3d(0.5, 80.0, 0.5), Vector3f.FORWARD);
-
-        pendingNexusWorld = InstancesPlugin.get().spawnInstance(
-            NEXUS_INSTANCE_TEMPLATE,
-            world,
-            returnPoint
-        );
-
-        pendingNexusWorld.thenAccept(w -> {
-            if (nexusWorld == null) {
-                nexusWorld = w;
-                onNexusWorldReady(w);
-            }
-        });
     }
 
     private void onNexusWorldReady(World world) {
-        //NexusWorldSetup.apply(world.getWorldConfig());
-
         LevelManager levelManager = Nexus.get().getLevelManager();
+
+        world.getWorldConfig().setGameTime(Instant.MAX);
 
         boolean loaded = levelManager.loadLevel(STARTING_LEVEL_ID);
         if (!loaded) {
@@ -73,6 +87,13 @@ public final class NexusWorldLoadSystem {
         }
 
         Nexus.get().getMobSpawnerManager().onLevelLoaded(world, levelManager.getCurrentConfig());
+
+        // Pre-load spawn chunk so the first player in doesn't wait for generation
+        LevelConfig.Position spawn = levelManager.getCurrentConfig().getSpawnPoint();
+        long spawnChunkIndex = ChunkUtil.indexChunkFromBlock((int) spawn.getX(), (int) spawn.getZ());
+        world.getChunkStore().getChunkReferenceAsync(spawnChunkIndex, 4)
+             .thenAccept(ref -> Nexus.get().getLogger()
+                                     .at(Level.INFO).log("Nexus spawn chunk pre-loaded"));
 
         world.execute(() -> {
             Store<EntityStore> store = world.getEntityStore().getStore();

@@ -6,10 +6,13 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
+import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.protocol.packets.camera.SetServerCamera;
+import com.hypixel.hytale.server.core.modules.entity.component.HeadRotation;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
+import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +31,13 @@ public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
     @NonNullDecl
     @Override
     public Query<EntityStore> getQuery() {
-        return Query.and(PlayerCameraComponent.getComponentType(), PlayerRef.getComponentType());
+        return Query.and(
+            PlayerCameraComponent.getComponentType(),
+            PlayerRef.getComponentType(),
+            PlayerBodyStateComponent.getComponentType(),
+            HeadLockComponent.getComponentType(),
+            HeadRotation.getComponentType()
+        );
     }
 
     @Override
@@ -55,10 +64,26 @@ public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
     private void handleIsoMode(PlayerRef pr, PlayerCameraComponent cam, Ref<EntityStore> ref,
                                CommandBuffer<EntityStore> cmd,
                                ArchetypeChunk<EntityStore> chunk, int index) {
+        resetHeadPitchIfNeeded(ref, cmd, chunk, index);
+
         if (cam.isPacketDirty() || isPlayerMoving(chunk, index)) {
             sendPacket(pr, CameraPacketBuilder.buildIso(cam));
             cam.clearPacketDirty();
             persistCam(cmd, ref, cam);
+        }
+    }
+
+    private static void resetHeadPitchIfNeeded(Ref<EntityStore> ref, CommandBuffer<EntityStore> cmd,
+                                               ArchetypeChunk<EntityStore> chunk, int index) {
+        HeadLockComponent lock = chunk.getComponent(index, HeadLockComponent.getComponentType());
+        if (lock != null && lock.isActive()) return; // HeadTrackingSystem owns it
+
+        HeadRotation head = chunk.getComponent(index, HeadRotation.getComponentType());
+        if (head == null) return;
+
+        if (Math.abs(head.getRotation().getPitch()) > 0.01f) {
+            head.teleportRotation(new Vector3f(0f, head.getRotation().getYaw(), 0f));
+            cmd.run(s -> s.putComponent(ref, HeadRotation.getComponentType(), head));
         }
     }
 

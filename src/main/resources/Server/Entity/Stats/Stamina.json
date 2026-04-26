@@ -1,13 +1,13 @@
 {
     "InitialValue": 10,
-    "Min": -4,
+    "Min": 0,
     "Max": 10,
     "Shared": false,
     "Regenerating": [
         {
             "$Comment": "Positive stamina regeneration values",
             "Interval": 1,
-            "Amount": 0.3,
+            "Amount": 0.1,
             "RegenType": "Additive",
             "Conditions": [
                 {

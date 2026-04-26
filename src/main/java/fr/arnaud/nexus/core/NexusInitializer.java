@@ -1,17 +1,30 @@
 package fr.arnaud.nexus.core;
 
 import com.hypixel.hytale.assetstore.event.LoadedAssetsEvent;
+import com.hypixel.hytale.component.ArchetypeChunk;
+import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.component.query.Query;
+import com.hypixel.hytale.component.system.EntityEventSystem;
+import com.hypixel.hytale.server.core.HytaleServer;
+import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseMotionEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
+import com.hypixel.hytale.server.core.inventory.InventoryChangeEvent;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
+import com.hypixel.hytale.server.core.inventory.container.ItemContainer;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entitystats.asset.EntityStatType;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.camera.*;
 import fr.arnaud.nexus.command.*;
 import fr.arnaud.nexus.component.RunSessionComponent;
+import fr.arnaud.nexus.event.RunCompletedEvent;
+import fr.arnaud.nexus.event.RunCompletedHandler;
 import fr.arnaud.nexus.feature.combat.HeadLockComponent;
 import fr.arnaud.nexus.feature.combat.HeadTrackingSystem;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
@@ -27,6 +40,7 @@ import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistrar;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatConfigLoader;
 import fr.arnaud.nexus.item.weapon.system.PlayerWeaponInitSystem;
+import fr.arnaud.nexus.item.weapon.system.WeaponAbilityGuard;
 import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
 import fr.arnaud.nexus.level.LevelProgressComponent;
 import fr.arnaud.nexus.session.PlayerSessionTracker;
@@ -35,6 +49,7 @@ import fr.arnaud.nexus.spawner.SpawnerMobDeathSystem;
 import fr.arnaud.nexus.spawner.SpawnerProximitySystem;
 import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import fr.arnaud.nexus.system.NexusStoragePickupGuard;
+import fr.arnaud.nexus.tutorial.TutorialTimerSystem;
 
 public final class NexusInitializer {
 
@@ -56,6 +71,8 @@ public final class NexusInitializer {
         WeaponStatConfigLoader.load();
         EnchantmentRegistry.get().loadAll();
         EnchantmentRegistrar.registerAll();
+        plugin.getTutorialInterceptor().register();
+        plugin.getTutorialManager().loadSteps();
     }
 
     private void registerComponents() {
@@ -89,10 +106,32 @@ public final class NexusInitializer {
         registry.registerComponent(InventoryComponent.Storage.class, InventoryComponent.Storage::new);
 
         StrikePendingComponent.setComponentType(registry.registerComponent(StrikePendingComponent.class, StrikePendingComponent::new));
+
+        StrikeSwapConfirmedComponent.setComponentType(
+            registry.registerComponent(StrikeSwapConfirmedComponent.class, StrikeSwapConfirmedComponent::new)
+        );
     }
 
     private void registerSystems() {
         var registry = plugin.getEntityStoreRegistry();
+
+        registry.registerSystem(new EntityEventSystem<EntityStore, InventoryChangeEvent>(InventoryChangeEvent.class) {
+            @Override
+            public void handle(int index, ArchetypeChunk<EntityStore> chunk, Store<EntityStore> store, CommandBuffer<EntityStore> cmd, InventoryChangeEvent event) {
+                ItemContainer container = event.getItemContainer();
+                for (short slot = 0; slot < container.getCapacity(); slot++) {
+                    ItemStack stack = container.getItemStack(slot);
+                    if (stack != null && !stack.isUnbreakable() && stack.getDurability() < stack.getMaxDurability()) {
+                        container.setItemStackForSlot(slot, stack.withDurability(stack.getMaxDurability()));
+                    }
+                }
+            }
+
+            @Override
+            public Query<EntityStore> getQuery() {
+                return InventoryComponent.Hotbar.getComponentType();
+            }
+        });
 
         registry.registerSystem(new HeadTrackingSystem());
 
@@ -106,6 +145,7 @@ public final class NexusInitializer {
         registry.registerSystem(new StrikeSystem());
         registry.registerSystem(new StrikeHitInterceptor());
         new StrikePacketInterceptor(plugin.getPlayerStatsManager());
+        new StrikeWeaponSwapInterceptor();
 
         registry.registerSystem(new EnchantmentDamageInterceptor.OnHitSystem());
         registry.registerSystem(new EnchantmentDamageInterceptor.OnReceiveHitSystem());
@@ -126,6 +166,12 @@ public final class NexusInitializer {
 
         registry.registerSystem(new MobBarrierEnforcementSystem());
         registry.registerSystem(new PlayerSessionTracker());
+
+        registry.registerSystem(plugin.getWaveBarSystem());
+
+        registry.registerSystem(new TutorialTimerSystem());
+
+        new WeaponAbilityGuard();
     }
 
     private void registerListeners() {
@@ -141,6 +187,20 @@ public final class NexusInitializer {
         events.registerGlobal(PlayerMouseMotionEvent.class, plugin.getPlayerMouseMotionListener()::onMouseMotion);
 
         plugin.getInventoryPacketInterceptor().register();
+
+        events.registerGlobal(PlayerReadyEvent.class, e -> {
+            Player player = e.getPlayer();
+            plugin.getNexusHudSystem().onPlayerReady(player, () -> {
+                plugin.getWaveBarSystem().onPlayerReady(player);
+                plugin.getTutorialManager().onPlayerReady(player);
+            });
+        });
+
+        events.registerGlobal(PlayerMouseButtonEvent.class,
+            e -> plugin.getTutorialInterceptor().onMouseButton(e));
+
+        HytaleServer.get().getEventBus()
+                    .registerGlobal(RunCompletedEvent.class, new RunCompletedHandler());
     }
 
     private void registerCommands() {
@@ -154,5 +214,7 @@ public final class NexusInitializer {
         registry.registerCommand(new OpenInventoryCommand());
         registry.registerCommand(new AdminCoreCommand());
         registry.registerCommand(new AdminRunCommand());
+        registry.registerCommand(new TutorialCommand());
+        registry.registerCommand(new OpenDashboardCommand());
     }
 }

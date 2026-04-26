@@ -30,27 +30,27 @@ public final class AdminRunCommand extends AbstractPlayerCommand {
         world.execute(() -> {
             RunSessionComponent session = store.getComponent(ref, RunSessionComponent.getComponentType());
             if (session == null) {
-                context.sendMessage(Message.raw("§cNo active run session found."));
+                context.sendMessage(Message.raw("No active run session found."));
                 return;
             }
 
             StringBuilder sb = new StringBuilder();
-            sb.append("§6§l--- Run Session ---\n");
-            sb.append("§7Total time:    §f").append(formatMs(session.getTotalDurationMs())).append("\n");
+            sb.append("--- Run Session ---\n");
+            sb.append("Total time:    ").append(formatMs(session.getTotalDurationMs())).append("\n");
 
             List<Long> splits = session.getLevelSplits();
             if (!splits.isEmpty()) {
-                sb.append("§7Level splits:\n");
+                sb.append("Level splits:\n");
                 for (int i = 0; i < splits.size(); i++) {
-                    sb.append("  §7Level ").append(i + 1).append(":    §f")
+                    sb.append("  Level ").append(i + 1).append(":    ")
                       .append(formatMs(splits.get(i))).append("\n");
                 }
             }
 
-            sb.append("§7Current level: §f").append(formatMs(session.getCurrentLevelDurationMs())).append("\n");
-            sb.append("§7Score:         §f").append(session.computeFinalScore()).append("\n");
-            sb.append("§7Kills: §f").append(session.getKillCount())
-              .append("  §7Deaths: §f").append(session.getDeathCount());
+            sb.append("Current level: ").append(formatMs(session.getCurrentLevelDurationMs())).append("\n");
+            sb.append("Score:         ").append(session.computeFinalScore()).append("\n");
+            sb.append("Kills: ").append(session.getKillCount())
+              .append("  Deaths: ").append(session.getDeathCount());
 
             context.sendMessage(Message.raw(sb.toString()));
         });

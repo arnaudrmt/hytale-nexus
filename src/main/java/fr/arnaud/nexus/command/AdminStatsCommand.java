@@ -38,21 +38,21 @@ public final class AdminStatsCommand extends AbstractPlayerCommand {
             EntityStatMap stats = store.getComponent(ref, EntityStatMap.getComponentType());
 
             if (stats == null) {
-                context.sendMessage(Message.raw("§c[Nexus] No EntityStatMap found on this player."));
+                context.sendMessage(Message.raw("[Nexus] No EntityStatMap found on this player."));
                 return;
             }
 
-            context.sendMessage(Message.raw("§e[Nexus] === EntityStatMap dump ==="));
+            context.sendMessage(Message.raw("[Nexus] === EntityStatMap dump ==="));
             for (int i = 0; i < stats.size(); i++) {
                 EntityStatValue statValue = stats.get(i);
                 if (statValue == null) continue;
 
-                String line = "§7  [" + i + "] §f" + statValue.getId()
-                    + " §7= §a" + statValue.get()
-                    + " §7(max: " + statValue.getMax() + ")";
+                String line = "  [" + i + "] " + statValue.getId()
+                    + " = " + statValue.get()
+                    + " (max: " + statValue.getMax() + ")";
                 context.sendMessage(Message.raw(line));
             }
-            context.sendMessage(Message.raw("§e[Nexus] === End of dump ==="));
+            context.sendMessage(Message.raw("[Nexus] === End of dump ==="));
         });
     }
 }

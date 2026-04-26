@@ -7,7 +7,9 @@ public record WeaponStatCurves(
     float damageCurve,
     float healthBase,
     float healthFlat,
+    float healthCap,
     float speedBase,
-    float speedFlat
+    float speedFlat,
+    float speedCap
 ) {
 }

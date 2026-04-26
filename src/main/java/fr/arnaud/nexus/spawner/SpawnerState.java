@@ -123,6 +123,20 @@ public final class SpawnerState {
         this.activeWave = wave;
     }
 
+    public int getTotalWaves() {
+        return config.getWaves().size();
+    }
+
+    public boolean isComplete() {
+        if (config.hasLootChest()) return chestSpawned;
+        if (!triggered || totalMobsInCurrentWave == 0) return false;
+        if (aliveMobsInCurrentWave > 0) return false;
+        for (LevelConfig.WaveConfig wc : config.getWaves()) {
+            if (wc.getWave() == activeWave + 1) return false;
+        }
+        return true;
+    }
+
     public float getWaveTimer() {
         return waveTimer;
     }

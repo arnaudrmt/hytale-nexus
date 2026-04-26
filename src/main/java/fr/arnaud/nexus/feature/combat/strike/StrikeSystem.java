@@ -14,6 +14,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.ability.CoreAbility;
 import fr.arnaud.nexus.camera.PlayerCameraSystem;
+import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.item.weapon.enchantment.impl.EnchantEffectUtil;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
@@ -55,18 +56,26 @@ public final class StrikeSystem extends EntityTickingSystem<EntityStore> {
         if (strike.getState() == StrikeComponent.State.IDLE) {
             StrikePendingComponent pending = store.getComponent(ref, StrikePendingComponent.getComponentType());
             if (pending != null) {
-                // Only open window if the Strike core is equipped
                 ActiveCoreComponent activeCore = store.getComponent(ref, ActiveCoreComponent.getComponentType());
                 if (activeCore != null && activeCore.hasEquipped(CoreAbility.SWITCH_STRIKE)) {
                     strike.openHitWindow();
                 }
-                // Always consume the marker regardless — prevents stale markers if core is unequipped
                 cmd.run(s -> s.removeComponentIfExists(ref, StrikePendingComponent.getComponentType()));
+            }
+        }
+
+        if (strike.getState() == StrikeComponent.State.SWITCH_WINDOW) {
+            StrikeSwapConfirmedComponent swapConfirmed = store.getComponent(ref, StrikeSwapConfirmedComponent.getComponentType());
+            if (swapConfirmed != null) {
+                cmd.run(s -> s.removeComponentIfExists(ref, StrikeSwapConfirmedComponent.getComponentType()));
+                enterCombo(ref, strike, store, cmd);
+                return;
             }
         }
 
         switch (strike.getState()) {
             case HIT_WINDOW -> tickHitWindow(ref, strike, deltaSeconds, store, cmd);
+            case SWITCH_WINDOW -> tickSwitchWindow(ref, strike, deltaSeconds, cmd);
             case COMBO -> tickCombo(ref, strike, deltaSeconds, store, cmd);
             default -> {
             }
@@ -81,13 +90,25 @@ public final class StrikeSystem extends EntityTickingSystem<EntityStore> {
                                @NonNullDecl Store<EntityStore> store,
                                @NonNullDecl CommandBuffer<EntityStore> cmd) {
         if (strike.hasHitTargets()) {
-            enterCombo(ref, strike, store, cmd);
+            strike.openSwitchWindow();
+            persist(ref, strike, cmd);
             return;
         }
 
         if (!strike.tickTimer(deltaSeconds)) {
             strike.reset();
             persist(ref, strike, cmd);
+        } else {
+            persist(ref, strike, cmd);
+        }
+    }
+
+    private void tickSwitchWindow(@NonNullDecl Ref<EntityStore> ref,
+                                  @NonNullDecl StrikeComponent strike,
+                                  float deltaSeconds,
+                                  @NonNullDecl CommandBuffer<EntityStore> cmd) {
+        if (!strike.tickTimer(deltaSeconds)) {
+            strike.reset();
         } else {
             persist(ref, strike, cmd);
         }
@@ -148,6 +169,11 @@ public final class StrikeSystem extends EntityTickingSystem<EntityStore> {
                 combo.accumulatedDamage
             );
             cmd.run(s -> s.invoke(targetRef, burst));
+
+            RunSessionComponent session = ref.getStore().getComponent(ref, RunSessionComponent.getComponentType());
+            if (session != null) {
+                session.addDamageDealt(burst.getAmount());
+            }
         });
     }
 

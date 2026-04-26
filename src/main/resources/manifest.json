@@ -18,7 +18,6 @@
     "ServerVersion": "*",
     "Main": "fr.arnaud.nexus.core.Nexus",
     "Worlds": [
-        "default",
         "Nexus"
     ]
 }

@@ -3,6 +3,7 @@ package fr.arnaud.nexus.spawner;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.protocol.SoundCategory;
@@ -11,6 +12,9 @@ import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
+import com.hypixel.hytale.server.core.universe.world.chunk.ChunkFlag;
+import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
+import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import fr.arnaud.nexus.core.Nexus;
@@ -26,11 +30,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Level;
 
 public final class MobSpawnerManager {
 
     private final ChestManager chestManager;
     private LevelTransitionService levelTransitionService;
+    private final List<PendingSpawn> retryQueue = new ArrayList<>();
 
     private static final String CHEST_BLOCK_KEY = "Furniture_Dungeon_Chest_Epic";
     private static final float PORTAL_TRIGGER_RADIUS = 2.0f;
@@ -41,6 +47,9 @@ public final class MobSpawnerManager {
     private boolean portalSpawned = false;
     private boolean levelTransitionTriggered = false;
 
+    private record PendingSpawn(SpawnerState state, LevelConfig.MobEntry entry, Vector3d position, int attemptsLeft) {
+    }
+
     public MobSpawnerManager(ChestManager chestManager) {
         this.chestManager = chestManager;
     }
@@ -50,6 +59,7 @@ public final class MobSpawnerManager {
         spawnerStates.clear();
         portalSpawned = false;
         levelTransitionTriggered = false;
+        retryQueue.clear();
         int idSequence = 0;
         for (LevelConfig.SpawnerConfig spawnerConfig : config.getSpawners()) {
             spawnerStates.add(new SpawnerState(idSequence++, spawnerConfig));
@@ -59,10 +69,12 @@ public final class MobSpawnerManager {
 
     public void reset() {
         spawnerStates.clear();
+        retryQueue.clear();
         activeWorld = null;
         portalSpawned = false;
         levelTransitionTriggered = false;
         chestManager.reset();
+        Nexus.get().getWaveBarStateProvider().onLevelReset();
     }
 
     public List<SpawnerState> getSpawnerStates() {
@@ -72,6 +84,7 @@ public final class MobSpawnerManager {
     public void tick(float dt, Vector3d position, LevelProgressComponent progress,
                      CommandBuffer<EntityStore> commandBuffer, Ref<EntityStore> playerRef) {
         if (activeWorld == null) return;
+        drainRetryQueue();
         chestManager.tick(position);
 
         if (!portalSpawned && areAllSpawnersComplete()) {
@@ -185,6 +198,7 @@ public final class MobSpawnerManager {
         if (!state.getConfig().hasLootChest()) return;
 
         state.markChestSpawned();
+        Nexus.get().getWaveBarStateProvider().onWaveStarted(state);
         spawnLootChest(state);
 
         if (progress != null) {
@@ -289,6 +303,7 @@ public final class MobSpawnerManager {
         state.resetForNewWave();
         state.setActiveWave(waveIndex);
         spawnAllMobsForWave(state, waveIndex);
+        Nexus.get().getWaveBarStateProvider().onWaveStarted(state);
     }
 
     private void spawnAllMobsForWave(SpawnerState state, int waveIndex) {
@@ -334,21 +349,54 @@ public final class MobSpawnerManager {
     private void spawnMobBatch(SpawnerState state, LevelConfig.MobEntry entry, int count) {
         activeWorld.execute(() -> {
             Store<EntityStore> store = activeWorld.getEntityStore().getStore();
-
             for (int i = 0; i < count; i++) {
                 Vector3d position = randomPositionAround(state.getConfig());
-                var spawnedPair = NPCPlugin.get().spawnNPC(store, entry.getMobId(), null, position, Vector3f.ZERO);
+                trySpawnOrEnqueue(state, entry, position, store, 40);
+            }
+        });
+    }
 
-                if (spawnedPair != null) {
-                    var npcRef = spawnedPair.first();
-                    if (npcRef != null && npcRef.isValid()) {
-                        store.addComponent(
-                            npcRef,
-                            SpawnerTagComponent.getComponentType(),
-                            new SpawnerTagComponent(state.getId(), entry.getMinEssence(), entry.getMaxEssence())
-                        );
-                    }
-                }
+    private void trySpawnOrEnqueue(SpawnerState state, LevelConfig.MobEntry entry,
+                                   Vector3d position, Store<EntityStore> store, int attemptsLeft) {
+        if (!isChunkTicking(position)) {
+            if (attemptsLeft > 0) {
+                retryQueue.add(new PendingSpawn(state, entry, position, attemptsLeft - 1));
+            } else {
+                Nexus.get().getLogger().at(Level.WARNING)
+                     .log("[SpawnDebug] Gave up on " + entry.getMobId() + " at " + position);
+            }
+            return;
+        }
+
+        var spawnedPair = NPCPlugin.get().spawnNPC(store, entry.getMobId(), null, position, Vector3f.ZERO);
+        if (spawnedPair == null || spawnedPair.first() == null || !spawnedPair.first().isValid()) {
+            if (attemptsLeft > 0) {
+                retryQueue.add(new PendingSpawn(state, entry, position, attemptsLeft - 1));
+            }
+            return;
+        }
+
+        store.addComponent(spawnedPair.first(), SpawnerTagComponent.getComponentType(),
+            new SpawnerTagComponent(state.getId(), entry.getMinEssence(), entry.getMaxEssence()));
+    }
+
+    private boolean isChunkTicking(Vector3d position) {
+        ChunkStore chunkStore = activeWorld.getChunkStore();
+        long index = ChunkUtil.indexChunkFromBlock((int) position.getX(), (int) position.getZ());
+        Ref<ChunkStore> ref = chunkStore.getChunkReference(index);
+        if (ref == null || !ref.isValid()) return false;
+        WorldChunk chunk = chunkStore.getStore().getComponent(ref, WorldChunk.getComponentType());
+        return chunk != null && chunk.is(ChunkFlag.TICKING);
+    }
+
+    private void drainRetryQueue() {
+        if (retryQueue.isEmpty()) return;
+        List<PendingSpawn> pending = new ArrayList<>(retryQueue);
+        retryQueue.clear();
+        activeWorld.execute(() -> {
+            Store<EntityStore> store = activeWorld.getEntityStore().getStore();
+            for (PendingSpawn p : pending) {
+                trySpawnOrEnqueue(p.state(), p.entry(), p.position(), store, p.attemptsLeft());
             }
         });
     }
@@ -370,6 +418,7 @@ public final class MobSpawnerManager {
         for (SpawnerState state : spawnerStates) {
             if (state.getId() == spawnerId) {
                 state.decrementAliveMobs();
+                Nexus.get().getWaveBarStateProvider().onMobKilled(state);
                 break;
             }
         }

@@ -5,3 +5,5 @@ core.unlocked.title = Core Unlocked: {ability}
 core.unlocked.subtitle = A new ability is now available.
 level.title = {name}
 level.subtitle = Welcome, adventurer.
+level.loading = Level loading...
+level.loading.subtitle = Prepare yourself to be thrown in a brand new world.

@@ -36,8 +36,10 @@ public final class WeaponStatConfigLoader {
                     (float) qDoc.getNumber("DamageMultiplierCurve").doubleValue(),
                     (float) qDoc.getNumber("HealthBoostBase").doubleValue(),
                     (float) qDoc.getNumber("HealthBoostFlat").doubleValue(),
+                    (float) qDoc.getNumber("HealthBoostCap").doubleValue(),
                     (float) qDoc.getNumber("MovementSpeedBase").doubleValue(),
-                    (float) qDoc.getNumber("MovementSpeedFlat").doubleValue()
+                    (float) qDoc.getNumber("MovementSpeedFlat").doubleValue(),
+                    (float) qDoc.getNumber("MovementSpeedCap").doubleValue()
                 );
 
                 registry.registerCurves(qualityValue, curves);

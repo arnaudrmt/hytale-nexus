@@ -38,7 +38,7 @@ public final class PlayerSessionListener {
         var store = ref.getStore();
         World currentWorld = store.getExternalData().getWorld();
 
-        if (currentWorld.getName().contains("Nexus")) {
+        if (currentWorld.getName().toLowerCase().contains("nexus")) {
             if (store.getComponent(ref, PlayerCameraComponent.getComponentType()) == null) {
                 bootstrapComponents(ref, store);
             }
@@ -49,6 +49,7 @@ public final class PlayerSessionListener {
         CompletableFuture<World> pending = levelSystem.getPendingNexusWorld();
 
         if (pending == null) return;
+        if (pending.isDone() && pending.join() == null) return;
 
         UUIDComponent uuidComponent = store.getComponent(ref, UUIDComponent.getComponentType());
         if (uuidComponent == null) return;
@@ -60,15 +61,17 @@ public final class PlayerSessionListener {
             : new Transform(new Vector3d(0.5, 80.0, 0.5), Vector3f.FORWARD);
 
         pending.thenAccept(nexusWorld -> {
+            if (nexusWorld == null) return;
             nexusWorld.execute(() -> {
                 EntityStore entityStore = nexusWorld.getEntityStore();
                 Ref<EntityStore> newRef = entityStore.getRefFromUUID(playerUuid);
                 if (newRef == null || !newRef.isValid()) return;
 
-                Store<EntityStore> newStore = entityStore.getStore();
-                if (newStore.getComponent(newRef, PlayerCameraComponent.getComponentType()) == null) {
-                    bootstrapComponents(newRef, newStore);
+
+                if (store.getComponent(ref, PlayerCameraComponent.getComponentType()) == null) {
+                    bootstrapComponents(ref, store);
                 }
+                return;
             });
         });
 

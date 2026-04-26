@@ -5,12 +5,12 @@ public enum CoreAbility {
     DASH(
         "dash",
         "Dash",
-        "Hold Ctrl and click to dash towards your cursor."
+        "Hold Ctrl and click to dash towards your cursor.\nCosts 1 Stamina point."
     ),
     SWITCH_STRIKE(
         "switch_strike",
         "Switch Strike",
-        "When your ability damages an enemy, switch your weapon at the moment of impact to trigger a powerful combo."
+        "When your ability damages an enemy, switch your weapon at the moment of impact to trigger a powerful combo.\nCosts 50% of your Stamina."
     );
 
     private final String id;

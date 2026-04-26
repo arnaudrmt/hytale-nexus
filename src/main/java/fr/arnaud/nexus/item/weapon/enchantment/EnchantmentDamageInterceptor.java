@@ -5,6 +5,7 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.server.core.modules.entity.damage.*;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
@@ -88,7 +89,14 @@ public final class EnchantmentDamageInterceptor {
                 }
             }
 
-            damage.setAmount((float) (damage.getAmount() * totalMultiplier));
+            float damageToDeal = (float) (damage.getAmount() * totalMultiplier);
+
+            damage.setAmount(damageToDeal);
+
+            RunSessionComponent session = store.getComponent(attackerRef, RunSessionComponent.getComponentType());
+            if (session != null) {
+                session.addDamageDealt(damageToDeal);
+            }
 
             Ref<EntityStore> targetRef = chunk.getReferenceTo(index);
             NexusEnchantBus.get().publish(new NexusEnchantEvent(
