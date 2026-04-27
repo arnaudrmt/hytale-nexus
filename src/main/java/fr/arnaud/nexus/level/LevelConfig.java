@@ -66,8 +66,6 @@ public final class LevelConfig {
         return nextLevelId;
     }
 
-    // -------------------------------------------------------------------------
-
     public static final class Position {
         private final double x;
         private final double y;
@@ -96,8 +94,6 @@ public final class LevelConfig {
             return "(" + x + ", " + y + ", " + z + ")";
         }
     }
-
-    // -------------------------------------------------------------------------
 
     public static final class SpawnerConfig {
         private final Position position;
@@ -157,8 +153,6 @@ public final class LevelConfig {
         }
     }
 
-    // -------------------------------------------------------------------------
-
     public enum WaveType {TIME, KILL}
 
     public static final class WaveConfig {
@@ -196,8 +190,6 @@ public final class LevelConfig {
             return timeout;
         }
     }
-
-    // -------------------------------------------------------------------------
 
     public static final class MobEntry {
         private final String mobId;
@@ -293,8 +285,6 @@ public final class LevelConfig {
             return items;
         }
     }
-
-    // -------------------------------------------------------------------------
 
     public static final class LootChestItem {
         private final String itemId;

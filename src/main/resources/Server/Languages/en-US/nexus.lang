@@ -1,3 +1,5 @@
+#TODO: Add all nexus' text to languages files.
+
 plugin.loaded=Project Nexus: Loaded.
 plugin.started=Project Nexus: Started.
 plugin.stopped=Project Nexus: Stopped.

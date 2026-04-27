@@ -89,7 +89,6 @@ public final class NexusWorldLoadSystem {
 
         Nexus.get().getMobSpawnerManager().onLevelLoaded(world, levelManager.getCurrentConfig());
 
-        // Pre-load spawn chunk so the first player in doesn't wait for generation
         LevelConfig.Position spawn = levelManager.getCurrentConfig().getSpawnPoint();
         long spawnChunkIndex = ChunkUtil.indexChunkFromBlock((int) spawn.getX(), (int) spawn.getZ());
         world.getChunkStore().getChunkReferenceAsync(spawnChunkIndex, 4)

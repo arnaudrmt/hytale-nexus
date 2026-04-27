@@ -62,7 +62,6 @@ public final class RunDashboardPage extends InteractiveCustomUIPage<RunDashboard
             if (!ref.isValid()) return;
             Store<EntityStore> ws = ref.getStore();
 
-            // Close the dashboard page
             Player player = ws.getComponent(ref, Player.getComponentType());
             if (player != null) {
                 PlayerRef playerRef = ws.getComponent(ref, PlayerRef.getComponentType());
@@ -82,8 +81,6 @@ public final class RunDashboardPage extends InteractiveCustomUIPage<RunDashboard
         if (h > 0) return String.format(Locale.ROOT, "%d:%02d:%02d", h, m, s);
         return String.format(Locale.ROOT, "%d:%02d", m, s);
     }
-
-    // ── EventData ─────────────────────────────────────────────────────────
 
     public static final class EventData {
 

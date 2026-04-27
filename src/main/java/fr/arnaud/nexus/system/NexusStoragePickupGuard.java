@@ -45,7 +45,6 @@ public final class NexusStoragePickupGuard extends EntityTickingSystem<EntitySto
             playerSpatialResource) {
 
         this.playerSpatialResource = playerSpatialResource;
-        // Items that are in the world and not already being picked up
         this.query = Query.and(
             ItemComponent.getComponentType(),
             TransformComponent.getComponentType(),

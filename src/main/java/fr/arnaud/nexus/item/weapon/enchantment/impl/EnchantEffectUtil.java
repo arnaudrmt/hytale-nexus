@@ -14,10 +14,6 @@ public final class EnchantEffectUtil {
     private EnchantEffectUtil() {
     }
 
-    /**
-     * Applies a timed entity effect to the target by asset ID.
-     * Uses OVERWRITE overlap so re-applying resets the duration.
-     */
     public static void applyEffect(@Nonnull Ref<EntityStore> targetRef,
                                    @Nonnull CommandBuffer<EntityStore> cmd,
                                    @Nonnull String effectId,

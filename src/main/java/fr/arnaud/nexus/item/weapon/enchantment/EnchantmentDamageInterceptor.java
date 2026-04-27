@@ -63,18 +63,15 @@ public final class EnchantmentDamageInterceptor {
                 if (def == null) continue;
                 int level = slot.currentLevel();
 
-                // Sharpness — additive delta
                 var dmgStat = def.getStat("DamageMultiplier");
                 if (dmgStat != null) {
                     totalMultiplier += dmgStat.getValue(level) - 1.0;
                 }
 
-                // Gambler
                 if ("Enchant_Gambler".equals(slot.chosen())) {
                     totalMultiplier = applyGamblerRoll(def, level, totalMultiplier);
                 }
 
-                // Critical Strike
                 if ("Enchant_CriticalStrike".equals(slot.chosen())) {
                     var critStat = def.getStat("CritChance");
                     if (critStat != null && ThreadLocalRandom.current().nextFloat()
@@ -83,7 +80,6 @@ public final class EnchantmentDamageInterceptor {
                     }
                 }
 
-                // Bloodlust — additive bonus from current stacks
                 if ("Enchant_Bloodlust".equals(slot.chosen())) {
                     totalMultiplier += EnchantBloodlust.getBonusMultiplier(attackerRef, level);
                 }
@@ -182,7 +178,7 @@ public final class EnchantmentDamageInterceptor {
                             if (ThreadLocalRandom.current().nextFloat() < chance) {
                                 damage.setAmount(0f);
                                 damage.setCancelled(true);
-                                return; // No point processing further enchants
+                                return;
                             }
                         }
                     }

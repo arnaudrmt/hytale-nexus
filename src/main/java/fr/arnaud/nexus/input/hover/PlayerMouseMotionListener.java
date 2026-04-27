@@ -39,7 +39,6 @@ public final class PlayerMouseMotionListener {
 
             Store<EntityStore> store = world.getEntityStore().getStore();
             if (store.isProcessing()) {
-                // Re-queue for next task queue drain, after tick completes
                 world.execute(() -> applyHoverUpdate(player, world, ref, store, targetEntity, targetBlock));
                 return;
             }

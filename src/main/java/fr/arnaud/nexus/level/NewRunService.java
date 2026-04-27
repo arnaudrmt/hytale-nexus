@@ -92,7 +92,6 @@ public final class NewRunService {
     }
 
     private void resetWeapons(Ref<EntityStore> playerRef, Store<EntityStore> store) {
-        // Only tear down if the component actually exists — avoids removeComponent crash
         WeaponInstanceComponent existing = store.getComponent(
             playerRef, WeaponInstanceComponent.getComponentType());
         if (existing != null) {
@@ -116,7 +115,6 @@ public final class NewRunService {
             hotbar.markDirty();
         }
 
-        // Queue equip after tearDown's world.execute has had a chance to run
         Store<EntityStore> s = store;
         store.getExternalData().getWorld().execute(() -> {
             if (!playerRef.isValid()) return;
@@ -141,7 +139,6 @@ public final class NewRunService {
             }
         }
 
-        // Clear hotbar slots 1+ (slot 0 is the active weapon, reset by resetWeapons)
         InventoryComponent.Hotbar hotbar = store.getComponent(
             playerRef, InventoryComponent.Hotbar.getComponentType());
         if (hotbar != null) {
@@ -157,7 +154,6 @@ public final class NewRunService {
             playerRef, ActiveCoreComponent.getComponentType());
         if (core == null) return;
 
-        // Replace with a clean instance — no unlocks, no equipped core
         store.putComponent(playerRef, ActiveCoreComponent.getComponentType(),
             new ActiveCoreComponent());
     }
@@ -173,8 +169,6 @@ public final class NewRunService {
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;
 
-        // Remove weapon-applied modifiers by unequipping first (already done in resetWeapons)
-        // then reset health and stamina to their JSON base values
         EntityStatMap stats = store.getComponent(playerRef, EntityStatMap.getComponentType());
         if (stats == null) return;
 
@@ -188,7 +182,6 @@ public final class NewRunService {
         EntityStatValue stat = stats.get(index);
         if (stat == null) return;
 
-        // Remove all modifiers so computeModifiers restores asset base min/max
         Map<String, Modifier> modifiers = stat.getModifiers();
         if (modifiers != null) {
             new java.util.ArrayList<>(modifiers.keySet())
@@ -196,7 +189,6 @@ public final class NewRunService {
                     EntityStatMap.Predictable.NONE, index, key));
         }
 
-        // Set current value to base initial value from asset
         EntityStatType asset = EntityStatType.getAssetMap().getAsset(index);
         if (asset != null) {
             stats.setStatValue(EntityStatMap.Predictable.NONE, index, asset.getInitialValue());
@@ -206,7 +198,6 @@ public final class NewRunService {
     private void resetMovementSpeed(Ref<EntityStore> playerRef, Store<EntityStore> store) {
         MovementManager mm = store.getComponent(playerRef, MovementManager.getComponentType());
         if (mm == null) return;
-        // Reset to the engine default stored in defaultSettings
         float defaultSpeed = mm.getDefaultSettings().baseSpeed;
         mm.getSettings().baseSpeed = defaultSpeed;
         PlayerRef playerRef2 = store.getComponent(playerRef, PlayerRef.getComponentType());

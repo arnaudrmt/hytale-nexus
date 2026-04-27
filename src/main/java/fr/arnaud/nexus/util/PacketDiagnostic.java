@@ -31,7 +31,6 @@ public final class PacketDiagnostic {
 
     private boolean logOutbound(PlayerRef playerRef, Packet packet) {
         String name = packet.getClass().getSimpleName();
-        // Only log UI/window-relevant packets to avoid drowning in block packets
         if (isRelevant(name)) {
             LOG.info("[DIAG] OUT " + name + dumpFields(packet));
         }

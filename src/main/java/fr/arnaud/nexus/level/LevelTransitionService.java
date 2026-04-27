@@ -61,7 +61,6 @@ public final class LevelTransitionService {
     private void completeRun(@NonNullDecl Ref<EntityStore> playerRef,
                              @Nullable RunSessionComponent session) {
         if (session == null) return;
-        // Snapshot before dispatch so the handler receives a stable, immutable copy
         RunCompletedEvent.dispatch(playerRef, session.clone());
     }
 
@@ -72,16 +71,14 @@ public final class LevelTransitionService {
         boolean loaded = levelManager.loadLevel(nextLevelId);
         if (!loaded) return;
 
+        //TODO: Fix next levels' chunk loading
+
         LevelConfig nextConfig = levelManager.getCurrentConfig();
         LevelConfig.Position spawn = nextConfig.getSpawnPoint();
         Vector3d spawnPos = new Vector3d(spawn.getX(), spawn.getY(), spawn.getZ());
 
         updateCheckpoint(playerRef, cmd, spawn);
 
-        // Unload all level 1 chunks from the client before teleporting.
-        // This resets sentViewRadius to 0, forcing ChunkTracker.tick to reload
-        // chunks centered on the level 2 spawn — which puts spawner chunks
-        // inside the hot radius and assigns ChunkFlag.TICKING.
         cmd.run(s -> {
             PlayerRef playerRefComponent = s.getComponent(playerRef, PlayerRef.getComponentType());
             ChunkTracker chunkTracker = s.getComponent(playerRef, ChunkTracker.getComponentType());
@@ -94,7 +91,6 @@ public final class LevelTransitionService {
             new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f));
         cmd.run(s -> s.addComponent(playerRef, Teleport.getComponentType(), teleport));
 
-        // Clear level 1 mobs, then initialize level 2 spawners.
         world.execute(() -> {
             Store<EntityStore> store = world.getEntityStore().getStore();
             store.forEachChunk(
@@ -129,10 +125,8 @@ public final class LevelTransitionService {
         LevelConfig.Position spawn = config.getSpawnPoint();
         List<CompletableFuture<?>> futures = new ArrayList<>();
 
-        // Always pre-load spawn chunk
         futures.add(loadChunkAt(spawn.getX(), spawn.getZ(), world));
 
-        // Pre-load every spawner chunk — NPCs cannot spawn in unloaded chunks
         for (LevelConfig.SpawnerConfig spawner : config.getSpawners()) {
             LevelConfig.Position pos = spawner.getPosition();
             futures.add(loadChunkAt(pos.getX(), pos.getZ(), world));

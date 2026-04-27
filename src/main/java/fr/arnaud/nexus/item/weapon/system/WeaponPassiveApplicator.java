@@ -52,7 +52,6 @@ public final class WeaponPassiveApplicator {
             }
         }
 
-        // All three use set-style methods — safe to call repeatedly, never stacks
         psm.setMaxHealthBonus(ref, store, totalHealth);
         psm.setMaxStaminaBonus(ref, store, totalStamina);
         psm.setMovementSpeedBonus(ref, store, totalSpeed);
@@ -64,7 +63,6 @@ public final class WeaponPassiveApplicator {
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;
 
-        // Zero out all bonuses — apply() will set the correct values on next equip
         psm.setMaxHealthBonus(ref, store, 0f);
         psm.setMaxStaminaBonus(ref, store, 0f);
         psm.setMovementSpeedBonus(ref, store, 0f);

@@ -40,7 +40,6 @@ public final class CoreAbilityRouter {
 
         switch (equipped) {
             case DASH -> dashAbility.tryActivate(player, ref, store);
-            // SWITCH_STRIKE is stat-trigger driven — no input activation path needed here.
             default -> LOGGER.log(Level.FINE,
                 "[CoreAbilityRouter] No input handler registered for Core: {0}", equipped);
         }

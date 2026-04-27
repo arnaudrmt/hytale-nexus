@@ -22,7 +22,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
 
-    // Only trigger on entities that have BOTH a SpawnerTag and a DeathComponent
     private final Query<EntityStore> query = Query.and(SpawnerTagComponent.getComponentType());
 
     @Override
@@ -36,6 +35,7 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         SpawnerTagComponent tag = store.getComponent(ref, SpawnerTagComponent.getComponentType());
         if (tag == null) return;
 
+        // TODO: Take into account mobs spawned by 'SpawnerTagComponent' but without the TAG.
         component.setItemsLossMode(DeathConfig.ItemsLossMode.NONE);
         Nexus.get().getMobSpawnerManager().onMobDied(tag.getSpawnerId());
 
@@ -48,7 +48,6 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         Ref<EntityStore> killerRef = entitySource.getRef();
         if (!killerRef.isValid()) return;
 
-        // ProjectileSource.getRef() already returns the shooter, so no extra handling needed
         int essence = tag.getMinEssence() == tag.getMaxEssence()
             ? tag.getMinEssence()
             : tag.getMinEssence() + ThreadLocalRandom.current()
@@ -57,7 +56,6 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         psm.addEssenceDust(killerRef, store, essence);
 
-        // Soul Harvest — add bonus essence based on enchant multiplier
         float soulHarvestBonus = getSoulHarvestBonus(killerRef, store, essence);
         if (soulHarvestBonus > 0f) {
             psm.addEssenceDust(killerRef, store, soulHarvestBonus);
@@ -69,11 +67,6 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         }
     }
 
-    /**
-     * Returns the Soul Harvest essence bonus for the killer.
-     * Bonus = baseEssence * multiplierAtLevel
-     * e.g. level 1 (x0.50): base 10 → bonus 5 → total 15
-     */
     private float getSoulHarvestBonus(Ref<EntityStore> killerRef,
                                       Store<EntityStore> store,
                                       int baseEssence) {

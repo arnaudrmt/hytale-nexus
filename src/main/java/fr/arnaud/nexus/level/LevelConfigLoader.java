@@ -57,7 +57,6 @@ public final class LevelConfigLoader {
         }
     }
 
-    // -------------------------------------------------------------------------
 
     private static LevelConfig parseRoot(JsonObject root) {
         String id = root.get("id").getAsString();

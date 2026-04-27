@@ -12,22 +12,14 @@ import java.util.Map;
 public final class EnchantmentStatDefinition {
 
     public enum StatType {
-        /**
-         * Value is added directly: +10 Health Boost
-         */
         FLAT,
-        /**
-         * Value is a multiplier applied to a base stat: ×1.5 Damage Multiplier
-         */
         CURVE
     }
 
     private final String id;
     private final String displayName;
     private final StatType type;
-    /**
-     * level (1-based) → stat value
-     */
+
     private final Map<Integer, Double> values;
 
     public EnchantmentStatDefinition(String id, String displayName,
@@ -78,7 +70,6 @@ public final class EnchantmentStatDefinition {
         if (type == StatType.CURVE) {
             return String.format("×%.2f %s", raw, displayName);
         } else {
-            // Drop the decimal if it's a whole number
             if (raw == Math.floor(raw)) {
                 return "+" + (int) raw + " " + displayName;
             }

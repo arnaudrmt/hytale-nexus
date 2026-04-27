@@ -21,10 +21,6 @@ public final class LevelManager {
     public LevelManager() {
     }
 
-    // -------------------------------------------------------------------------
-    // Lifecycle
-    // -------------------------------------------------------------------------
-
     /**
      * Loads a level config by ID and makes it the active level.
      *
@@ -60,10 +56,6 @@ public final class LevelManager {
         this.currentLevel = null;
     }
 
-    // -------------------------------------------------------------------------
-    // Getters — always for the current level, no level ID needed
-    // -------------------------------------------------------------------------
-
     public String getLevelId() {
         return require().getId();
     }
@@ -91,8 +83,6 @@ public final class LevelManager {
     public LevelConfig getCurrentConfig() {
         return require();
     }
-
-    // -------------------------------------------------------------------------
 
     private LevelConfig require() {
         if (currentLevel == null) {

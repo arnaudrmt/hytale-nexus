@@ -45,19 +45,15 @@ public final class EnchantSwiftnessOnKill implements EnchantEffectHandler {
         Ref<EntityStore> attackerRef = event.attacker();
         Store<EntityStore> store = event.store();
 
-        // Cancel pending reversal — we'll re-apply a fresh full duration below
         ScheduledFuture<?> existing = pendingRemovals.remove(attackerRef);
         if (existing != null) {
             existing.cancel(false);
-            // Don't touch the stat yet — we're about to reset it cleanly
         } else {
-            // No active bonus running, apply fresh
             activeBonuses.put(attackerRef, 0f);
         }
 
         float currentBonus = activeBonuses.getOrDefault(attackerRef, 0f);
 
-        // Bring stat to zero before re-applying the new target bonus
         if (currentBonus > 0f) {
             psm.addMovementSpeed(attackerRef, store, -currentBonus);
         }

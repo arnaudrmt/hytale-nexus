@@ -25,6 +25,7 @@ public final class WeaponAbilityGuard {
             if (chain.interactionType != InteractionType.Primary
                 && chain.interactionType != InteractionType.Secondary) continue;
 
+            //TODO: Prevent player from using non-equipped weapons
             //if (chain.activeHotbarSlot != 0) return true;
         }
 

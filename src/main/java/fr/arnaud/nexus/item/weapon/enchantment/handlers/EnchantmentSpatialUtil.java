@@ -62,18 +62,15 @@ public final class EnchantmentSpatialUtil {
             targetRef, TransformComponent.getComponentType());
         if (sourceTransform == null || targetTransform == null) return;
 
-        // Compute direction from source to target
         Vector3d direction = targetTransform.getPosition().clone();
         direction.subtract(sourceTransform.getPosition());
         double length = direction.length();
         if (length < 0.001) {
-            // Entities at same position — push straight up
             direction.assign(0, 1, 0);
         } else {
             direction.setLength(force);
         }
 
-        // Use KnockbackComponent so the impulse is synced to the client
         KnockbackComponent knockback = new KnockbackComponent();
         knockback.setVelocity(direction);
         knockback.setVelocityType(ChangeVelocityType.Add);

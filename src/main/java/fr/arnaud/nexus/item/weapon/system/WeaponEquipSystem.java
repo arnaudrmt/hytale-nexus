@@ -18,7 +18,6 @@ public final class WeaponEquipSystem {
     public void onWeaponEquipped(@Nonnull Ref<EntityStore> playerRef,
                                  @Nullable ItemStack incomingStack,
                                  @Nonnull Store<EntityStore> store) {
-        // Always tear down old weapon first
         tearDown(playerRef, store);
 
         if (incomingStack == null || !isNexusWeapon(incomingStack)) return;
@@ -30,7 +29,6 @@ public final class WeaponEquipSystem {
         store.getExternalData().getWorld().execute(() -> {
             if (!playerRef.isValid()) return;
             store.putComponent(playerRef, WeaponInstanceComponent.getComponentType(), instance);
-            // Apply weapon base + enchant passive stats
             WeaponPassiveApplicator.apply(playerRef, store, instance);
         });
     }
@@ -50,7 +48,6 @@ public final class WeaponEquipSystem {
             playerRef, WeaponInstanceComponent.getComponentType());
         if (current == null) return;
 
-        // Remove passive stat bonuses before clearing the component
         WeaponPassiveApplicator.remove(playerRef, store, current);
 
         store.getExternalData().getWorld().execute(() -> {

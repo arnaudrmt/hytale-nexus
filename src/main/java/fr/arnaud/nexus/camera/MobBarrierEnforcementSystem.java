@@ -70,7 +70,6 @@ public final class MobBarrierEnforcementSystem extends EntityTickingSystem<Entit
         World world = Nexus.get().getNexusWorldLoadSystem().getNexusWorld();
         if (world == null) return;
 
-        // Resolve occlusion once per interval on first mob processed (index 0, first chunk)
         if (index == 0 && mobsProcessedThisInterval == 0) {
             cachedOcclusion = resolveOcclusionComponent(store);
         }

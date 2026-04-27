@@ -50,7 +50,6 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
         int refIndex = event.attacker().getIndex();
         BloodlustState state = stateMap.computeIfAbsent(refIndex, k -> new BloodlustState());
 
-        // Cancel the OLD reset thread BEFORE creating the new one
         if (state.resetThread != null) {
             state.resetThread.interrupt();
             state.resetThread = null;
@@ -58,17 +57,14 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
 
         state.stacks = Math.min(state.stacks + 1, maxStacks);
 
-        // Capture for lambda
         final long capturedResetMs = resetMs;
         final Ref<EntityStore> attacker = event.attacker();
         final World world = event.store().getExternalData().getWorld();
 
-        // Start new reset thread AFTER incrementing stacks
         Thread resetThread = Thread.ofVirtual().start(() -> {
             try {
                 Thread.sleep(capturedResetMs);
             } catch (InterruptedException ignored) {
-                // A new kill cancelled this reset — do nothing, stacks are managed by new thread
                 return;
             }
             world.execute(() -> {

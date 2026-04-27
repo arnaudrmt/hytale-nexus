@@ -52,7 +52,6 @@ public final class WaveBarSystem extends EntityTickingSystem<EntityStore> {
         PlayerEntry entry = entries.get(ref);
         if (entry == null) return;
 
-        // Completion countdown takes full control until it expires
         if (entry.completeTimer()[0] > 0f) {
             entry.completeTimer()[0] -= dt;
             if (entry.completeTimer()[0] <= 0f) {

@@ -59,7 +59,6 @@ public final class WeaponGenerator {
         Set<String> usedIds = new HashSet<>();
 
         for (int i = 0; i < slotCount; i++) {
-            // Filter out any enchant already used in a previous slot
             List<EnchantmentDefinition> available = pool.stream()
                                                         .filter(def -> !usedIds.contains(def.getId()))
                                                         .toList();
