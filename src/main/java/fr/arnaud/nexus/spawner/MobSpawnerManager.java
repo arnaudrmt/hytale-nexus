@@ -6,7 +6,11 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.protocol.Color;
+import com.hypixel.hytale.protocol.Direction;
+import com.hypixel.hytale.protocol.Position;
 import com.hypixel.hytale.protocol.SoundCategory;
+import com.hypixel.hytale.protocol.packets.world.SpawnParticleSystem;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
@@ -121,6 +125,17 @@ public final class MobSpawnerManager {
 
     private void spawnFinishPortal() {
         portalSpawned = true;
+        LevelConfig.Position pos = Nexus.get().getLevelManager().getCurrentConfig().getFinishPoint();
+        SpawnParticleSystem packet = new SpawnParticleSystem(
+            "MagicPortal",
+            new Position(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5),
+            new Direction(0, 360, 0),
+            1.0f,
+            new Color((byte) 255, (byte) 255, (byte) 255)
+        );
+        activeWorld.getPlayerRefs().forEach(playerRef ->
+            playerRef.getPacketHandler().writeNoCache(packet)
+        );
     }
 
     private void checkPortalProximity(Vector3d position, Ref<EntityStore> playerRef,
@@ -133,6 +148,22 @@ public final class MobSpawnerManager {
         if (dx * dx + dy * dy + dz * dz > PORTAL_TRIGGER_RADIUS * PORTAL_TRIGGER_RADIUS) return;
 
         levelTransitionTriggered = true;
+
+        // Stop the looping portal particle before transitioning
+        Position center = new Position(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5);
+        SpawnParticleSystem stopPacket = new SpawnParticleSystem(
+            "MagicPortal_Stop",
+            center,
+            new Direction(0, 0, 0),
+            0.0f,
+            new Color((byte) 0, (byte) 0, (byte) 0)
+        );
+        activeWorld.execute(() ->
+            activeWorld.getPlayerRefs().forEach(p ->
+                p.getPacketHandler().writeNoCache(stopPacket)
+            )
+        );
+
         getLevelTransitionService().onPortalEntered(playerRef, commandBuffer, activeWorld);
     }
 

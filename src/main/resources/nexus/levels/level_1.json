@@ -686,7 +686,7 @@
             }
         },
         {
-            "_comment": "S11 — First Outlanders, Outlander_Unsworn + Outlander_Initiate",
+            "_comment": "S11 — First Outlanders, Outlander_Hunter + Outlander_Cultist",
             "position": {
                 "x": 371.0,
                 "y": 68.0,
@@ -709,7 +709,7 @@
             ],
             "mobs": [
                 {
-                    "mobId": "Outlander_Unsworn",
+                    "mobId": "Outlander_Hunter",
                     "minCount": 3,
                     "maxCount": 5,
                     "spawnRate": 0.9,
@@ -718,7 +718,7 @@
                     "maxEssence": 22
                 },
                 {
-                    "mobId": "Outlander_Initiate",
+                    "mobId": "Outlander_Cultist",
                     "minCount": 2,
                     "maxCount": 3,
                     "spawnRate": 1.0,

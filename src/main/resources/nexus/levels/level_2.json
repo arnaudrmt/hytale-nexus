@@ -78,7 +78,7 @@
             }
         },
         {
-            "_comment": "S2 — Outlander_Initiate + Outlander_Berserker",
+            "_comment": "S2 — Outlander_Cultist + Outlander_Berserker",
             "position": {
                 "x": 1087.0,
                 "y": 80.0,
@@ -101,7 +101,7 @@
             ],
             "mobs": [
                 {
-                    "mobId": "Outlander_Initiate",
+                    "mobId": "Outlander_Cultist",
                     "minCount": 3,
                     "maxCount": 5,
                     "spawnRate": 1.0,
@@ -529,8 +529,8 @@
                 },
                 {
                     "mobId": "Shadow_Knight",
-                    "minCount": 2,
-                    "maxCount": 3,
+                    "minCount": 1,
+                    "maxCount": 1,
                     "spawnRate": 1.8,
                     "wave": 2,
                     "minEssence": 38,
@@ -857,7 +857,7 @@
                 {
                     "mobId": "Golem_Crystal_Sand",
                     "minCount": 1,
-                    "maxCount": 2,
+                    "maxCount": 1,
                     "spawnRate": 3.0,
                     "wave": 4,
                     "minEssence": 60,
@@ -1130,7 +1130,7 @@
                 {
                     "mobId": "Golem_Crystal_Sand",
                     "minCount": 1,
-                    "maxCount": 2,
+                    "maxCount": 1,
                     "spawnRate": 3.0,
                     "wave": 2,
                     "minEssence": 60,

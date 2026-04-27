@@ -9,14 +9,19 @@ import com.hypixel.hytale.component.system.tick.EntityTickingSystem;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.server.core.asset.type.blocktype.config.BlockType;
+import com.hypixel.hytale.server.core.entity.entities.ProjectileComponent;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.WorldChunk;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Manages camera occlusion by temporarily replacing blocks inside a cylinder
@@ -74,6 +79,8 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
     private int barrierBlockId = Integer.MIN_VALUE;
     private int epicChestBlockId = Integer.MIN_VALUE;
 
+    private static final boolean DEBUG_OCCLUSION = false;
+
     @NonNullDecl
     @Override
     public Query<EntityStore> getQuery() {
@@ -98,10 +105,10 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         TransformComponent transform = store.getComponent(ref, EntityModule.get().getTransformComponentType());
 
         if (cam == null || occlusion == null || transform == null) return;
+        if (occlusion.isDestroyed()) return;
 
         World world = ((EntityStore) store.getExternalData()).getWorld();
 
-        // ── Camera position ──────────────────────────────────────────────────
         Vector3d feet = transform.getPosition();
         double feetY = feet.getY();
         double headX = feet.getX();
@@ -117,25 +124,18 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         double camY = headY + (-sinPitch) * camDist;
         double camZ = headZ + Math.cos(yaw) * cosPitch * camDist;
 
-        // ── Ray: camera → player head ─────────────────────────────────────────
-        double rdx = headX - camX;
-        double rdy = headY - camY;
-        double rdz = headZ - camZ;
+        double rdx = headX - camX, rdy = headY - camY, rdz = headZ - camZ;
         double dist = Math.sqrt(rdx * rdx + rdy * rdy + rdz * rdz);
         if (dist < 1e-6) return;
 
         double ix = rdx / dist, iy = rdy / dist, iz = rdz / dist;
 
-        // AABB extends RAY_EXTENSION past the head to catch walls at head height,
-        // but the cylinder membership test below uses dist (not rayEnd) as the
-        // far limit so blocks behind the player are never cleared.
         double rayEnd = dist + RAY_EXTENSION;
         double endX = camX + ix * rayEnd;
         double endY = camY + iy * rayEnd;
         double endZ = camZ + iz * rayEnd;
         double floorY = feetY + FLOOR_Y_OFFSET;
 
-        // ── AABB over the full extended ray ───────────────────────────────────
         int bbR = (int) Math.ceil(CYLINDER_RADIUS);
         int minX = (int) Math.floor(Math.min(camX, endX)) - bbR;
         int maxX = (int) Math.ceil(Math.max(camX, endX)) + bbR;
@@ -143,6 +143,10 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         int maxY = (int) Math.ceil(Math.max(camY, endY)) + bbR;
         int minZ = (int) Math.floor(Math.min(camZ, endZ)) - bbR;
         int maxZ = (int) Math.ceil(Math.max(camZ, endZ)) + bbR;
+
+        // Snapshot all mob positions once per tick to avoid per-block store queries
+        List<Vector3d> mobPositions = collectMobPositions(store);
+        List<Vector3d> projectilePositions = collectProjectilePositions(store);
 
         LongOpenHashSet currentPositions = new LongOpenHashSet();
 
@@ -152,8 +156,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
                 for (int bz = minZ; bz <= maxZ; bz++) {
                     long packed = PlayerOcclusionComponent.pack(bx, by, bz);
 
-                    // Carry already-replaced positions forward without re-sampling —
-                    // reading Air from a replaced block would wrongly exclude it.
                     if (occlusion.getReplacedBlocks().containsKey(packed)) {
                         currentPositions.add(packed);
                         continue;
@@ -163,8 +165,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
                     double ex = cx - camX, ey = cy - camY, ez = cz - camZ;
                     double proj = ex * ix + ey * iy + ez * iz;
 
-                    // Cylinder runs camera → player head only; skip anything behind
-                    // the camera or past the player's head.
                     if (proj < 0 || proj > dist) continue;
 
                     double rx = ex - proj * ix, ry = ey - proj * iy, rz = ez - proj * iz;
@@ -172,17 +172,16 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
 
                     int blockId = sampleBlock(world, bx, by, bz);
                     if (blockId == BlockType.EMPTY_ID) continue;
-                    if (blockId == barrierBlockId && isBarrierProtected(bx, by, bz, feet.getX(), feetY, feet.getZ()))
-                        continue;
 
                     currentPositions.add(packed);
                 }
             }
         }
 
-        // ── Replace newly entering blocks ────────────────────────────────────
+        // Replace newly entering blocks
         for (long packed : currentPositions) {
             int[] c = PlayerOcclusionComponent.unpack(packed);
+
             if (!occlusion.isReplaced(c[0], c[1], c[2])) {
                 int originalId = sampleBlock(world, c[0], c[1], c[2]);
                 if (originalId == BlockType.EMPTY_ID) continue;
@@ -190,25 +189,30 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
 
                 int originalRot = sampleRotation(world, c[0], c[1], c[2]);
                 int originalFiller = sampleFiller(world, c[0], c[1], c[2]);
+                occlusion.putReplaced(c[0], c[1], c[2], originalId, originalRot, originalFiller);
 
-                if (isBarrierProtected(c[0], c[1], c[2], feet.getX(), feetY, feet.getZ())) {
-                    double dy = (c[1] + 0.5) - feetY;
-                    if (dy >= 0 && dy <= BARRIER_SOLID_HEIGHT) {
-                        // Keep solid barrier so mobs cannot path through the hole
-                        replaceWithBarrier(world, c[0], c[1], c[2]);
-                        occlusion.markBarrierColumn(c[0], c[1], c[2]);
-                    } else {
-                        replaceWithAir(world, c[0], c[1], c[2]);
-                    }
+                if (isNearPlayerOrMob(c[0], c[1], c[2], feet, mobPositions, projectilePositions)) {
+                    replaceWithBarrier(world, c[0], c[1], c[2]);
                 } else {
                     replaceWithAir(world, c[0], c[1], c[2]);
                 }
 
-                occlusion.putReplaced(c[0], c[1], c[2], originalId, originalRot, originalFiller);
+            } else {
+                // Already replaced: re-evaluate proximity each tick to toggle between Air and Barrier
+                int currentBlock = sampleBlock(world, c[0], c[1], c[2]);
+                boolean shouldBeSolid = isNearPlayerOrMob(c[0], c[1], c[2], feet, mobPositions, projectilePositions);
+                boolean isSolid = (currentBlock == barrierBlockId)
+                    || (DEBUG_OCCLUSION && currentBlock == debugBarrierBlockId);
+
+                if (shouldBeSolid && !isSolid) {
+                    replaceWithBarrier(world, c[0], c[1], c[2]);
+                } else if (!shouldBeSolid && isSolid) {
+                    replaceWithAir(world, c[0], c[1], c[2]);
+                }
             }
         }
 
-        // ── Immediately restore blocks that left the cylinder ─────────────────
+        // Restore blocks that left the cylinder
         LongOpenHashSet previousPositions = occlusion.getReplacedPositions();
         for (long packed : previousPositions) {
             if (!currentPositions.contains(packed)) {
@@ -222,6 +226,61 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         }
 
         cmd.run(s -> s.putComponent(ref, PlayerOcclusionComponent.getComponentType(), occlusion));
+    }
+
+    private static List<Vector3d> collectMobPositions(Store<EntityStore> store) {
+        List<Vector3d> positions = new ArrayList<>();
+        store.forEachChunk(
+            SpawnerTagComponent.getComponentType(),
+            (archetypeChunk, cmd) -> {
+                for (int i = 0; i < archetypeChunk.size(); i++) {
+                    Ref<EntityStore> mobRef = archetypeChunk.getReferenceTo(i);
+                    TransformComponent t = store.getComponent(mobRef, EntityModule.get().getTransformComponentType());
+                    if (t != null) positions.add(t.getPosition());
+                }
+            }
+        );
+        return positions;
+    }
+
+    private static List<Vector3d> collectProjectilePositions(Store<EntityStore> store) {
+        List<Vector3d> positions = new ArrayList<>();
+        store.forEachChunk(
+            ProjectileComponent.getComponentType(),
+            (archetypeChunk, cmd) -> {
+                for (int i = 0; i < archetypeChunk.size(); i++) {
+                    Ref<EntityStore> projRef = archetypeChunk.getReferenceTo(i);
+                    TransformComponent t = store.getComponent(projRef, EntityModule.get().getTransformComponentType());
+                    if (t != null) positions.add(t.getPosition());
+                }
+            }
+        );
+        return positions;
+    }
+
+    private static boolean isNearPlayerOrMob(int bx, int by, int bz, Vector3d playerFeet,
+                                             List<Vector3d> mobPositions,
+                                             List<Vector3d> projectilePositions) {
+        double cx = bx + 0.5, cy = by + 0.5, cz = bz + 0.5;
+
+        double pdx = cx - playerFeet.getX();
+        double pdz = cz - playerFeet.getZ();
+        if (pdx * pdx + pdz * pdz <= BARRIER_RADIUS_SQ) return true;
+
+        for (Vector3d mob : mobPositions) {
+            double mdx = cx - mob.getX();
+            double mdz = cz - mob.getZ();
+            if (mdx * mdx + mdz * mdz <= BARRIER_RADIUS_SQ) return true;
+        }
+
+        for (Vector3d proj : projectilePositions) {
+            double pjdx = cx - proj.getX();
+            double pjdy = cy - proj.getY();
+            double pjdz = cz - proj.getZ();
+            if (pjdx * pjdx + pjdy * pjdy + pjdz * pjdz <= BARRIER_RADIUS_SQ) return true;
+        }
+
+        return false;
     }
 
     // ── Block sampling ────────────────────────────────────────────────────────
@@ -249,14 +308,19 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
 
     // ── Block writing ─────────────────────────────────────────────────────────
 
-    private static void replaceWithAir(World world, int x, int y, int z) {
-        setBlock(world, x, y, z, BlockType.EMPTY_ID, BlockType.EMPTY, 0, 0);
+    private void replaceWithAir(World world, int x, int y, int z) {
+        if (DEBUG_OCCLUSION) {
+            setBlock(world, x, y, z, debugAirBlockId, BlockType.getAssetMap().getAsset(debugAirBlockId), 0, 0);
+        } else {
+            setBlock(world, x, y, z, BlockType.EMPTY_ID, BlockType.EMPTY, 0, 0);
+        }
     }
 
     private void replaceWithBarrier(World world, int x, int y, int z) {
-        BlockType barrierType = BlockType.getAssetMap().getAsset(barrierBlockId);
-        if (barrierType == null) return;
-        setBlock(world, x, y, z, barrierBlockId, barrierType, 0, 0);
+        int id = DEBUG_OCCLUSION ? debugBarrierBlockId : barrierBlockId;
+        BlockType bt = BlockType.getAssetMap().getAsset(id);
+        if (bt == null) return;
+        setBlock(world, x, y, z, id, bt, 0, 0);
     }
 
     private static void restoreBlock(World world, int x, int y, int z, int blockId, int rotation, int filler) {
@@ -283,12 +347,17 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
             && dy >= 0 && dy <= BARRIER_HEIGHT;
     }
 
+    private int debugAirBlockId = Integer.MIN_VALUE;
+    private int debugBarrierBlockId = Integer.MIN_VALUE;
+
     private void ensureBlockIdsCached() {
-        if (barrierBlockId == Integer.MIN_VALUE) {
+        if (barrierBlockId == Integer.MIN_VALUE)
             barrierBlockId = BlockType.getAssetMap().getIndex("Barrier");
-        }
-        if (epicChestBlockId == Integer.MIN_VALUE) {
+        if (epicChestBlockId == Integer.MIN_VALUE)
             epicChestBlockId = BlockType.getAssetMap().getIndex("Furniture_Dungeon_Chest_Epic");
-        }
+        if (debugAirBlockId == Integer.MIN_VALUE)
+            debugAirBlockId = BlockType.getAssetMap().getIndex("Cloth_Block_Wool_Green");
+        if (debugBarrierBlockId == Integer.MIN_VALUE)
+            debugBarrierBlockId = BlockType.getAssetMap().getIndex("Cloth_Block_Wool_Red");
     }
 }

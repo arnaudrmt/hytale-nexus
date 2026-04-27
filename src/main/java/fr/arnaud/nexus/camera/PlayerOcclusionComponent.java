@@ -44,6 +44,7 @@ public final class PlayerOcclusionComponent implements Component<EntityStore> {
 
     private static final int Y_OFFSET = 512;
     private static final int XZ_OFFSET = 2097152;
+    private boolean destroyed = false;
 
     /**
      * Maps our packed position → original block ID for restoration.
@@ -118,6 +119,14 @@ public final class PlayerOcclusionComponent implements Component<EntityStore> {
 
     public boolean isBarrierColumn(int x, int y, int z) {
         return barrierColumnPositions.contains(pack(x, y, z));
+    }
+
+    public void markDestroyed() {
+        this.destroyed = true;
+    }
+
+    public boolean isDestroyed() {
+        return this.destroyed;
     }
 
     @NonNullDecl

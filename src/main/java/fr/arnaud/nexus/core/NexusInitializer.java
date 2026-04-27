@@ -164,7 +164,6 @@ public final class NexusInitializer {
 
         new WeaponSwapSystem(plugin.getWeaponEquipSystem());
 
-        registry.registerSystem(new MobBarrierEnforcementSystem());
         registry.registerSystem(new PlayerSessionTracker());
 
         registry.registerSystem(plugin.getWaveBarSystem());
@@ -172,6 +171,8 @@ public final class NexusInitializer {
         registry.registerSystem(new TutorialTimerSystem());
 
         new WeaponAbilityGuard();
+
+        registry.registerSystem(new OcclusionCleanupSystem());
     }
 
     private void registerListeners() {
