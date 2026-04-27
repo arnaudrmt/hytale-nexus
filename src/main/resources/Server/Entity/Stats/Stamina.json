@@ -7,7 +7,7 @@
         {
             "$Comment": "Positive stamina regeneration values",
             "Interval": 1,
-            "Amount": 0.2,
+            "Amount": 0.5,
             "RegenType": "Additive",
             "Conditions": [
                 {

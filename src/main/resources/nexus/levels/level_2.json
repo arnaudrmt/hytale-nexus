@@ -275,6 +275,10 @@
                     {
                         "itemId": "Food_Salad_Caesar",
                         "chance": 0.55
+                    },
+                    {
+                        "itemId": "Nexus_Melee_Axe_Iron",
+                        "chance": 0.5
                     }
                 ]
             }
@@ -409,6 +413,10 @@
                     },
                     {
                         "itemId": "Potion_Signature",
+                        "chance": 0.50
+                    },
+                    {
+                        "itemId": "Nexus_Melee_Scythe_Void",
                         "chance": 0.50
                     }
                 ]
@@ -1254,7 +1262,7 @@
                 {
                     "wave": 3,
                     "type": "time",
-                    "value": 12
+                    "value": 5
                 }
             ],
             "mobs": [
@@ -1434,6 +1442,15 @@
                     "wave": 3,
                     "minEssence": 70,
                     "maxEssence": 120
+                },
+                {
+                    "mobId": "Shadow_Knight",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 2.0,
+                    "wave": 3,
+                    "minEssence": 80,
+                    "maxEssence": 150
                 }
             ],
             "lootChest": {

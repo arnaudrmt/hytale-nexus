@@ -96,7 +96,7 @@ public final class PlayerMouseMotionListener {
         }
 
         if (hoverState.isHighlightingEntity(entityId)) return;
-        HoverHighlightDispatcher.highlightEntity(targetEntity, playerRef, ref, store);
+        //HoverHighlightDispatcher.highlightEntity(targetEntity, playerRef, ref, store);
         hoverState.recordEntity(entityId);
     }
 
@@ -121,7 +121,7 @@ public final class PlayerMouseMotionListener {
     ) {
         if (hoverState.isHighlightingBlock(block)) return;
 
-        HoverHighlightDispatcher.highlightBlock(block, playerRef);
+        //HoverHighlightDispatcher.highlightBlock(block, playerRef);
         hoverState.recordBlock(block);
     }
 }

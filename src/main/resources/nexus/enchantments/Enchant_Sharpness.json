@@ -4,19 +4,19 @@
     "Description": "Multiplies your weapon damage.",
     "Icon": "CharacterPanelStatIconDamage.png",
     "CompatibleTag": "MELEE",
-    "BaseCost": 100,
-    "CostCurve": 1.4,
+    "BaseCost": 90,
+    "CostCurve": 1.48,
     "Stats": [
         {
             "Id": "DamageMultiplier",
             "DisplayName": "Damage Multiplier",
             "Type": "Curve",
             "Values": {
-                "1": 1.5,
-                "2": 1.8,
-                "3": 2.2,
-                "4": 2.7,
-                "5": 3.3
+                "1": 1.20,
+                "2": 1.35,
+                "3": 1.55,
+                "4": 1.75,
+                "5": 2.00
             }
         }
     ]

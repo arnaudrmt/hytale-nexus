@@ -4,8 +4,8 @@
     "Description": "Gain bonus essence when killing enemies.",
     "Icon": "CharacterPanelEssenceIcon.png",
     "CompatibleTag": "ANY",
-    "BaseCost": 80,
-    "CostCurve": 1.3,
+    "BaseCost": 45,
+    "CostCurve": 1.32,
     "Stats": [
         {
             "Id": "SoulHarvestMultiplier",
@@ -13,10 +13,10 @@
             "Type": "Curve",
             "Values": {
                 "1": 0.10,
-                "2": 0.25,
-                "3": 0.75,
-                "4": 1.50,
-                "5": 2.00
+                "2": 0.18,
+                "3": 0.30,
+                "4": 0.45,
+                "5": 0.65
             }
         }
     ]

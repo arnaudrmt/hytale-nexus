@@ -4,19 +4,19 @@
     "Description": "Stack damage bonus on kills, resets if no kill in time.",
     "Icon": "CharacterPanelStatIconDamage.png",
     "CompatibleTag": "ANY",
-    "BaseCost": 100,
-    "CostCurve": 1.4,
+    "BaseCost": 70,
+    "CostCurve": 1.45,
     "Stats": [
         {
             "Id": "BloodlustBonusPerStack",
             "DisplayName": "Bonus per Stack",
             "Type": "Flat",
             "Values": {
-                "1": 0.10,
-                "2": 0.12,
-                "3": 0.15,
-                "4": 0.18,
-                "5": 0.22
+                "1": 0.06,
+                "2": 0.08,
+                "3": 0.11,
+                "4": 0.14,
+                "5": 0.18
             }
         },
         {
@@ -27,17 +27,17 @@
                 "1": 3.0,
                 "2": 4.0,
                 "3": 5.0,
-                "4": 5.0,
-                "5": 5.0
+                "4": 6.0,
+                "5": 7.0
             }
         },
         {
             "Id": "BloodlustResetTime",
-            "DisplayName": "Reset Time",
+            "DisplayName": "Reset Time (s)",
             "Type": "Flat",
             "Values": {
-                "1": 5.0,
-                "2": 5.0,
+                "1": 4.0,
+                "2": 4.5,
                 "3": 5.0,
                 "4": 6.0,
                 "5": 7.0

@@ -4,19 +4,19 @@
     "Description": "Steal life when an enemy dies.",
     "Icon": "CharacterPanelStatIconDamage.png",
     "CompatibleTag": "MELEE",
-    "BaseCost": 100,
-    "CostCurve": 1.4,
+    "BaseCost": 85,
+    "CostCurve": 1.45,
     "Stats": [
         {
             "Id": "HealthRegen",
-            "DisplayName": "Health Regen",
+            "DisplayName": "% Max Health Healed",
             "Type": "Curve",
             "Values": {
-                "1": 0.05,
-                "2": 0.08,
-                "3": 0.12,
-                "4": 0.18,
-                "5": 0.25
+                "1": 0.015,
+                "2": 0.025,
+                "3": 0.040,
+                "4": 0.060,
+                "5": 0.085
             }
         }
     ]

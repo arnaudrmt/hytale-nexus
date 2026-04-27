@@ -25,7 +25,7 @@ public final class WeaponAbilityGuard {
             if (chain.interactionType != InteractionType.Primary
                 && chain.interactionType != InteractionType.Secondary) continue;
 
-            if (chain.activeHotbarSlot != 0) return true;
+            //if (chain.activeHotbarSlot != 0) return true;
         }
 
         return false;

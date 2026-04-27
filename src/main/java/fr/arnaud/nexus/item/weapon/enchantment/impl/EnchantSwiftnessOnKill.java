@@ -1,5 +1,8 @@
 package fr.arnaud.nexus.item.weapon.enchantment.impl;
 
+import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
@@ -8,10 +11,18 @@ import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
 import fr.arnaud.nexus.item.weapon.enchantment.event.EnchantEffectHandler;
 import fr.arnaud.nexus.item.weapon.enchantment.event.NexusEnchantEvent;
 
+import java.util.Map;
+import java.util.concurrent.*;
+
 public final class EnchantSwiftnessOnKill implements EnchantEffectHandler {
 
     public static final EnchantSwiftnessOnKill INSTANCE = new EnchantSwiftnessOnKill();
     private static final String ENCHANT_ID = "Enchant_SwiftnessOnKill";
+
+    private final Map<Ref<EntityStore>, ScheduledFuture<?>> pendingRemovals = new ConcurrentHashMap<>();
+    private final Map<Ref<EntityStore>, Float> activeBonuses = new ConcurrentHashMap<>();
+    private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
+
 
     private EnchantSwiftnessOnKill() {
     }
@@ -31,23 +42,38 @@ public final class EnchantSwiftnessOnKill implements EnchantEffectHandler {
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;
 
-        psm.addMovementSpeed(event.attacker(), event.store(), speedBonus);
+        Ref<EntityStore> attackerRef = event.attacker();
+        Store<EntityStore> store = event.store();
 
-        // TODO: replace with correct delayed execution API once confirmed.
-        // Need: world.executeAfter(Runnable, durationSeconds) or equivalent.
-        // For now, schedule via a thread sleep as temporary workaround — REPLACE THIS.
-        final var attackerRef = event.attacker();
-        final var store = event.store();
-        Thread.ofVirtual().start(() -> {
-            try {
-                Thread.sleep((long) (duration * 1000));
-            } catch (InterruptedException ignored) {
-            }
-            store.getExternalData().getWorld().execute(() -> {
-                if (attackerRef.isValid()) {
-                    psm.addMovementSpeed(attackerRef, attackerRef.getStore(), -speedBonus);
-                }
-            });
-        });
+        // Cancel pending reversal — we'll re-apply a fresh full duration below
+        ScheduledFuture<?> existing = pendingRemovals.remove(attackerRef);
+        if (existing != null) {
+            existing.cancel(false);
+            // Don't touch the stat yet — we're about to reset it cleanly
+        } else {
+            // No active bonus running, apply fresh
+            activeBonuses.put(attackerRef, 0f);
+        }
+
+        float currentBonus = activeBonuses.getOrDefault(attackerRef, 0f);
+
+        // Bring stat to zero before re-applying the new target bonus
+        if (currentBonus > 0f) {
+            psm.addMovementSpeed(attackerRef, store, -currentBonus);
+        }
+        psm.addMovementSpeed(attackerRef, store, speedBonus);
+        activeBonuses.put(attackerRef, speedBonus);
+
+        ScheduledFuture<?> future = SCHEDULER.schedule(() ->
+                store.getExternalData().getWorld().execute(() -> {
+                    if (!attackerRef.isValid()) return;
+                    float bonus = activeBonuses.remove(attackerRef);
+                    pendingRemovals.remove(attackerRef);
+                    psm.addMovementSpeed(attackerRef, store, -bonus);
+                }),
+            (long) (duration * 1000), TimeUnit.MILLISECONDS
+        );
+
+        pendingRemovals.put(attackerRef, future);
     }
 }

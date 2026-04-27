@@ -37,7 +37,6 @@ public final class OcclusionCleanupSystem extends RefSystem<EntityStore> {
         for (long packed : occlusion.getReplacedPositions()) {
             int[] c = PlayerOcclusionComponent.unpack(packed);
             WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(c[0], c[2]));
-            System.out.println("restore [" + c[0] + "," + c[1] + "," + c[2] + "] chunk=" + (chunk == null ? "NULL" : "OK"));
             restoreBlock(world, c[0], c[1], c[2],
                 occlusion.getOriginalBlockId(c[0], c[1], c[2]),
                 occlusion.getOriginalRotation(c[0], c[1], c[2]),

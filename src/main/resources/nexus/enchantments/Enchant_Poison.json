@@ -4,20 +4,32 @@
     "Description": "Poisons enemies on hit.",
     "Icon": "CharacterPanelStatIconHealth.png",
     "CompatibleTag": "ANY",
-    "BaseCost": 90,
-    "CostCurve": 1.35,
+    "BaseCost": 55,
+    "CostCurve": 1.38,
     "Stats": [
         {
             "Id": "PoisonDuration",
-            "DisplayName": "Poison Duration",
+            "DisplayName": "Poison Duration (s)",
             "Type": "Flat",
-            "Values": { "1": 3.0, "2": 4.0, "3": 5.5, "4": 7.0, "5": 9.0 }
+            "Values": {
+                "1": 2.5,
+                "2": 3.5,
+                "3": 5.0,
+                "4": 6.5,
+                "5": 8.5
+            }
         },
         {
-            "Id": "PoisonDamage",
-            "DisplayName": "Poison Damage",
+            "Id": "PoisonDamagePerSecond",
+            "DisplayName": "Damage per Second",
             "Type": "Flat",
-            "Values": { "1": 2.0, "2": 4.0, "3": 7.0, "4": 11.0, "5": 16.0 }
+            "Values": {
+                "1": 2.5,
+                "2": 4.0,
+                "3": 6.0,
+                "4": 9.0,
+                "5": 13.0
+            }
         }
     ]
 }

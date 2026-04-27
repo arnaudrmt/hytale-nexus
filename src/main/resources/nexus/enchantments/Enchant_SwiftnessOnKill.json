@@ -4,20 +4,32 @@
     "Description": "Gain a speed burst after killing an enemy.",
     "Icon": "CharacterPanelStatIconStamina.png",
     "CompatibleTag": "ANY",
-    "BaseCost": 80,
-    "CostCurve": 1.3,
+    "BaseCost": 55,
+    "CostCurve": 1.38,
     "Stats": [
         {
             "Id": "PredatorSpeedBonus",
             "DisplayName": "Speed Bonus",
             "Type": "Flat",
-            "Values": { "1": 2.0, "2": 2.8, "3": 3.5, "4": 4.2, "5": 5.0 }
+            "Values": {
+                "1": 1.2,
+                "2": 1.8,
+                "3": 2.4,
+                "4": 3.0,
+                "5": 3.8
+            }
         },
         {
             "Id": "PredatorDuration",
-            "DisplayName": "Duration",
+            "DisplayName": "Duration (s)",
             "Type": "Flat",
-            "Values": { "1": 1.0, "2": 1.5, "3": 2.0, "4": 2.5, "5": 3.0 }
+            "Values": {
+                "1": 1.5,
+                "2": 2.0,
+                "3": 2.5,
+                "4": 3.0,
+                "5": 4.0
+            }
         }
     ]
 }

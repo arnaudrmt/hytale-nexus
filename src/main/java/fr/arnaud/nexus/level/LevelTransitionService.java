@@ -2,11 +2,15 @@ package fr.arnaud.nexus.level;
 
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
+import com.hypixel.hytale.component.RemoveReason;
+import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.modules.entity.player.ChunkTracker;
 import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
+import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.EventTitleUtil;
@@ -14,6 +18,7 @@ import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.event.RunCompletedEvent;
+import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
@@ -73,15 +78,40 @@ public final class LevelTransitionService {
 
         updateCheckpoint(playerRef, cmd, spawn);
 
-        CompletableFuture<Void> onTeleportComplete = new CompletableFuture<>();
-        onTeleportComplete.thenRun(() -> world.execute(() -> {
+        // Unload all level 1 chunks from the client before teleporting.
+        // This resets sentViewRadius to 0, forcing ChunkTracker.tick to reload
+        // chunks centered on the level 2 spawn — which puts spawner chunks
+        // inside the hot radius and assigns ChunkFlag.TICKING.
+        cmd.run(s -> {
+            PlayerRef playerRefComponent = s.getComponent(playerRef, PlayerRef.getComponentType());
+            ChunkTracker chunkTracker = s.getComponent(playerRef, ChunkTracker.getComponentType());
+            if (playerRefComponent != null && chunkTracker != null) {
+                chunkTracker.unloadAll(playerRefComponent);
+            }
+        });
+
+        Teleport teleport = Teleport.createForPlayer(spawnPos,
+            new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f));
+        cmd.run(s -> s.addComponent(playerRef, Teleport.getComponentType(), teleport));
+
+        // Clear level 1 mobs, then initialize level 2 spawners.
+        world.execute(() -> {
+            Store<EntityStore> store = world.getEntityStore().getStore();
+            store.forEachChunk(
+                SpawnerTagComponent.getComponentType(),
+                (chunk, buf) -> {
+                    for (int i = 0; i < chunk.size(); i++) {
+                        Ref<EntityStore> ref = chunk.getReferenceTo(i);
+                        if (ref.isValid()) buf.removeEntity(ref, RemoveReason.REMOVE);
+                    }
+                }
+            );
+        });
+
+        world.execute(() -> {
             Nexus.get().getMobSpawnerManager().onLevelLoaded(world, nextConfig);
             showLevelTitle(nextConfig, world);
-        }));
-
-        Teleport teleport = Teleport.createForPlayer(world, spawnPos, new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f));
-        teleport.setOnComplete(onTeleportComplete);
-        cmd.run(s -> s.addComponent(playerRef, Teleport.getComponentType(), teleport));
+        });
     }
 
     private void updateCheckpoint(Ref<EntityStore> playerRef,
