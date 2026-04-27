@@ -16,6 +16,7 @@ import fr.arnaud.nexus.item.weapon.system.StatIndexResolver;
 import fr.arnaud.nexus.item.weapon.system.WeaponAbilityGuard;
 import fr.arnaud.nexus.item.weapon.system.WeaponEquipSystem;
 import fr.arnaud.nexus.level.LevelManager;
+import fr.arnaud.nexus.level.NewRunService;
 import fr.arnaud.nexus.level.NexusWorldLoadSystem;
 import fr.arnaud.nexus.spawner.ChestManager;
 import fr.arnaud.nexus.spawner.MobSpawnerManager;
@@ -65,6 +66,8 @@ public final class Nexus extends JavaPlugin {
     private final WaveBarSystem waveBarSystem = new WaveBarSystem();
 
     private final WeaponAbilityGuard weaponAbilityGuard = new WeaponAbilityGuard();
+
+    private final NewRunService newRunService = new NewRunService();
 
     public Nexus(@NonNullDecl JavaPluginInit init) {
         super(init);
@@ -179,5 +182,9 @@ public final class Nexus extends JavaPlugin {
 
     public WeaponAbilityGuard getWeaponAbilityGuard() {
         return weaponAbilityGuard;
+    }
+
+    public NewRunService getNewRunService() {
+        return newRunService;
     }
 }

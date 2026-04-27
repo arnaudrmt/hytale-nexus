@@ -2,7 +2,7 @@ welcome.title=Welcome to Nexus
 welcome.body=Let's walk you through the basics. Follow each instruction to proceed.
 
 weapon_swap.title=Weapon Switch
-weapon_swap.body=Press [E] (Ability 2 Key) to switch between your melee and ranged weapon. Try it now! If it does not work, scroll away and back to the slot.
+weapon_swap.body=Press [E] (Ability 2 Key) to switch between your melee and ranged weapon. Try it now!\nIf it does not work, scroll away and back to the slot.
 
 open_inventory.title=Inventory
 open_inventory.body=Press [TAB] to open your inventory. Let's explore it together!

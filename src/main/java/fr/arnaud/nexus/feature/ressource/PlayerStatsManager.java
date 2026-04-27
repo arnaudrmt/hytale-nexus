@@ -240,4 +240,12 @@ public final class PlayerStatsManager {
     private EntityStatMap getStats(Ref<EntityStore> ref, Store<EntityStore> store) {
         return store.getComponent(ref, EntityStatMap.getComponentType());
     }
+
+    public int getHealthIndex() {
+        return healthIndex;
+    }
+
+    public int getStaminaIndex() {
+        return staminaIndex;
+    }
 }

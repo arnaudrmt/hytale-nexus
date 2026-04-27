@@ -12,6 +12,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.events.StartWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.EventTitleUtil;
+import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.core.Nexus;
 
 import java.time.Instant;
@@ -58,7 +59,7 @@ public final class NexusWorldLoadSystem {
                                             return null;
                                         });
         } else {
-            Transform returnPoint = new Transform(new Vector3d(0.5, 80.0, 0.5), Vector3f.FORWARD);
+            Transform returnPoint = new Transform(new Vector3d(0.5, 80.0, 0.5), new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f));
             pendingNexusWorld = InstancesPlugin.get()
                                                .spawnInstance(NEXUS_INSTANCE_TEMPLATE, NEXUS_WORLD_KEY, world, returnPoint)
                                                .thenApply(w -> {

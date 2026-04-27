@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.modules.entity.component.TransformComponen
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
+import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.camera.PlayerCameraComponent;
 import fr.arnaud.nexus.camera.PlayerOcclusionComponent;
 import fr.arnaud.nexus.component.RunSessionComponent;
@@ -58,7 +59,7 @@ public final class PlayerSessionListener {
         TransformComponent transform = store.getComponent(ref, TransformComponent.getComponentType());
         Transform returnLocation = transform != null
             ? new Transform(transform.getPosition().clone(), transform.getRotation().clone())
-            : new Transform(new Vector3d(0.5, 80.0, 0.5), Vector3f.FORWARD);
+            : new Transform(new Vector3d(0.5, 80.0, 0.5), new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f));
 
         pending.thenAccept(nexusWorld -> {
             if (nexusWorld == null) return;

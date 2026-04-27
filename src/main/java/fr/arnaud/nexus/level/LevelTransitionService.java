@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.EventTitleUtil;
+import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.event.RunCompletedEvent;
@@ -59,10 +60,10 @@ public final class LevelTransitionService {
         RunCompletedEvent.dispatch(playerRef, session.clone());
     }
 
-    private void loadNextLevel(@NonNullDecl Ref<EntityStore> playerRef,
-                               @NonNullDecl CommandBuffer<EntityStore> cmd,
-                               @NonNullDecl World world,
-                               @NonNullDecl String nextLevelId) {
+    private void loadNextLevel(Ref<EntityStore> playerRef,
+                               CommandBuffer<EntityStore> cmd,
+                               World world,
+                               String nextLevelId) {
         boolean loaded = levelManager.loadLevel(nextLevelId);
         if (!loaded) return;
 
@@ -70,23 +71,28 @@ public final class LevelTransitionService {
         LevelConfig.Position spawn = nextConfig.getSpawnPoint();
         Vector3d spawnPos = new Vector3d(spawn.getX(), spawn.getY(), spawn.getZ());
 
-        Nexus.get().getMobSpawnerManager().onLevelLoaded(world, nextConfig);
+        updateCheckpoint(playerRef, cmd, spawn);
 
+        CompletableFuture<Void> onTeleportComplete = new CompletableFuture<>();
+        onTeleportComplete.thenRun(() -> world.execute(() -> {
+            Nexus.get().getMobSpawnerManager().onLevelLoaded(world, nextConfig);
+            showLevelTitle(nextConfig, world);
+        }));
+
+        Teleport teleport = Teleport.createForPlayer(world, spawnPos, new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f));
+        teleport.setOnComplete(onTeleportComplete);
+        cmd.run(s -> s.addComponent(playerRef, Teleport.getComponentType(), teleport));
+    }
+
+    private void updateCheckpoint(Ref<EntityStore> playerRef,
+                                  CommandBuffer<EntityStore> cmd,
+                                  LevelConfig.Position spawn) {
         LevelProgressComponent progress = cmd.getComponent(playerRef, LevelProgressComponent.getComponentType());
-        if (progress != null) {
-            progress.checkpointX = (float) spawn.getX();
-            progress.checkpointY = (float) spawn.getY();
-            progress.checkpointZ = (float) spawn.getZ();
-            cmd.run(s -> s.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress));
-        }
-
-        showLoadingTitle(world);
-        preloadLevelChunks(nextConfig, world)
-            .thenRun(() -> world.execute(() -> {
-                cmd.run(s -> s.addComponent(playerRef, Teleport.getComponentType(),
-                    Teleport.createForPlayer(spawnPos, Vector3f.FORWARD)));
-                showLevelTitle(nextConfig, world);
-            }));
+        if (progress == null) return;
+        progress.checkpointX = (float) spawn.getX();
+        progress.checkpointY = (float) spawn.getY();
+        progress.checkpointZ = (float) spawn.getZ();
+        cmd.run(s -> s.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress));
     }
 
     private CompletableFuture<Void> preloadLevelChunks(LevelConfig config, World world) {
@@ -108,14 +114,6 @@ public final class LevelTransitionService {
     private CompletableFuture<?> loadChunkAt(double x, double z, World world) {
         long chunkIndex = ChunkUtil.indexChunkFromBlock((int) x, (int) z);
         return world.getChunkStore().getChunkReferenceAsync(chunkIndex, 4);
-    }
-
-    private void showLoadingTitle(@NonNullDecl World world) {
-        world.execute(() -> {
-            var store = world.getEntityStore().getStore();
-            Message msg = Message.translation("nexus.level.loading");
-            EventTitleUtil.showEventTitleToWorld(msg, Message.translation("nexus.level.loading.subtitle"), true, null, 0f, 99f, 0f, store);
-        });
     }
 
     private void showLevelTitle(@NonNullDecl LevelConfig config, @NonNullDecl World world) {

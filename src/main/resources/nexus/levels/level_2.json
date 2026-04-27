@@ -3,12 +3,12 @@
     "name": "The Weird Mesa",
     "difficulty": 1.0,
     "spawnPoint": {
-        "x": 2000.5,
+        "x": 1000.5,
         "y": 80.0,
         "z": 0.5
     },
     "finishPoint": {
-        "x": 3047.5,
+        "x": 1047.5,
         "y": 61.0,
         "z": -81.5
     },
@@ -16,7 +16,7 @@
         {
             "_comment": "S1 — Opener, Outlander_Unsworn + Wolf_Black",
             "position": {
-                "x": 2026.0,
+                "x": 1026.0,
                 "y": 79.0,
                 "z": -8.0
             },
@@ -38,7 +38,7 @@
             ],
             "mobs": [
                 {
-                    "mobId": "Outlander_Unsworn",
+                    "mobId": "Outlander_Marauder",
                     "minCount": 3,
                     "maxCount": 4,
                     "spawnRate": 1.0,
@@ -80,7 +80,7 @@
         {
             "_comment": "S2 — Outlander_Initiate + Outlander_Berserker",
             "position": {
-                "x": 2087.0,
+                "x": 1087.0,
                 "y": 80.0,
                 "z": -51.0
             },
@@ -147,7 +147,7 @@
         {
             "_comment": "S3 — Outlander_Hunter pack + Wraith intro",
             "position": {
-                "x": 2170.0,
+                "x": 1170.0,
                 "y": 80.0,
                 "z": -46.0
             },
@@ -215,7 +215,7 @@
         {
             "_comment": "S4 — Outlander_Marauder + Hound_Bleached pack",
             "position": {
-                "x": 2196.0,
+                "x": 1196.0,
                 "y": 80.0,
                 "z": -18.0
             },
@@ -282,7 +282,7 @@
         {
             "_comment": "S5 — Outlander_Stalker + Outlander_Sorcerer",
             "position": {
-                "x": 2246.0,
+                "x": 1246.0,
                 "y": 80.0,
                 "z": -2.0
             },
@@ -349,7 +349,7 @@
         {
             "_comment": "S6 — Outlander_Brute + Shadow_Knight intro",
             "position": {
-                "x": 2256.0,
+                "x": 1256.0,
                 "y": 80.0,
                 "z": -64.0
             },
@@ -417,7 +417,7 @@
         {
             "_comment": "S7 — Outlander_Priest + Outlander_Berserker, large radius",
             "position": {
-                "x": 2308.0,
+                "x": 1308.0,
                 "y": 79.0,
                 "z": -94.0
             },
@@ -498,7 +498,7 @@
         {
             "_comment": "S8 — Shadow_Knight + Wraith + Hound_Bleached, large radius",
             "position": {
-                "x": 2385.0,
+                "x": 1385.0,
                 "y": 80.0,
                 "z": -120.0
             },
@@ -565,7 +565,7 @@
         {
             "_comment": "S9 — Outlander_Brute + Outlander_Sorcerer + Wraith, large radius",
             "position": {
-                "x": 2413.0,
+                "x": 1413.0,
                 "y": 83.0,
                 "z": -69.0
             },
@@ -647,7 +647,7 @@
         {
             "_comment": "S10 — Sand. Zombie_Sand + Skeleton_Sand_Scout intro, large radius",
             "position": {
-                "x": 2579.0,
+                "x": 1579.0,
                 "y": 70.0,
                 "z": -69.0
             },
@@ -728,7 +728,7 @@
         {
             "_comment": "S11 — Dungeon_Skeleton_Sand_Archer + Skeleton_Sand_Ranger, large radius",
             "position": {
-                "x": 2619.0,
+                "x": 1619.0,
                 "y": 70.0,
                 "z": -82.0
             },
@@ -795,7 +795,7 @@
         {
             "_comment": "S12 — Huge arena. Golem_Crystal_Sand boss gauntlet, loot Nexus_Melee_Daggers_Mithril 100 percent chance",
             "position": {
-                "x": 2674.0,
+                "x": 1674.0,
                 "y": 70.0,
                 "z": -80.0
             },
@@ -896,7 +896,7 @@
         {
             "_comment": "S13 — Skeleton_Sand_Guard + Zombie_Sand wave",
             "position": {
-                "x": 2692.0,
+                "x": 1692.0,
                 "y": 70.0,
                 "z": -44.0
             },
@@ -963,7 +963,7 @@
         {
             "_comment": "S14 — Skeleton_Sand_Assassin + Skeleton_Sand_Ranger",
             "position": {
-                "x": 2778.0,
+                "x": 1778.0,
                 "y": 67.0,
                 "z": -59.0
             },
@@ -1030,7 +1030,7 @@
         {
             "_comment": "S15 — Skeleton_Sand_Mage + Skeleton_Sand_Guard",
             "position": {
-                "x": 2807.0,
+                "x": 1807.0,
                 "y": 67.0,
                 "z": -51.0
             },
@@ -1097,7 +1097,7 @@
         {
             "_comment": "S16 — Golem_Crystal_Sand + Skeleton_Sand_Assassin, large radius",
             "position": {
-                "x": 2787.0,
+                "x": 1787.0,
                 "y": 67.0,
                 "z": -110.0
             },
@@ -1165,7 +1165,7 @@
         {
             "_comment": "S17 — Skeleton_Sand_Archmage + Skeleton_Sand_Guard, large radius",
             "position": {
-                "x": 2840.0,
+                "x": 1840.0,
                 "y": 70.0,
                 "z": -83.0
             },
@@ -1232,7 +1232,7 @@
         {
             "_comment": "S18 — Skeleton_Sand_Mage + Skeleton_Sand_Assassin gauntlet, large radius",
             "position": {
-                "x": 2868.0,
+                "x": 1868.0,
                 "y": 70.0,
                 "z": -26.0
             },
@@ -1314,7 +1314,7 @@
         {
             "_comment": "S19 — Golem_Crystal_Sand + Skeleton_Sand_Guard elite corridor, large radius",
             "position": {
-                "x": 2967.0,
+                "x": 1967.0,
                 "y": 69.0,
                 "z": -81.0
             },
@@ -1382,7 +1382,7 @@
         {
             "_comment": "S20 — Final corridor. Skeleton_Sand_Archmage + Skeleton_Sand_Assassin + Golem_Crystal_Sand",
             "position": {
-                "x": 3033.0,
+                "x": 2033.0,
                 "y": 60.0,
                 "z": -82.0
             },
@@ -1466,7 +1466,7 @@
         {
             "_comment": "IC 1 — Opening, strong consumables carryover from L1 endgame",
             "position": {
-                "x": 1973.0,
+                "x": 973.0,
                 "y": 80.0,
                 "z": -16.0
             },
@@ -1493,7 +1493,7 @@
         {
             "_comment": "IC 2 — Early, pies + stamina",
             "position": {
-                "x": 2070.0,
+                "x": 1070.0,
                 "y": 80.0,
                 "z": -10.0
             },
@@ -1520,7 +1520,7 @@
         {
             "_comment": "IC 3 — Early, health potions",
             "position": {
-                "x": 2147.0,
+                "x": 1147.0,
                 "y": 80.0,
                 "z": -67.0
             },
@@ -1547,7 +1547,7 @@
         {
             "_comment": "IC 4 — Mid-early, pies + signature lesser",
             "position": {
-                "x": 2212.0,
+                "x": 1212.0,
                 "y": 80.0,
                 "z": -40.0
             },
@@ -1574,7 +1574,7 @@
         {
             "_comment": "IC 5 — Mid-early, salads + stamina",
             "position": {
-                "x": 2220.0,
+                "x": 1220.0,
                 "y": 80.0,
                 "z": 13.0
             },
@@ -1601,7 +1601,7 @@
         {
             "_comment": "IC 6 — Mid, pies + signature",
             "position": {
-                "x": 2270.0,
+                "x": 1270.0,
                 "y": 83.0,
                 "z": -81.0
             },
@@ -1628,7 +1628,7 @@
         {
             "_comment": "IC 7 — Mid, large health + signature, large radius",
             "position": {
-                "x": 2357.0,
+                "x": 1357.0,
                 "y": 81.0,
                 "z": -76.0
             },
@@ -1655,7 +1655,7 @@
         {
             "_comment": "IC 8 — Mid, pies + signature",
             "position": {
-                "x": 2378.0,
+                "x": 1378.0,
                 "y": 84.0,
                 "z": -29.0
             },
@@ -1682,7 +1682,7 @@
         {
             "_comment": "IC 9 — Mid-late, large health + signature",
             "position": {
-                "x": 2448.0,
+                "x": 1448.0,
                 "y": 80.0,
                 "z": -72.0
             },
@@ -1709,7 +1709,7 @@
         {
             "_comment": "IC 10 — Pre-sand, last forest chest",
             "position": {
-                "x": 2522.0,
+                "x": 1522.0,
                 "y": 75.0,
                 "z": -83.0
             },
@@ -1736,7 +1736,7 @@
         {
             "_comment": "IC 11 — Sand zone, large health + greater signature",
             "position": {
-                "x": 2603.0,
+                "x": 1603.0,
                 "y": 71.0,
                 "z": -108.0
             },
@@ -1763,7 +1763,7 @@
         {
             "_comment": "IC 12 — Post-arena recovery",
             "position": {
-                "x": 2643.0,
+                "x": 1643.0,
                 "y": 70.0,
                 "z": -76.0
             },
@@ -1790,7 +1790,7 @@
         {
             "_comment": "IC 13 — Deep sand, best potions",
             "position": {
-                "x": 2689.0,
+                "x": 1689.0,
                 "y": 70.0,
                 "z": -113.0
             },
@@ -1817,7 +1817,7 @@
         {
             "_comment": "IC 14 — Mid-endgame, signature greater",
             "position": {
-                "x": 2731.0,
+                "x": 1731.0,
                 "y": 70.0,
                 "z": -75.0
             },
@@ -1844,7 +1844,7 @@
         {
             "_comment": "IC 15 — Late, best consumables",
             "position": {
-                "x": 2775.0,
+                "x": 1775.0,
                 "y": 68.0,
                 "z": -38.0
             },
@@ -1871,7 +1871,7 @@
         {
             "_comment": "IC 16 — Late, cliff path hidden",
             "position": {
-                "x": 2816.0,
+                "x": 1816.0,
                 "y": 68.0,
                 "z": -110.0
             },
@@ -1898,7 +1898,7 @@
         {
             "_comment": "IC 17 — Elevated path reward",
             "position": {
-                "x": 2811.0,
+                "x": 1811.0,
                 "y": 79.0,
                 "z": -94.0
             },
@@ -1925,7 +1925,7 @@
         {
             "_comment": "IC 18 — Endgame prep",
             "position": {
-                "x": 2899.0,
+                "x": 1899.0,
                 "y": 70.0,
                 "z": -108.0
             },
@@ -1952,7 +1952,7 @@
         {
             "_comment": "IC 19 — Pre-final corridor",
             "position": {
-                "x": 2974.0,
+                "x": 1974.0,
                 "y": 70.0,
                 "z": -55.0
             },
@@ -1979,7 +1979,7 @@
         {
             "_comment": "IC 20 — Final, best-of-best before finish",
             "position": {
-                "x": 3015.0,
+                "x": 2015.0,
                 "y": 71.0,
                 "z": -57.0
             },

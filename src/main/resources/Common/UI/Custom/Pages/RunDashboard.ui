@@ -122,8 +122,8 @@ Group {
                 Anchor: (Top: 14);
 
                 $Common.@TextButton #CloseButton {
-                    @Anchor = (Width: 160, Height: 15);
-                    @Text = "CLOSE";
+                    @Anchor = (Width: 180, Height: 15, Bottom: 0);
+                    @Text = "START NEW RUN";
                 }
             }
         }
