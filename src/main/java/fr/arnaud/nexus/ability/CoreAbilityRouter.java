@@ -10,11 +10,6 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Routes an activation request to whichever Core ability the player has equipped.
- * Owned by {@link fr.arnaud.nexus.input.PlayerInputListener} — replaces the direct
- * {@link fr.arnaud.nexus.feature.movement.PlayerDashSystem} reference.
- */
 public final class CoreAbilityRouter {
 
     private static final Logger LOGGER = Logger.getLogger(CoreAbilityRouter.class.getName());
@@ -25,10 +20,6 @@ public final class CoreAbilityRouter {
         this.dashAbility = dashAbility;
     }
 
-    /**
-     * Reads the player's equipped Core and delegates to the matching ability.
-     * No-ops silently if the slot is empty or the Core has no input-driven activation.
-     */
     public void tryActivate(@NonNullDecl Player player,
                             @NonNullDecl Ref<EntityStore> ref,
                             @NonNullDecl Store<EntityStore> store) {

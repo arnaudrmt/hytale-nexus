@@ -5,7 +5,7 @@ import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
 import fr.arnaud.nexus.item.weapon.enchantment.event.EnchantEffectHandler;
 import fr.arnaud.nexus.item.weapon.enchantment.event.NexusEnchantEvent;
-import fr.arnaud.nexus.item.weapon.enchantment.handlers.EnchantmentSpatialUtil;
+import fr.arnaud.nexus.util.KnockbackUtil;
 
 public final class EnchantKnockback implements EnchantEffectHandler {
 
@@ -20,11 +20,11 @@ public final class EnchantKnockback implements EnchantEffectHandler {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition stat = def.getStat("KnockbackForce");
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById("KnockbackForce");
         if (stat == null) return;
 
-        float force = (float) stat.getValue(enchantLevel);
-        EnchantmentSpatialUtil.applyRadialImpulse(
+        float force = (float) stat.getStatValueForLevel(enchantLevel);
+        KnockbackUtil.applyRadialKnockbackImpulse(
             event.attacker(), event.target(), force, event.cmd());
     }
 }

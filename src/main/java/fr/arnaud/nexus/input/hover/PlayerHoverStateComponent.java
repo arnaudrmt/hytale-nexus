@@ -8,21 +8,14 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
 
-/**
- * Tracks the last target for which a hover highlight packet was sent.
- * <p>
- * Used to diff against the current frame's resolved target so that packets
- * are only dispatched when the highlighted target actually changes — preventing
- * per-frame packet spam on {@code PlayerMouseMotionEvent}.
- * <p>
- * Exactly one of {@code highlightedBlock} or {@code highlightedEntityId} is set
- * at any time; never both. A fully cleared state means no highlight is active.
- */
 public final class PlayerHoverStateComponent implements Component<EntityStore> {
 
     @Nullable
     private Vector3i highlightedBlock;
     private int highlightedEntityId = -1;
+
+    @Nullable
+    private static ComponentType<EntityStore, PlayerHoverStateComponent> componentType;
 
     public PlayerHoverStateComponent() {
     }
@@ -53,11 +46,6 @@ public final class PlayerHoverStateComponent implements Component<EntityStore> {
     public boolean isEmpty() {
         return highlightedBlock == null && highlightedEntityId == -1;
     }
-
-    // ── ECS boilerplate ──────────────────────────────────────────────────────
-
-    @Nullable
-    private static ComponentType<EntityStore, PlayerHoverStateComponent> componentType;
 
     @NonNullDecl
     public static ComponentType<EntityStore, PlayerHoverStateComponent> getComponentType() {

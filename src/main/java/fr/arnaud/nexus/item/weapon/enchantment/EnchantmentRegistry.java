@@ -14,16 +14,19 @@ public final class EnchantmentRegistry {
 
     private static final EnchantmentRegistry INSTANCE = new EnchantmentRegistry();
 
-    private static final String ENCHANTMENTS_PATH  = "/nexus/enchantments/";
+    private static final String ENCHANTMENTS_PATH = "/nexus/enchantments/";
     private static final String ENCHANTMENTS_INDEX = ENCHANTMENTS_PATH + "index.json";
 
     private final Map<String, EnchantmentDefinition> definitionsById = new HashMap<>();
 
-    private EnchantmentRegistry() {}
+    private EnchantmentRegistry() {
+    }
 
-    public static EnchantmentRegistry get() { return INSTANCE; }
+    public static EnchantmentRegistry get() {
+        return INSTANCE;
+    }
 
-    public void loadAll() {
+    public void loadAllEnchantments() {
         definitionsById.clear();
         for (String fileName : readIndex()) {
             loadFile(ENCHANTMENTS_PATH + fileName);
@@ -31,8 +34,6 @@ public final class EnchantmentRegistry {
         Nexus.get().getLogger().at(Level.INFO)
              .log("Loaded " + definitionsById.size() + " enchantment definitions.");
     }
-
-    // ── index.json ────────────────────────────────────────────────────────────
 
     private List<String> readIndex() {
         try (InputStream is = Nexus.class.getResourceAsStream(ENCHANTMENTS_INDEX)) {
@@ -55,8 +56,6 @@ public final class EnchantmentRegistry {
         }
     }
 
-    // ── individual file ───────────────────────────────────────────────────────
-
     private void loadFile(String path) {
         try (InputStream is = Nexus.class.getResourceAsStream(path)) {
             if (is == null) {
@@ -73,16 +72,14 @@ public final class EnchantmentRegistry {
         }
     }
 
-    // ── parser ────────────────────────────────────────────────────────────────
-
     private EnchantmentDefinition parse(BsonDocument doc) {
-        String id          = doc.getString("Id").getValue();
-        String name        = doc.getString("Name").getValue();
+        String id = doc.getString("Id").getValue();
+        String name = doc.getString("Name").getValue();
         String description = doc.getString("Description").getValue();
-        String icon        = doc.getString("Icon").getValue();
-        WeaponTag tag      = parseTag(doc.getString("CompatibleTag").getValue());
-        int baseCost       = doc.getInt32("BaseCost").getValue();
-        double costCurve   = doc.getNumber("CostCurve").doubleValue();
+        String icon = doc.getString("Icon").getValue();
+        WeaponTag tag = parseTag(doc.getString("CompatibleTag").getValue());
+        int baseCost = doc.getInt32("BaseCost").getValue();
+        double costCurve = doc.getNumber("CostCurve").doubleValue();
 
         List<EnchantmentStatDefinition> stats = new ArrayList<>();
         int maxLevel = 0;
@@ -90,9 +87,9 @@ public final class EnchantmentRegistry {
         for (BsonValue entry : doc.getArray("Stats")) {
             BsonDocument statDoc = entry.asDocument();
 
-            String statId      = statDoc.getString("Id").getValue();
+            String statId = statDoc.getString("Id").getValue();
             String displayName = statDoc.getString("DisplayName").getValue();
-            String typeRaw     = statDoc.getString("Type").getValue();
+            String typeRaw = statDoc.getString("Type").getValue();
             EnchantmentStatDefinition.StatType statType =
                 "Curve".equalsIgnoreCase(typeRaw)
                     ? EnchantmentStatDefinition.StatType.CURVE
@@ -121,8 +118,6 @@ public final class EnchantmentRegistry {
             return WeaponTag.ANY;
         }
     }
-
-    // ── lookup ────────────────────────────────────────────────────────────────
 
     public EnchantmentDefinition getDefinition(String id) {
         return definitionsById.get(id);

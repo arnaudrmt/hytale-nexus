@@ -51,10 +51,6 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         cmd.run(s -> s.putComponent(ref, PlayerWeaponStateComponent.getComponentType(), state));
 
         placeWeaponInSlot(ref, "Nexus_Melee_Sword_Default", state.meleeDocument, store);
-        equipSystem.onWeaponEquipped(
-            ref,
-            new ItemStack("Nexus_Melee_Sword_Default", 1, state.meleeDocument),
-            store);
     }
 
     @Override
@@ -79,10 +75,6 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         String archetypeId = activeDoc.getString("archetype_id").getValue();
 
         placeWeaponInSlot(ref, archetypeId, activeDoc, store);
-        equipSystem.onWeaponEquipped(
-            ref,
-            new ItemStack(archetypeId, 1, activeDoc),
-            store);
     }
 
     private BsonDocument generateDefaultWeapon(String archetypeId) {

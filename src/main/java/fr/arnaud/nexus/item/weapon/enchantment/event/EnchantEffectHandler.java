@@ -1,6 +1,7 @@
 package fr.arnaud.nexus.item.weapon.enchantment.event;
 
 public interface EnchantEffectHandler {
+    
     default void onHit(NexusEnchantEvent event, int enchantLevel) {
     }
 

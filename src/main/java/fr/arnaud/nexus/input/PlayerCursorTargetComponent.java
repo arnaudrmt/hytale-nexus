@@ -9,13 +9,6 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
 
-/**
- * Stores the last cursor target resolved from a {@link com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent}.
- * <p>
- * Either {@code targetEntity} or {@code targetBlock} will be set, never both.
- * Entity targets take priority when an entity is under the cursor.
- * Consumers must check {@link #hasEntityTarget()} before reading entity data.
- */
 public final class PlayerCursorTargetComponent implements Component<EntityStore> {
 
     @Nullable
@@ -23,6 +16,9 @@ public final class PlayerCursorTargetComponent implements Component<EntityStore>
     @Nullable
     private Vector3i targetBlock;
     private long resolvedAtClientTime;
+
+    @Nullable
+    private static ComponentType<EntityStore, PlayerCursorTargetComponent> componentType;
 
     public PlayerCursorTargetComponent() {
     }
@@ -57,8 +53,6 @@ public final class PlayerCursorTargetComponent implements Component<EntityStore>
         return targetEntity == null && targetBlock == null;
     }
 
-    // --- Getters ---
-
     @Nullable
     public Entity getTargetEntity() {
         return targetEntity;
@@ -72,11 +66,6 @@ public final class PlayerCursorTargetComponent implements Component<EntityStore>
     public long getResolvedAtClientTime() {
         return resolvedAtClientTime;
     }
-
-    // --- ECS Boilerplate ---
-
-    @Nullable
-    private static ComponentType<EntityStore, PlayerCursorTargetComponent> componentType;
 
     @NonNullDecl
     public static ComponentType<EntityStore, PlayerCursorTargetComponent> getComponentType() {

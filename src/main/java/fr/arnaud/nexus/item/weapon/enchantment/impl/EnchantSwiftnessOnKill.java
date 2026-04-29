@@ -4,7 +4,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
@@ -32,12 +32,12 @@ public final class EnchantSwiftnessOnKill implements EnchantEffectHandler {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition speedStat = def.getStat("PredatorSpeedBonus");
-        EnchantmentStatDefinition durationStat = def.getStat("PredatorDuration");
+        EnchantmentStatDefinition speedStat = def.getEnchantmentStatById("PredatorSpeedBonus");
+        EnchantmentStatDefinition durationStat = def.getEnchantmentStatById("PredatorDuration");
         if (speedStat == null || durationStat == null) return;
 
-        float speedBonus = (float) speedStat.getValue(enchantLevel);
-        float duration = (float) durationStat.getValue(enchantLevel);
+        float speedBonus = (float) speedStat.getStatValueForLevel(enchantLevel);
+        float duration = (float) durationStat.getStatValueForLevel(enchantLevel);
 
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;

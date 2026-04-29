@@ -26,9 +26,6 @@ public final class QualityMapper {
     private QualityMapper() {
     }
 
-    /**
-     * Returns the hex colour string for the given quality value.
-     */
     public static String toColor(int quality) {
         return switch (quality) {
             case 0 -> COLOR_COMMON;
@@ -40,9 +37,6 @@ public final class QualityMapper {
         };
     }
 
-    /**
-     * Returns the slot background image path for the given quality value.
-     */
     public static String toSlotImage(int quality) {
         return switch (quality) {
             case 0 -> SLOT_COMMON;
@@ -54,9 +48,6 @@ public final class QualityMapper {
         };
     }
 
-    /**
-     * Returns the name for the given quality value.
-     */
     public static String toName(int quality) {
         return switch (quality) {
             case 0 -> NAME_COMMON;
@@ -68,24 +59,14 @@ public final class QualityMapper {
         };
     }
 
-    /**
-     * Maps a weapon level to a quality tier for colour/slot purposes.
-     * Levels 1-10 → quality 0 (Common), 11-20 → quality 1 (Uncommon), etc.
-     */
     public static int levelToQuality(int level) {
         return Math.max(0, (level - 1) / 10);
     }
 
-    /**
-     * Convenience: colour for a weapon level.
-     */
     public static String levelToColor(int level) {
         return toColor(levelToQuality(level));
     }
 
-    /**
-     * Convenience: slot image for a weapon level.
-     */
     public static String levelToSlotImage(int level) {
         return toSlotImage(levelToQuality(level));
     }

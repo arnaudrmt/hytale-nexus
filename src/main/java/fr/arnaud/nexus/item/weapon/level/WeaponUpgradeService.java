@@ -3,8 +3,9 @@ package fr.arnaud.nexus.item.weapon.level;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
+import fr.arnaud.nexus.item.weapon.stats.WeaponStatCalculator;
 import org.bson.BsonDocument;
 
 public final class WeaponUpgradeService {
@@ -20,7 +21,7 @@ public final class WeaponUpgradeService {
             return UpgradeResult.failure("Essence system not initialized");
         }
 
-        float upgradeCost = WeaponConfigCalculator.calculateUpgradeCost(weaponDoc);
+        float upgradeCost = WeaponStatCalculator.calculateUpgradeCost(weaponDoc);
         float playerBalance = statsManager.getEssenceDust(playerRef, store);
 
         if (playerBalance < upgradeCost) {

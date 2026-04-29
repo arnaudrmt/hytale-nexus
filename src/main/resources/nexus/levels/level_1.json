@@ -3,6 +3,7 @@
     "name": "The Shattered Forest",
     "difficulty": 1.0,
     "nextLevelId": "level_2",
+    "instanceTemplate": "Nexus_Level_1",
     "spawnPoint": {
         "x": 0.5,
         "y": 80.0,
@@ -22,7 +23,7 @@
                 "z": 1.0
             },
             "triggerRadius": 10.0,
-            "spawnRadius": 5.0,
+            "spawnRadius": 4.0,
             "waves": [
                 {
                     "wave": 1,
@@ -70,9 +71,9 @@
         {
             "_comment": "S2 — Zombies then Skeleton_Scout, kill-gated",
             "position": {
-                "x": 83.0,
-                "y": 79.0,
-                "z": 7.0
+                "x": 82.0,
+                "y": 80.0,
+                "z": 5.0
             },
             "triggerRadius": 10.0,
             "spawnRadius": 5.0,
@@ -807,7 +808,7 @@
                         "chance": 0.55
                     },
                     {
-                        "itemId": "Nexus_Melee_Axe_Iron",
+                        "itemId": "Nexus_Melee_Battleaxe_Iron",
                         "chance": 1
                     }
                 ]

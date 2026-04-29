@@ -1,12 +1,15 @@
 package fr.arnaud.nexus.level;
 
+import com.hypixel.hytale.builtin.instances.InstancesPlugin;
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
+import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
+import com.hypixel.hytale.protocol.packets.interface_.NotificationStyle;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.modules.entity.player.ChunkTracker;
 import com.hypixel.hytale.server.core.modules.entity.teleport.Teleport;
@@ -14,6 +17,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.EventTitleUtil;
+import com.hypixel.hytale.server.core.util.NotificationUtil;
 import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
@@ -34,19 +38,20 @@ public final class LevelTransitionService {
         this.levelManager = levelManager;
     }
 
-    /**
-     * Called when the player enters the finish portal.
-     * Records the level split, then either loads the next level or fires {@link RunCompletedEvent}.
-     */
     public void onPortalEntered(@NonNullDecl Ref<EntityStore> playerRef,
                                 @NonNullDecl CommandBuffer<EntityStore> cmd,
-                                @NonNullDecl World world) {
+                                @NonNullDecl World currentWorld) {
         RunSessionComponent session = cmd.getComponent(playerRef, RunSessionComponent.getComponentType());
         if (session != null) {
             session.pauseSession();
             session.recordLevelSplit();
             cmd.run(s -> s.putComponent(playerRef, RunSessionComponent.getComponentType(), session));
         }
+
+        cmd.run(s -> {
+            LevelProgressComponent progress = new LevelProgressComponent();
+            cmd.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
+        });
 
         @Nullable String nextLevelId = levelManager.getCurrentConfig().getNextLevelId();
 
@@ -55,7 +60,53 @@ public final class LevelTransitionService {
             return;
         }
 
-        loadNextLevel(playerRef, cmd, world, nextLevelId);
+        currentWorld.execute(() -> {
+            var store = currentWorld.getEntityStore().getStore();
+            NotificationUtil.sendNotificationToWorld(
+                Message.translation("nexus.level.loading"),
+                null, null, null,
+                NotificationStyle.Default,
+                store
+            );
+        });
+        loadNextLevel(playerRef, currentWorld, nextLevelId);
+    }
+
+    private void loadNextLevel(Ref<EntityStore> playerRef,
+                               World currentWorld,
+                               String nextLevelId) {
+        NexusWorldLoadSystem worldLoadSystem = Nexus.get().getNexusWorldLoadSystem();
+
+        World preloaded = worldLoadSystem.takePreloadedWorld(nextLevelId);
+        CompletableFuture<World> nextWorldFuture = preloaded != null
+            ? CompletableFuture.completedFuture(preloaded)
+            : worldLoadSystem.spawnLevelWorld(nextLevelId, currentWorld);
+
+        nextWorldFuture.thenAccept(nextWorld -> {
+            if (nextWorld == null) return;
+
+            String levelId = nextWorld.getName().substring(
+                NexusWorldLoadSystem.LEVEL_WORLD_KEY_PREFIX.length());
+            LevelConfig nextConfig = LevelConfigLoader.loadAndParseLevelConfig(levelId);
+            if (nextConfig == null) return;
+
+            LevelConfig.Position spawn = nextConfig.getSpawnPoint();
+            Transform spawnTransform = new Transform(
+                new Vector3d(spawn.getX(), spawn.getY(), spawn.getZ()),
+                new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f)
+            );
+
+            Nexus.get().getNexusWorldLoadSystem().activateLevelWorld(nextWorld, levelId);
+
+            currentWorld.execute(() ->
+                InstancesPlugin.teleportPlayerToLoadingInstance(
+                    playerRef,
+                    playerRef.getStore(),
+                    CompletableFuture.completedFuture(nextWorld),
+                    spawnTransform
+                )
+            );
+        });
     }
 
     private void completeRun(@NonNullDecl Ref<EntityStore> playerRef,
@@ -70,8 +121,6 @@ public final class LevelTransitionService {
                                String nextLevelId) {
         boolean loaded = levelManager.loadLevel(nextLevelId);
         if (!loaded) return;
-
-        //TODO: Fix next levels' chunk loading
 
         LevelConfig nextConfig = levelManager.getCurrentConfig();
         LevelConfig.Position spawn = nextConfig.getSpawnPoint();

@@ -6,7 +6,6 @@ import com.hypixel.hytale.server.core.modules.entity.damage.*;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.component.RunSessionComponent;
-import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.enchantment.event.NexusEnchantBus;
@@ -22,8 +21,6 @@ public final class EnchantmentDamageInterceptor {
 
     private EnchantmentDamageInterceptor() {
     }
-
-    // ── ON_HIT ────────────────────────────────────────────────────────────────
 
     public static final class OnHitSystem extends DamageEventSystem {
 
@@ -63,9 +60,9 @@ public final class EnchantmentDamageInterceptor {
                 if (def == null) continue;
                 int level = slot.currentLevel();
 
-                var dmgStat = def.getStat("DamageMultiplier");
+                var dmgStat = def.getEnchantmentStatById("DamageMultiplier");
                 if (dmgStat != null) {
-                    totalMultiplier += dmgStat.getValue(level) - 1.0;
+                    totalMultiplier += dmgStat.getStatValueForLevel(level) - 1.0;
                 }
 
                 if ("Enchant_Gambler".equals(slot.chosen())) {
@@ -73,9 +70,9 @@ public final class EnchantmentDamageInterceptor {
                 }
 
                 if ("Enchant_CriticalStrike".equals(slot.chosen())) {
-                    var critStat = def.getStat("CritChance");
+                    var critStat = def.getEnchantmentStatById("CritChance");
                     if (critStat != null && ThreadLocalRandom.current().nextFloat()
-                        < (float) critStat.getValue(level)) {
+                        < (float) critStat.getStatValueForLevel(level)) {
                         totalMultiplier *= 2.0;
                     }
                 }
@@ -98,25 +95,22 @@ public final class EnchantmentDamageInterceptor {
             NexusEnchantBus.get().publish(new NexusEnchantEvent(
                 NexusEnchantEvent.Type.ON_HIT,
                 attackerRef, targetRef,
-                damage.getAmount(), store, cmd,
-                Nexus.get().getStatIndexResolver()));
+                damage.getAmount(), store, cmd));
         }
 
         private static double applyGamblerRoll(EnchantmentDefinition def,
                                                int level, double current) {
-            var doubleStat = def.getStat(EnchantGambler.STAT_DOUBLE);
-            var halveStat = def.getStat(EnchantGambler.STAT_HALVE);
+            var doubleStat = def.getEnchantmentStatById(EnchantGambler.STAT_DOUBLE);
+            var halveStat = def.getEnchantmentStatById(EnchantGambler.STAT_HALVE);
             if (doubleStat == null || halveStat == null) return current;
-            float dc = (float) doubleStat.getValue(level);
-            float hc = (float) halveStat.getValue(level);
+            float dc = (float) doubleStat.getStatValueForLevel(level);
+            float hc = (float) halveStat.getStatValueForLevel(level);
             float roll = ThreadLocalRandom.current().nextFloat();
             if (roll < dc) return current * 2.0;
             if (roll < dc + hc) return current * 0.5;
             return current;
         }
     }
-
-    // ── ON_RECEIVE_HIT ────────────────────────────────────────────────────────
 
     public static final class OnReceiveHitSystem extends DamageEventSystem {
 
@@ -153,28 +147,28 @@ public final class EnchantmentDamageInterceptor {
                 switch (slot.chosen()) {
 
                     case "Enchant_Resilience" -> {
-                        var stat = def.getStat("DamageReduction");
+                        var stat = def.getEnchantmentStatById("DamageReduction");
                         if (stat != null) {
-                            float reduction = (float) stat.getValue(level);
+                            float reduction = (float) stat.getStatValueForLevel(level);
                             damage.setAmount(damage.getAmount() * (1f - reduction));
                         }
                     }
 
                     case "Enchant_Warding" -> {
-                        var pctStat = def.getStat("WardingPercent");
-                        var capStat = def.getStat("WardingCap");
+                        var pctStat = def.getEnchantmentStatById("WardingPercent");
+                        var capStat = def.getEnchantmentStatById("WardingCap");
                         if (pctStat != null && capStat != null) {
-                            float pct = (float) pctStat.getValue(level);
-                            float cap = (float) capStat.getValue(level);
+                            float pct = (float) pctStat.getStatValueForLevel(level);
+                            float cap = (float) capStat.getStatValueForLevel(level);
                             float reduction = Math.min(damage.getAmount() * pct, cap);
                             damage.setAmount(Math.max(0f, damage.getAmount() - reduction));
                         }
                     }
 
                     case "Enchant_Fortitude" -> {
-                        var stat = def.getStat("FortitudeChance");
+                        var stat = def.getEnchantmentStatById("FortitudeChance");
                         if (stat != null) {
-                            float chance = (float) stat.getValue(level);
+                            float chance = (float) stat.getStatValueForLevel(level);
                             if (ThreadLocalRandom.current().nextFloat() < chance) {
                                 damage.setAmount(0f);
                                 damage.setCancelled(true);
@@ -184,11 +178,11 @@ public final class EnchantmentDamageInterceptor {
                     }
 
                     case "Enchant_Thorns" -> {
-                        var stat = def.getStat("ThornsPercent");
+                        var stat = def.getEnchantmentStatById("ThornsPercent");
                         if (stat != null
                             && damage.getSource() instanceof Damage.EntitySource src
                             && src.getRef().isValid()) {
-                            float reflected = damage.getAmount() * (float) stat.getValue(level);
+                            float reflected = damage.getAmount() * (float) stat.getStatValueForLevel(level);
                             Ref<EntityStore> attackerRef = src.getRef();
                             DamageCause cause = DamageCause.getAssetMap().getAsset("Physical");
                             World world = store.getExternalData().getWorld();
@@ -206,12 +200,9 @@ public final class EnchantmentDamageInterceptor {
             NexusEnchantBus.get().publish(new NexusEnchantEvent(
                 NexusEnchantEvent.Type.ON_RECEIVE_HIT,
                 defenderRef, defenderRef,
-                damage.getAmount(), store, cmd,
-                Nexus.get().getStatIndexResolver()));
+                damage.getAmount(), store, cmd));
         }
     }
-
-    // ── ON_KILL ───────────────────────────────────────────────────────────────
 
     public static final class OnKillSystem extends DeathSystems.OnDeathSystem {
 
@@ -236,8 +227,7 @@ public final class EnchantmentDamageInterceptor {
             NexusEnchantBus.get().publish(new NexusEnchantEvent(
                 NexusEnchantEvent.Type.ON_KILL,
                 killerRef, deadRef,
-                0, store, cmd,
-                Nexus.get().getStatIndexResolver()));
+                0, store, cmd));
         }
     }
 }

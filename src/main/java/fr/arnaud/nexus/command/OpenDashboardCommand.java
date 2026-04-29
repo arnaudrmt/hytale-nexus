@@ -13,6 +13,10 @@ import fr.arnaud.nexus.ui.dashboard.RunDashboardPage;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Dev command to open the run dashboard.
+ * Usage: /opendashboard
+ */
 public final class OpenDashboardCommand extends AbstractPlayerCommand {
 
     public OpenDashboardCommand() {

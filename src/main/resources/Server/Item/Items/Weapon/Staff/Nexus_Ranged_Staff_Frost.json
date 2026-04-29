@@ -14,14 +14,7 @@
     "Interactions": {
         "Primary": "Staff_Primary",
         "Secondary": "Staff_Primary",
-        "Ability2": {
-            "Interactions": [
-                {
-                    "Type": "ChangeActiveSlot",
-                    "TargetSlot": 0
-                }
-            ]
-        }
+        "Ability2": {}
     },
     "InteractionVars": {
         "Staff_Cast_Summon_Charged": {

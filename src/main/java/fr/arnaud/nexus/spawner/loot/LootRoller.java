@@ -7,12 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Resolves a {@link LootChestConfig} into a concrete list of item IDs to place in a chest.
- *
- * <p>Each item is rolled independently. If every roll fails the fallback rule guarantees
- * at least the highest-chance item so the chest is never empty.
- */
 public final class LootRoller {
 
     private LootRoller() {

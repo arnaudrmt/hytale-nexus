@@ -4,14 +4,13 @@ import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.component.query.Query;
-import com.hypixel.hytale.server.core.asset.type.gameplay.DeathConfig;
 import com.hypixel.hytale.server.core.modules.entity.damage.Damage;
 import com.hypixel.hytale.server.core.modules.entity.damage.DeathComponent;
 import com.hypixel.hytale.server.core.modules.entity.damage.DeathSystems;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
@@ -22,11 +21,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
 
-    private final Query<EntityStore> query = Query.and(SpawnerTagComponent.getComponentType());
-
     @Override
     public Query<EntityStore> getQuery() {
-        return query;
+        return SpawnerTagComponent.getComponentType();
     }
 
     @Override
@@ -35,8 +32,6 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         SpawnerTagComponent tag = store.getComponent(ref, SpawnerTagComponent.getComponentType());
         if (tag == null) return;
 
-        // TODO: Take into account mobs spawned by 'SpawnerTagComponent' but without the TAG.
-        component.setItemsLossMode(DeathConfig.ItemsLossMode.NONE);
         Nexus.get().getMobSpawnerManager().onMobDied(tag.getSpawnerId());
 
         Damage deathInfo = component.getDeathInfo();
@@ -82,10 +77,10 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
                                                            .getDefinition("Enchant_SoulHarvest");
             if (def == null) return 0f;
 
-            EnchantmentStatDefinition stat = def.getStat("SoulHarvestMultiplier");
+            EnchantmentStatDefinition stat = def.getEnchantmentStatById("SoulHarvestMultiplier");
             if (stat == null) return 0f;
 
-            float multiplier = (float) stat.getValue(slot.currentLevel());
+            float multiplier = (float) stat.getStatValueForLevel(slot.currentLevel());
             return baseEssence * multiplier;
         }
         return 0f;

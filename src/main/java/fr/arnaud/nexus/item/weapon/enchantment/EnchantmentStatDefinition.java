@@ -4,9 +4,7 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * Describes one stat within an {@link EnchantmentDefinition}.
- *
- * <p>Flat stats add a fixed value directly to the player's stat.
+ * Flat stats add a fixed value directly to the player's stat.
  * Curve stats multiply a base stat value by the stored multiplier.
  */
 public final class EnchantmentStatDefinition {
@@ -42,31 +40,17 @@ public final class EnchantmentStatDefinition {
         return type;
     }
 
-    /**
-     * Returns the raw value for the given level, or 0 if not defined.
-     * For Flat: this is the additive bonus.
-     * For Curve: this is the multiplier (e.g. 1.5).
-     */
-    public double getValue(int level) {
+    public double getStatValueForLevel(int level) {
         return values.getOrDefault(level, 0.0);
     }
 
-    /**
-     * For Curve stats: applies the multiplier to the given base value.
-     * For Flat stats: returns the flat value directly (base is ignored).
-     */
-    public double compute(int level, double base) {
-        double raw = getValue(level);
+    public double computeStateValueForLevel(int level, double base) {
+        double raw = getStatValueForLevel(level);
         return type == StatType.CURVE ? base * raw : raw;
     }
 
-    /**
-     * Returns a display string for the stat at the given level.
-     * Flat  → "+10 Health Boost"
-     * Curve → "×1.50 Damage Multiplier"
-     */
     public String format(int level) {
-        double raw = getValue(level);
+        double raw = getStatValueForLevel(level);
         if (type == StatType.CURVE) {
             return String.format("×%.2f %s", raw, displayName);
         } else {

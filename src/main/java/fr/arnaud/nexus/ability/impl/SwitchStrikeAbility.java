@@ -10,13 +10,8 @@ import fr.arnaud.nexus.ability.AbstractCoreAbilitySystem;
 import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.ability.CoreAbility;
 import fr.arnaud.nexus.feature.combat.strike.StrikeComponent;
-import fr.arnaud.nexus.feature.combat.strike.StrikePendingComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-/**
- * Core ability gate for Strike. Consumes {@link StrikePendingComponent} markers
- * only when this Core is equipped — preventing the strike from firing without it.
- */
 public final class SwitchStrikeAbility extends AbstractCoreAbilitySystem {
 
     @NonNullDecl

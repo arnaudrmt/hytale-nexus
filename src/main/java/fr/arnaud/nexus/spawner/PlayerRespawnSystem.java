@@ -28,7 +28,6 @@ public final class PlayerRespawnSystem extends RespawnSystems.OnRespawnSystem {
 
     @Override
     public void onComponentAdded(@NotNull Ref<EntityStore> ref, @NotNull DeathComponent component, @NotNull Store<EntityStore> store, @NotNull CommandBuffer<EntityStore> commandBuffer) {
-
         RunSessionComponent session = store.getComponent(ref, RunSessionComponent.getComponentType());
         if (session != null) {
             session.incrementDeathCount();
@@ -44,6 +43,7 @@ public final class PlayerRespawnSystem extends RespawnSystems.OnRespawnSystem {
 
         commandBuffer.run(s -> {
             LevelProgressComponent progress = s.getComponent(ref, LevelProgressComponent.getComponentType());
+            System.out.println(progress == null);
             Vector3d respawnPos = resolveRespawnPosition(progress);
 
             s.addComponent(ref, Teleport.getComponentType(),

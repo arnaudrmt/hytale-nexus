@@ -8,52 +8,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Mutable runtime state for a single spawner instance.
- *
- * <p>One {@code SpawnerState} is created per {@link LevelConfig.SpawnerConfig}
- * when a level loads. It tracks whether the spawner has been triggered, which
- * wave is currently active, timers, kill counts, and pending chest loot.
- * It holds no logic — all decisions are made by {@link MobSpawnerManager}.
- */
 public final class SpawnerState {
 
     private final LevelConfig.SpawnerConfig config;
     private final int id;
 
     private boolean triggered = false;
-
-    /**
-     * Prevents the loot chest from being placed more than once per spawner lifetime.
-     */
     private boolean chestSpawned = false;
-
-    /**
-     * Items rolled for the loot chest. Populated when the final wave ends.
-     * Cleared once the player clicks the chest and items are ejected.
-     */
-    private List<String> pendingChestLoot = Collections.emptyList();
-
-    /**
-     * World position of the placed chest block. Set alongside {@code pendingChestLoot}.
-     * Null until the chest has been spawned.
-     */
     private Vector3d chestPosition = null;
 
-    /**
-     * The wave index currently being executed. {@code 0} means no wave system or pre-wave.
-     */
+    private List<String> pendingChestLoot = Collections.emptyList();
+
     private int activeWave = 0;
-
-    /**
-     * Elapsed seconds since the current wave was spawned. Used for TIME wave transitions.
-     */
     private float waveTimer = 0f;
-
-    /**
-     * Elapsed seconds since the current KILL wave started.
-     * Used to enforce timeout. Reset to 0 when a new wave begins.
-     */
     private float killWaveTimeoutTimer = 0f;
 
     private final Map<Integer, Integer> spawnedCountPerEntry = new HashMap<>();

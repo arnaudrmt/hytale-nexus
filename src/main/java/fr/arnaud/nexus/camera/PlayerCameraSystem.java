@@ -19,13 +19,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Level;
 
-/**
- * System that drives per-player camera state and synchronizes it with the client.
- * <p>
- * This system polls the {@link PlayerCameraComponent} each tick. It handles
- * interpolation for state transitions and dispatches {@link SetServerCamera}
- * packets to the player's packet handler.
- */
 public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
 
     @NonNullDecl
@@ -49,7 +42,7 @@ public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
         PlayerRef pr = chunk.getComponent(index, PlayerRef.getComponentType());
 
 
-        if (cam == null || pr == null) return;
+        if (cam == null || pr == null || !cam.isClientReady()) return;
 
         switch (cam.getMode()) {
             case ISO_RUN -> handleIsoMode(pr, cam, ref, commandBuffer, chunk, index);
@@ -58,8 +51,6 @@ public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
             case GLIMPSE_EXIT_TRANSITION -> handleExitTransition(deltaSeconds, pr, cam, ref, commandBuffer);
         }
     }
-
-    // --- Private Tick Handlers ---
 
     private void handleIsoMode(PlayerRef pr, PlayerCameraComponent cam, Ref<EntityStore> ref,
                                CommandBuffer<EntityStore> cmd,
@@ -119,8 +110,6 @@ public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
         persistCam(cmd, ref, cam);
     }
 
-    // --- Static API for External Systems ---
-
     public static boolean requestGlimpseEntry(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
         PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
         if (cam != null && cam.beginGlimpseEntry()) {
@@ -139,25 +128,6 @@ public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
         return false;
     }
 
-    public static void forceIso(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd) {
-        PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
-        PlayerRef pr = store.getComponent(ref, PlayerRef.getComponentType());
-        if (cam != null && pr != null) {
-            cam.completeGlimpseExit();
-            sendPacket(pr, CameraPacketBuilder.buildIso(cam));
-            cam.clearPacketDirty();
-            cmd.run(s -> s.putComponent(ref, PlayerCameraComponent.getComponentType(), cam));
-        }
-    }
-
-    public static void updateEncounterZoom(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd, boolean active) {
-        PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
-        if (cam != null) {
-            cam.setEncounterZoomOut(active);
-            if (cam.isPacketDirty()) cmd.run(s -> s.putComponent(ref, PlayerCameraComponent.getComponentType(), cam));
-        }
-    }
-
     public static void updateSpeedFov(Ref<EntityStore> ref, Store<EntityStore> store, CommandBuffer<EntityStore> cmd, float normalised) {
         PlayerCameraComponent cam = store.getComponent(ref, PlayerCameraComponent.getComponentType());
         if (cam != null) {
@@ -165,8 +135,6 @@ public final class PlayerCameraSystem extends EntityTickingSystem<EntityStore> {
             if (cam.isPacketDirty()) cmd.run(s -> s.putComponent(ref, PlayerCameraComponent.getComponentType(), cam));
         }
     }
-
-    // --- Internal Helpers ---
 
     private static void persistCam(CommandBuffer<EntityStore> cmd, Ref<EntityStore> ref, PlayerCameraComponent cam) {
         cmd.run(s -> s.putComponent(ref, PlayerCameraComponent.getComponentType(), cam));

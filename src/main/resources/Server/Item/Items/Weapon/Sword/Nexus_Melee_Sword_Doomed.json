@@ -8,14 +8,7 @@
     "Icon": "Icons/ItemsGenerated/Weapon_Sword_Doomed.png",
     "Quality": "Rare",
     "Interactions": {
-        "Ability2": {
-            "Interactions": [
-                {
-                    "Type": "ChangeActiveSlot",
-                    "TargetSlot": 0
-                }
-            ]
-        }
+        "Ability2": {}
     },
     "ItemLevel": 30,
     "MaxDurability": 75,

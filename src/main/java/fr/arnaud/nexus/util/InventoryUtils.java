@@ -25,11 +25,6 @@ public final class InventoryUtils {
     private InventoryUtils() {
     }
 
-    /**
-     * Tries to add an item to the player's storage (slots 0–26 only).
-     * If all 27 slots are full, drops the item at the player's position instead.
-     * Returns true if the item was added, false if it was dropped.
-     */
     public static boolean tryAddToStorage(@Nonnull Ref<EntityStore> ref,
                                           @Nonnull Store<EntityStore> store,
                                           @Nonnull ItemStack stack) {
@@ -39,7 +34,6 @@ public final class InventoryUtils {
             return false;
         }
 
-        // Only consider the first 27 slots
         if (getStorageUsedSlots(ref, store) >= MAX_STORAGE_SLOTS) {
             spawnItemDrop(ref, store, stack);
             return false;
@@ -54,9 +48,6 @@ public final class InventoryUtils {
         return true;
     }
 
-    /**
-     * Counts how many of the first 27 storage slots are occupied.
-     */
     public static int getStorageUsedSlots(@Nonnull Ref<EntityStore> ref,
                                           @Nonnull Store<EntityStore> store) {
         ItemContainer storage = getStorage(ref, store);
@@ -70,9 +61,6 @@ public final class InventoryUtils {
         return used;
     }
 
-    /**
-     * Drops an item at the player's current world position.
-     */
     public static void spawnItemDrop(@Nonnull Ref<EntityStore> ref,
                                      @Nonnull Store<EntityStore> store,
                                      @Nonnull ItemStack stack) {
@@ -88,10 +76,6 @@ public final class InventoryUtils {
         }
     }
 
-    /**
-     * Removes an item from a container slot and drops it in the world
-     * slightly in front of the player so it isn't instantly picked up.
-     */
     public static void dropItemFromInventory(@Nonnull Ref<EntityStore> ref,
                                              @Nonnull Store<EntityStore> store,
                                              @Nonnull ItemContainer container,

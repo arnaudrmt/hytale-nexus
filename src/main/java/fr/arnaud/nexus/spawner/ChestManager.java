@@ -28,8 +28,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Manages all loot chest instances — both spawner-attached and independent.
- * Handles proximity triggering for independent chests, chest block placement,
- * and player click interaction for both chest types.
  */
 public final class ChestManager {
 
@@ -52,7 +50,6 @@ public final class ChestManager {
         activeWorld = null;
     }
 
-    // Called every tick by the player tick system
     public void tick(Vector3d playerPosition) {
         if (activeWorld == null) return;
         for (IndependentChestState state : independentChests) {
@@ -114,13 +111,6 @@ public final class ChestManager {
         });
     }
 
-    /**
-     * Unified click handler — checks both independent chests and spawner-attached chests.
-     * Spawner chest states are passed in from {@link MobSpawnerManager} to keep a single
-     * interaction entry point.
-     *
-     * @return true if the click was consumed by any chest
-     */
     public boolean tryOpenChest(Vector3d clickedBlockCenter, Ref<EntityStore> playerRef,
                                 Store<EntityStore> store, List<SpawnerState> spawnerStates) {
         if (tryOpenFromList(clickedBlockCenter, playerRef, store,
@@ -176,8 +166,6 @@ public final class ChestManager {
             store.addEntity(holder, AddReason.SPAWN);
         }
     }
-
-    // -------------------------------------------------------------------------
 
     private List<ChestCandidate> collectSpawnerChestCandidates(List<SpawnerState> states) {
         List<ChestCandidate> candidates = new ArrayList<>();
@@ -235,23 +223,6 @@ public final class ChestManager {
         });
     }
 
-    public void ejectItems(List<String> itemIds, Vector3d origin, Store<EntityStore> store) {
-        Random rng = ThreadLocalRandom.current();
-        for (String itemId : itemIds) {
-            float velX = (rng.nextFloat() - 0.5f) * 1.2f;
-            float velY = 0.4f + rng.nextFloat() * 0.5f;
-            float velZ = (rng.nextFloat() - 0.5f) * 1.2f;
-
-            com.hypixel.hytale.server.core.inventory.ItemStack stack = buildLootStack(itemId);
-            var holder = com.hypixel.hytale.server.core.modules.entity.item.ItemComponent
-                .generateItemDrop(store, stack, origin, Vector3f.ZERO, velX, velY, velZ);
-
-            if (holder != null) {
-                store.addEntity(holder, AddReason.SPAWN);
-            }
-        }
-    }
-
     private com.hypixel.hytale.server.core.inventory.ItemStack buildLootStack(String itemId) {
         if (isNexusWeapon(itemId)) {
             var item = com.hypixel.hytale.server.core.asset.type.item.config.Item
@@ -303,7 +274,6 @@ public final class ChestManager {
             && (int) Math.floor(a.getZ()) == (int) Math.floor(b.getZ());
     }
 
-    // Adapter: LootRoller expects LootChestConfig, independent chests store items directly
     private static final class LootChestConfig extends LevelConfig.LootChestConfig {
         LootChestConfig(List<LevelConfig.LootChestItem> items) {
             super(items);

@@ -10,12 +10,11 @@ import javax.annotation.Nullable;
 
 public final class HeadLockComponent implements Component<EntityStore> {
 
-    private int lockedEntityNetworkId = -1;
-
     @Nullable
     private static ComponentType<EntityStore, HeadLockComponent> componentType;
 
     private final Vector3f targetRotation = new Vector3f();
+    private int lockedEntityNetworkId = -1;
     private float remainingSec = 0f;
     private boolean active = false;
 
@@ -35,17 +34,6 @@ public final class HeadLockComponent implements Component<EntityStore> {
         lockedEntityNetworkId = -1;
     }
 
-    public int getLockedEntityNetworkId() {
-        return lockedEntityNetworkId;
-    }
-
-    public float getRemainingTimeSec() {
-        return remainingSec;
-    }
-
-    /**
-     * Returns true while the lock should still be enforced.
-     */
     public boolean tick(float dt) {
         if (!active) return false;
         remainingSec -= dt;
@@ -58,6 +46,14 @@ public final class HeadLockComponent implements Component<EntityStore> {
 
     public boolean isActive() {
         return active;
+    }
+
+    public int getLockedEntityNetworkId() {
+        return lockedEntityNetworkId;
+    }
+
+    public float getRemainingTimeSec() {
+        return remainingSec;
     }
 
     @NonNullDecl

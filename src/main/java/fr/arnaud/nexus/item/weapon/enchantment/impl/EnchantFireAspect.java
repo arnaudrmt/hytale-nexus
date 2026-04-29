@@ -19,10 +19,10 @@ public final class EnchantFireAspect implements EnchantEffectHandler {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition stat = def.getStat("FireDuration");
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById("FireDuration");
         if (stat == null) return;
 
-        float duration = (float) stat.getValue(enchantLevel);
+        float duration = (float) stat.getStatValueForLevel(enchantLevel);
         EnchantEffectUtil.applyEffect(event.target(), event.cmd(), "Burn", duration);
     }
 }

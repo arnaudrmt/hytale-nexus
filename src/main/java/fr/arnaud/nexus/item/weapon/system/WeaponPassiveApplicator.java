@@ -4,7 +4,7 @@ import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
@@ -14,13 +14,7 @@ import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
 import javax.annotation.Nonnull;
 
 /**
- * Applies and removes permanent passive stat bonuses (health, stamina, speed)
- * granted by a weapon's base curves and its unlocked enchantments.
- * <p>
- * All three stats use named modifier / set patterns so calling apply() repeatedly
- * always replaces the previous value rather than stacking.
- * <p>
- * Damage is NOT handled here — applied per-hit in OnHitSystem.
+ * Applies and removes permanent passive stat bonuses (health, stamina, speed).
  */
 public final class WeaponPassiveApplicator {
 
@@ -45,9 +39,9 @@ public final class WeaponPassiveApplicator {
 
             for (EnchantmentStatDefinition statDef : def.getStats()) {
                 switch (statDef.getId()) {
-                    case "HealthBoost" -> totalHealth += (float) statDef.getValue(level);
-                    case "StaminaBoost" -> totalStamina += (float) statDef.getValue(level);
-                    case "Swiftness" -> totalSpeed += (float) statDef.getValue(level);
+                    case "HealthBoost" -> totalHealth += (float) statDef.getStatValueForLevel(level);
+                    case "StaminaBoost" -> totalStamina += (float) statDef.getStatValueForLevel(level);
+                    case "Swiftness" -> totalSpeed += (float) statDef.getStatValueForLevel(level);
                 }
             }
         }

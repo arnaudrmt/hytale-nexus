@@ -13,6 +13,10 @@ import fr.arnaud.nexus.core.Nexus;
 
 import javax.annotation.Nonnull;
 
+/**
+ * Player command to re-play the tutorial.
+ * Usage: /tutorial
+ */
 public final class TutorialCommand extends AbstractPlayerCommand {
 
     public TutorialCommand() {

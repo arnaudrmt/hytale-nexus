@@ -39,7 +39,7 @@ public final class WeaponSwapSystem {
             if (ref == null || !ref.isValid()) return false;
 
             Store<EntityStore> store = ref.getStore();
-            store.getExternalData().getWorld().execute(() -> performSwap(ref, store));
+            store.getExternalData().getWorld().execute(() -> performWeaponSwap(ref, store));
 
             return false;
         }
@@ -47,7 +47,7 @@ public final class WeaponSwapSystem {
         return false;
     }
 
-    private void performSwap(Ref<EntityStore> ref, Store<EntityStore> store) {
+    private void performWeaponSwap(Ref<EntityStore> ref, Store<EntityStore> store) {
         PlayerWeaponStateComponent state = store.getComponent(
             ref, PlayerWeaponStateComponent.getComponentType()
         );
@@ -64,17 +64,17 @@ public final class WeaponSwapSystem {
         if (hotbar == null) return;
 
         hotbar.getInventory().setItemStackForSlot((short) 0,
-            buildStack(state.activeTag, incomingDoc));
+            buildWeaponItemStack(state.activeTag, incomingDoc));
         hotbar.markDirty();
 
         store.getExternalData().getWorld().execute(() ->
             store.putComponent(ref, PlayerWeaponStateComponent.getComponentType(), state)
         );
 
-        equipSystem.onWeaponEquipped(ref, buildStack(state.activeTag, incomingDoc), store);
+        equipSystem.onWeaponEquipped(ref, buildWeaponItemStack(state.activeTag, incomingDoc), store);
     }
 
-    private ItemStack buildStack(WeaponTag tag, BsonDocument doc) {
+    private ItemStack buildWeaponItemStack(WeaponTag tag, BsonDocument doc) {
         String archetypeId = doc.containsKey("archetype_id")
             ? doc.getString("archetype_id").getValue()
             : (tag == WeaponTag.MELEE

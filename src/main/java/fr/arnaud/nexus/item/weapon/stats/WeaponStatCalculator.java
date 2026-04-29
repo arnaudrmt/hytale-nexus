@@ -1,14 +1,12 @@
-package fr.arnaud.nexus.item.weapon.level;
+package fr.arnaud.nexus.item.weapon.stats;
 
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
-import fr.arnaud.nexus.item.weapon.stats.WeaponStatCurves;
-import fr.arnaud.nexus.item.weapon.stats.WeaponStatRegistry;
 import org.bson.BsonDocument;
 
-public final class WeaponConfigCalculator {
+public final class WeaponStatCalculator {
 
 
-    private WeaponConfigCalculator() {
+    private WeaponStatCalculator() {
     }
 
     public static float calculateUpgradeCost(BsonDocument doc) {

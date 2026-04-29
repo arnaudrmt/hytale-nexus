@@ -29,44 +29,6 @@
                     "WeightedPrefabPaths": [
                         {
                             "$NodeId": "WeightedPath.Prefab.Prop-0c0ad835-023e-4da3-9e33-a6e78f33a49b",
-                            "Path": "Nexus_Level_1",
-                            "Weight": 1
-                        }
-                    ],
-                    "LegacyPath": false,
-                    "LoadEntities": true,
-                    "MoldingDirection": "NONE",
-                    "MoldingChildren": false
-                }
-            }
-        },
-        {
-            "$NodeId": "Runtime-ad7f3ad1-c253-46be-aebc-2df0dcf61a04",
-            "Skip": false,
-            "Runtime": 1,
-            "PropDistribution": {
-                "$NodeId": "Constant.PropDistribution-1f9542da-2611-443e-9b3e-3901a7eff3d0",
-                "Type": "Constant",
-                "Positions": {
-                    "$NodeId": "ListPositions-bcdd07ac-858a-40e0-97ab-2d23ccbc8120",
-                    "Type": "List",
-                    "Skip": false,
-                    "Positions": [
-                        {
-                            "$NodeId": "Point3D-8e7e44ce-2aeb-47e5-815a-bdaa9ca7eccd",
-                            "X": 1000,
-                            "Y": 80,
-                            "Z": 0
-                        }
-                    ]
-                },
-                "Prop": {
-                    "$NodeId": "Prefab.Prop-58670c72-9681-4b48-be72-daecd4b95ab6",
-                    "Type": "Prefab",
-                    "Skip": false,
-                    "WeightedPrefabPaths": [
-                        {
-                            "$NodeId": "WeightedPath.Prefab.Prop-d8d21fa4-7c78-4c80-a2ed-7c867ecf38ba",
                             "Path": "Nexus_Level_2",
                             "Weight": 1
                         }

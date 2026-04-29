@@ -13,14 +13,7 @@
         "Compatible": true
     },
     "Interactions": {
-        "Ability2": {
-            "Interactions": [
-                {
-                    "Type": "ChangeActiveSlot",
-                    "TargetSlot": 0
-                }
-            ]
-        }
+        "Ability2": {}
     },
     "InteractionVars": {
         "Swing_Left_Damage": {

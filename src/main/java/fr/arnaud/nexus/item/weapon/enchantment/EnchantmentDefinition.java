@@ -75,10 +75,7 @@ public final class EnchantmentDefinition {
         return stats;
     }
 
-    /**
-     * Convenience: find a stat definition by its id, or null.
-     */
-    public EnchantmentStatDefinition getStat(String statId) {
+    public EnchantmentStatDefinition getEnchantmentStatById(String statId) {
         for (EnchantmentStatDefinition s : stats) {
             if (s.getId().equals(statId)) return s;
         }

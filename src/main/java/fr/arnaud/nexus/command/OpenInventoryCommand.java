@@ -13,7 +13,8 @@ import fr.arnaud.nexus.ui.inventory.NexusInventoryPage;
 import javax.annotation.Nonnull;
 
 /**
- * Temporary dev command that opens the weapon management UI directly.
+ * Dev command to open the custom inventory.
+ * Usage: /openinv
  */
 public final class OpenInventoryCommand extends AbstractPlayerCommand {
 

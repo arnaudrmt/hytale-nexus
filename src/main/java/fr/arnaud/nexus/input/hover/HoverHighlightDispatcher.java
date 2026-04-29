@@ -13,17 +13,6 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
  * Sends the appropriate highlight packet for a hovered block or entity.
- * <p>
- * Blocks use {@link SpawnParticleSystem} referencing a short-lived Asset Editor
- * particle system. The particle expires on its own — no explicit clear packet
- * is needed. Re-sending it each time the target changes keeps it alive.
- * <p>
- * Entities use {@link SpawnModelParticles} to attach a glow particle to the
- * entity's model. Like block particles, this uses a short-lived system defined
- * in the Asset Editor.
- * <p>
- * Both particle systems must be defined in the Asset Editor with a lifespan
- * short enough (~0.2s) to self-expire when the cursor moves away.
  */
 public final class HoverHighlightDispatcher {
 
@@ -36,10 +25,6 @@ public final class HoverHighlightDispatcher {
     private HoverHighlightDispatcher() {
     }
 
-    /**
-     * Sends a block highlight particle centered on the given block position.
-     * The packet is sent only to the hovering player.
-     */
     public static void highlightBlock(
         @NonNullDecl Vector3i block,
         @NonNullDecl PlayerRef playerRef
@@ -68,10 +53,6 @@ public final class HoverHighlightDispatcher {
         playerRef.getPacketHandler().writeNoCache(packet);
     }
 
-    /**
-     * Sends an entity highlight by attaching a model particle to the hovered entity.
-     * Uses the entity's integer network ID, resolved from the {@link Entity} handle.
-     */
     public static void highlightEntity(
         @NonNullDecl Entity entity,
         @NonNullDecl PlayerRef playerRef,

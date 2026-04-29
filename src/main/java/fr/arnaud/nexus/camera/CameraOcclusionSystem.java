@@ -23,28 +23,6 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Manages camera occlusion by temporarily replacing blocks inside a cylinder
- * around the camera-to-player ray with Air (or Barrier) every tick.
- *
- * <p>The cylinder runs from the ISO camera position to the player's head only —
- * the AABB is computed over the full ray length for wall detection, but the
- * cylinder membership test clamps to {@code proj <= dist} so blocks behind the
- * player are never cleared.
- *
- * <p>Blocks within {@value #BARRIER_RADIUS} blocks of the player's feet and
- * below {@value #BARRIER_HEIGHT} blocks height are replaced with Barrier
- * rather than Air. Only the bottom two block-height rows of that column are
- * kept as solid Barrier; rows above are replaced with Air. This ensures mobs
- * cannot path through the occlusion hole while the wall above still vanishes.
- *
- * <p>Already-replaced positions are carried forward without re-sampling to
- * prevent the Air-read oscillation that would cause flicker.
- *
- * <p>Block rotation index and filler are captured before replacement and
- * restored verbatim, so oriented blocks (stairs, logs, slabs) return in the
- * correct state.
- */
 public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore> {
 
     private static final double CYLINDER_RADIUS = 5.0;
@@ -54,9 +32,7 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
     private static final double FLOOR_Y_OFFSET = 0.0;
 
     /**
-     * How many extra blocks past the player's head the AABB extends so that
-     * walls at exactly head height are captured. The cylinder membership test
-     * still cuts off at the player's head ({@code proj <= dist}).
+     * How many extra blocks past the player's head the AABB extends.
      */
     private static final double RAY_EXTENSION = 3.0;
 
@@ -68,13 +44,7 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
 
     private static final double BARRIER_RADIUS = 2.0;
     private static final double BARRIER_RADIUS_SQ = BARRIER_RADIUS * BARRIER_RADIUS;
-    /**
-     * Full barrier-zone height checked by {@link #isBarrierProtected}.
-     * Only the lower {@value #BARRIER_SOLID_HEIGHT} block-rows within this
-     * zone are kept as solid Barrier; the rest become Air.
-     */
     private static final double BARRIER_HEIGHT = 2.0;
-    private static final double BARRIER_SOLID_HEIGHT = 2.0;
 
     private int barrierBlockId = Integer.MIN_VALUE;
     private int epicChestBlockId = Integer.MIN_VALUE;
@@ -178,7 +148,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
             }
         }
 
-        // Replace newly entering blocks
         for (long packed : currentPositions) {
             int[] c = PlayerOcclusionComponent.unpack(packed);
 
@@ -198,7 +167,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
                 }
 
             } else {
-                // Already replaced: re-evaluate proximity each tick to toggle between Air and Barrier
                 int currentBlock = sampleBlock(world, c[0], c[1], c[2]);
                 boolean shouldBeSolid = isNearPlayerOrMob(c[0], c[1], c[2], feet, mobPositions, projectilePositions);
                 boolean isSolid = (currentBlock == barrierBlockId)
@@ -212,7 +180,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
             }
         }
 
-        // Restore blocks that left the cylinder
         LongOpenHashSet previousPositions = occlusion.getReplacedPositions();
         for (long packed : previousPositions) {
             if (!currentPositions.contains(packed)) {
@@ -283,8 +250,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         return false;
     }
 
-    // ── Block sampling ────────────────────────────────────────────────────────
-
     private static int sampleBlock(World world, int x, int y, int z) {
         if (y < 0 || y >= 320) return BlockType.EMPTY_ID;
         WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(x, z));
@@ -305,8 +270,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         if (chunk == null) return 0;
         return chunk.getFiller(x & 31, y, z & 31);
     }
-
-    // ── Block writing ─────────────────────────────────────────────────────────
 
     private void replaceWithAir(World world, int x, int y, int z) {
         if (DEBUG_OCCLUSION) {
@@ -335,16 +298,6 @@ public final class CameraOcclusionSystem extends EntityTickingSystem<EntityStore
         WorldChunk chunk = world.getChunkIfLoaded(ChunkUtil.indexChunkFromBlock(x, z));
         if (chunk == null) return;
         chunk.setBlock(x & 31, y, z & 31, blockId, blockType, rotation, filler, SILENT_SETTINGS);
-    }
-
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
-    private static boolean isBarrierProtected(int bx, int by, int bz, double feetX, double feetY, double feetZ) {
-        double dx = (bx + 0.5) - feetX;
-        double dz = (bz + 0.5) - feetZ;
-        double dy = (by + 0.5) - feetY;
-        return dx * dx + dz * dz <= BARRIER_RADIUS_SQ
-            && dy >= 0 && dy <= BARRIER_HEIGHT;
     }
 
     private int debugAirBlockId = Integer.MIN_VALUE;

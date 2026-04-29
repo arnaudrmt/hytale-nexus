@@ -27,14 +27,11 @@ public final class PlayerBodyStateComponent implements Component<EntityStore> {
 
     private float aimYaw, bodyYaw;
     private LocomotionState locomotionState = LocomotionState.IDLE;
-
     private float lastX, lastZ;
     private boolean positionSeeded;
 
     public PlayerBodyStateComponent() {
     }
-
-    // --- Orientation ---
 
     public void updateOrientation(float newAimYaw, float vx, float vz) {
         this.aimYaw = newAimYaw;
@@ -61,8 +58,6 @@ public final class PlayerBodyStateComponent implements Component<EntityStore> {
         return angle;
     }
 
-    // --- Speed Sampling ---
-
     public float sampleSpeed(float x, float z, float deltaSec) {
         if (!positionSeeded) {
             lastX = x;
@@ -77,8 +72,6 @@ public final class PlayerBodyStateComponent implements Component<EntityStore> {
         return Math.min(1f, (float) Math.sqrt(dx * dx + dz * dz) / deltaSec / MAX_SPEED_FOR_FOV);
     }
 
-    // --- Getters ---
-
     public float getAimYaw() {
         return aimYaw;
     }
@@ -86,8 +79,6 @@ public final class PlayerBodyStateComponent implements Component<EntityStore> {
     public LocomotionState getLocomotionState() {
         return locomotionState;
     }
-
-    // --- ECS Boilerplate ---
 
     @NonNullDecl
     public static ComponentType<EntityStore, PlayerBodyStateComponent> getComponentType() {

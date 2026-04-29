@@ -7,7 +7,7 @@ import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
-import fr.arnaud.nexus.item.weapon.level.WeaponConfigCalculator;
+import fr.arnaud.nexus.item.weapon.stats.WeaponStatCalculator;
 import org.bson.BsonDocument;
 
 import javax.annotation.Nonnull;
@@ -18,13 +18,13 @@ public final class WeaponEquipSystem {
     public void onWeaponEquipped(@Nonnull Ref<EntityStore> playerRef,
                                  @Nullable ItemStack incomingStack,
                                  @Nonnull Store<EntityStore> store) {
-        tearDown(playerRef, store);
+        tearDownWeapon(playerRef, store);
 
-        if (incomingStack == null || !isNexusWeapon(incomingStack)) return;
+        if (incomingStack == null || !isItemNexusWeapon(incomingStack)) return;
         if (!playerRef.isValid()) return;
 
         BsonDocument doc = incomingStack.getMetadata();
-        WeaponInstanceComponent instance = buildInstance(doc);
+        WeaponInstanceComponent instance = buildWeaponInstance(doc);
 
         store.getExternalData().getWorld().execute(() -> {
             if (!playerRef.isValid()) return;
@@ -35,13 +35,11 @@ public final class WeaponEquipSystem {
 
     public void onWeaponUnequipped(@Nonnull Ref<EntityStore> playerRef,
                                    @Nonnull Store<EntityStore> store) {
-        tearDown(playerRef, store);
+        tearDownWeapon(playerRef, store);
     }
 
-    // ── Internal ──────────────────────────────────────────────────────────────
-
-    private void tearDown(@Nonnull Ref<EntityStore> playerRef,
-                          @Nonnull Store<EntityStore> store) {
+    private void tearDownWeapon(@Nonnull Ref<EntityStore> playerRef,
+                                @Nonnull Store<EntityStore> store) {
         if (!playerRef.isValid()) return;
 
         WeaponInstanceComponent current = store.getComponent(
@@ -57,7 +55,7 @@ public final class WeaponEquipSystem {
         });
     }
 
-    private WeaponInstanceComponent buildInstance(@Nonnull BsonDocument doc) {
+    private WeaponInstanceComponent buildWeaponInstance(@Nonnull BsonDocument doc) {
         WeaponInstanceComponent instance = new WeaponInstanceComponent();
         instance.quality = ItemQuality.getAssetMap().getAsset(WeaponBsonSchema.readQuality(doc));
         instance.level = WeaponBsonSchema.readLevel(doc);
@@ -66,14 +64,14 @@ public final class WeaponEquipSystem {
         instance.archetypeId = doc.containsKey("archetype_id")
             ? doc.getString("archetype_id").getValue() : "unknown";
 
-        instance.damageMultiplierCurve = WeaponConfigCalculator.calculateDamageMultiplier(doc);
-        instance.healthBoostCurve = WeaponConfigCalculator.calculateHealthBoost(doc);
-        instance.movementSpeedCurve = WeaponConfigCalculator.calculateMovementSpeedBoost(doc);
+        instance.damageMultiplierCurve = WeaponStatCalculator.calculateDamageMultiplier(doc);
+        instance.healthBoostCurve = WeaponStatCalculator.calculateHealthBoost(doc);
+        instance.movementSpeedCurve = WeaponStatCalculator.calculateMovementSpeedBoost(doc);
 
         return instance;
     }
 
-    private boolean isNexusWeapon(@Nonnull ItemStack stack) {
+    private boolean isItemNexusWeapon(@Nonnull ItemStack stack) {
         BsonDocument doc = stack.getMetadata();
         return doc != null && doc.containsKey("nexus_quality_value");
     }

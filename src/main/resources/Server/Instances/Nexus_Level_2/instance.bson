@@ -21,7 +21,7 @@
   "IsSavingPlayers": true,
   "WorldGen": {
     "Type": "HytaleGenerator",
-    "WorldStructure": "Nexus_Flat"
+    "WorldStructure": "Nexus_Level_2"
   },
   "SpawnProvider": {
     "Id": "Global",

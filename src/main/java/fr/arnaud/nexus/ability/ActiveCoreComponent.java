@@ -15,16 +15,6 @@ import java.util.EnumSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * Persistent component tracking which {@link CoreAbility} instances the player
- * has unlocked, and which one is currently equipped (null = empty slot).
- *
- * <p>Serialization strategy:
- * <ul>
- *   <li>{@code EquippedCoreId} — empty string encodes null (no Core equipped).
- *   <li>{@code UnlockedCoreIds} — comma-separated ids, empty string encodes empty set.
- * </ul>
- */
 public final class ActiveCoreComponent implements Component<EntityStore> {
 
     private static final String SEPARATOR = ",";
@@ -33,19 +23,7 @@ public final class ActiveCoreComponent implements Component<EntityStore> {
     @Nullable
     private static ComponentType<EntityStore, ActiveCoreComponent> componentType;
 
-    @Nullable
-    private String equippedCoreId;
-
-    private final Set<CoreAbility> unlockedCores = EnumSet.noneOf(CoreAbility.class);
-
-    public ActiveCoreComponent() {
-    }
-
-    private ActiveCoreComponent(@Nullable String equippedCoreId, Set<CoreAbility> unlockedCores) {
-        this.equippedCoreId = equippedCoreId;
-        this.unlockedCores.addAll(unlockedCores);
-    }
-
+    // Empty string encodes null (no Core equipped); comma-separated ids encode unlocked set.
     public static final BuilderCodec<ActiveCoreComponent> CODEC = BuilderCodec
         .builder(ActiveCoreComponent.class, ActiveCoreComponent::new)
         .append(
@@ -72,13 +50,21 @@ public final class ActiveCoreComponent implements Component<EntityStore> {
         .add()
         .build();
 
-    // --- Unlock API ---
+    @Nullable
+    private String equippedCoreId;
 
-    /**
-     * Unlocks a Core. Safe to call multiple times — idempotent.
-     *
-     * @return true if this was a new unlock, false if already unlocked.
-     */
+    private final Set<CoreAbility> unlockedCores = EnumSet.noneOf(CoreAbility.class);
+
+    public ActiveCoreComponent() {
+    }
+
+    private ActiveCoreComponent(@Nullable String equippedCoreId, Set<CoreAbility> unlockedCores) {
+        this.equippedCoreId = equippedCoreId;
+        this.unlockedCores.addAll(unlockedCores);
+    }
+
+
+
     public boolean unlock(@NonNullDecl CoreAbility ability) {
         return unlockedCores.add(ability);
     }
@@ -92,13 +78,6 @@ public final class ActiveCoreComponent implements Component<EntityStore> {
         return Collections.unmodifiableSet(unlockedCores);
     }
 
-    // --- Equip API ---
-
-    /**
-     * Equips a Core. The Core must be unlocked first.
-     *
-     * @return false if the ability is not unlocked.
-     */
     public boolean equip(@NonNullDecl CoreAbility ability) {
         if (!unlockedCores.contains(ability)) return false;
         this.equippedCoreId = ability.getId();
@@ -121,8 +100,6 @@ public final class ActiveCoreComponent implements Component<EntityStore> {
     public boolean isEmpty() {
         return equippedCoreId == null;
     }
-
-    // --- ECS boilerplate ---
 
     @NonNullDecl
     public static ComponentType<EntityStore, ActiveCoreComponent> getComponentType() {

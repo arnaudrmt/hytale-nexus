@@ -119,8 +119,6 @@ public final class AdminCoreCommand extends AbstractPlayerCommand {
         ));
     }
 
-    // --- Helpers ---
-
     @javax.annotation.Nullable
     private CoreAbility resolveAbilityArg(CommandContext context) {
         String id = coreIdArg.get(context);

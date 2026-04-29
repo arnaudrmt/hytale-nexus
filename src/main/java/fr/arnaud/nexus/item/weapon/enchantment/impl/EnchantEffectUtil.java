@@ -25,7 +25,6 @@ public final class EnchantEffectUtil {
         EntityEffect effect = EntityEffect.getAssetMap().getAsset(effectId);
         if (effect == null) return;
 
-        // OVERWRITE resets duration if already active; IGNORE would skip re-application
         effects.addEffect(targetRef, effect, duration, OverlapBehavior.OVERWRITE, cmd);
     }
 }

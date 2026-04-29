@@ -11,14 +11,7 @@
     "MaxDurability": 60,
     "DurabilityLossOnHit": 0,
     "Interactions": {
-        "Ability2": {
-            "Interactions": [
-                {
-                    "Type": "ChangeActiveSlot",
-                    "TargetSlot": 0
-                }
-            ]
-        }
+        "Ability2": {}
     },
     "InteractionVars": {
         "Swing_Down_Damage": {

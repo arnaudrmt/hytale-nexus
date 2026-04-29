@@ -19,10 +19,10 @@ public final class EnchantCripple implements EnchantEffectHandler {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition stat = def.getStat("CrippleDuration");
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById("CrippleDuration");
         if (stat == null) return;
 
-        float duration = (float) stat.getValue(enchantLevel);
+        float duration = (float) stat.getStatValueForLevel(enchantLevel);
         EnchantEffectUtil.applyEffect(event.target(), event.cmd(), "Slow", duration);
     }
 }

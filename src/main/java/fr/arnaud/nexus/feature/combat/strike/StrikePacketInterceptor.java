@@ -9,13 +9,11 @@ import com.hypixel.hytale.protocol.packets.interaction.SyncInteractionChains;
 import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
  * Intercepts Ability2 packets on the Netty thread.
- * Validates stamina and opens the hit-collection window on the world thread.
- * Never blocks the packet — always returns false.
  */
 public final class StrikePacketInterceptor {
 

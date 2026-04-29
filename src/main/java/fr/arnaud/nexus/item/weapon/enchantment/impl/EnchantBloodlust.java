@@ -29,10 +29,10 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return 0.0;
 
-        EnchantmentStatDefinition bonusStat = def.getStat("BloodlustBonusPerStack");
+        EnchantmentStatDefinition bonusStat = def.getEnchantmentStatById("BloodlustBonusPerStack");
         if (bonusStat == null) return 0.0;
 
-        return bonusStat.getValue(enchantLevel) * state.stacks;
+        return bonusStat.getStatValueForLevel(enchantLevel) * state.stacks;
     }
 
     @Override
@@ -40,12 +40,12 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition maxStacksStat = def.getStat("BloodlustMaxStacks");
-        EnchantmentStatDefinition resetTimeStat = def.getStat("BloodlustResetTime");
+        EnchantmentStatDefinition maxStacksStat = def.getEnchantmentStatById("BloodlustMaxStacks");
+        EnchantmentStatDefinition resetTimeStat = def.getEnchantmentStatById("BloodlustResetTime");
         if (maxStacksStat == null || resetTimeStat == null) return;
 
-        int maxStacks = (int) maxStacksStat.getValue(enchantLevel);
-        long resetMs = (long) (resetTimeStat.getValue(enchantLevel) * 1000.0);
+        int maxStacks = (int) maxStacksStat.getStatValueForLevel(enchantLevel);
+        long resetMs = (long) (resetTimeStat.getStatValueForLevel(enchantLevel) * 1000.0);
 
         int refIndex = event.attacker().getIndex();
         BloodlustState state = stateMap.computeIfAbsent(refIndex, k -> new BloodlustState());

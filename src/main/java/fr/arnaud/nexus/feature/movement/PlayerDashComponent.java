@@ -7,9 +7,6 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
 
-/**
- * Owns the dash state machine, i-frame window, and perfect-dodge window.
- */
 public final class PlayerDashComponent implements Component<EntityStore> {
 
     public enum DashState {IDLE, DASHING}
@@ -33,14 +30,6 @@ public final class PlayerDashComponent implements Component<EntityStore> {
     public PlayerDashComponent() {
     }
 
-    // --- Dash state machine ---
-
-    /**
-     * Transitions to DASHING with the supplied normalised XZ direction.
-     * Direction is computed by {@link fr.arnaud.nexus.ability.impl.DashAbility}.
-     *
-     * @return false if already dashing.
-     */
     public boolean beginDash(float dirX, float dirZ) {
         if (dashState != DashState.IDLE) return false;
         dashState = DashState.DASHING;
@@ -52,9 +41,6 @@ public final class PlayerDashComponent implements Component<EntityStore> {
         return true;
     }
 
-    /**
-     * Consumes the one-shot velocity impulse flag. Returns true exactly once per dash.
-     */
     public boolean consumeDashImpulse() {
         if (!pendingDashImpulse) return false;
         pendingDashImpulse = false;
@@ -79,21 +65,6 @@ public final class PlayerDashComponent implements Component<EntityStore> {
         }
     }
 
-    // --- Perfect-dodge ---
-
-    public void openPerfectDodgeWindow(float durationSec) {
-        perfectDodgeWindowOpen = true;
-        perfectDodgeWindowRemaining = durationSec;
-        perfectDodgeConsumed = false;
-    }
-
-    public boolean consumePerfectDodge() {
-        if (!perfectDodgeWindowOpen || perfectDodgeConsumed) return false;
-        return perfectDodgeConsumed = true;
-    }
-
-    // --- Getters ---
-
     public DashState getDashState() {
         return dashState;
     }
@@ -117,8 +88,6 @@ public final class PlayerDashComponent implements Component<EntityStore> {
     public boolean isIFrameActive() {
         return dashState == DashState.DASHING && iFrameElapsedSec < IFRAME_DURATION_SEC;
     }
-
-    // --- ECS Boilerplate ---
 
     @NonNullDecl
     public static ComponentType<EntityStore, PlayerDashComponent> getComponentType() {

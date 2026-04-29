@@ -72,26 +72,11 @@ public final class PlayerLocomotionSystem extends EntityTickingSystem<EntityStor
         });
     }
 
-    // --- Static API used by other systems ---
-
     public static boolean isIFrameActive(@NonNullDecl Ref<EntityStore> ref,
                                          @NonNullDecl Store<EntityStore> store) {
         PlayerDashComponent dash = store.getComponent(ref, PlayerDashComponent.getComponentType());
         return dash != null && dash.isIFrameActive();
     }
-
-    public static void openPerfectDodgeWindow(@NonNullDecl Ref<EntityStore> ref,
-                                              @NonNullDecl Store<EntityStore> store,
-                                              @NonNullDecl CommandBuffer<EntityStore> commandBuffer,
-                                              float durationSec) {
-        PlayerDashComponent dash = store.getComponent(ref, PlayerDashComponent.getComponentType());
-        if (dash != null) {
-            dash.openPerfectDodgeWindow(durationSec);
-            commandBuffer.run(s -> s.putComponent(ref, PlayerDashComponent.getComponentType(), dash));
-        }
-    }
-
-    // --- Helpers ---
 
     private static void applyDashVelocity(@NonNullDecl PlayerDashComponent dash,
                                           @NonNullDecl Velocity velocity) {

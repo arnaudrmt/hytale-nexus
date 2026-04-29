@@ -1,6 +1,5 @@
 package fr.arnaud.nexus.item.weapon.stats;
 
-import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
@@ -19,36 +18,7 @@ public final class WeaponStatBagBuilder {
     private WeaponStatBagBuilder() {
     }
 
-    /**
-     * Builds a WeaponStatBag from a live WeaponInstanceComponent.
-     * Used at runtime when the component is guaranteed to exist.
-     */
-    public static WeaponStatBag build(WeaponInstanceComponent instance) {
-        double damageMultiplier = instance.damageMultiplierCurve;
-        double healthBoost = instance.healthBoostCurve;
-        double movementSpeed = instance.movementSpeedCurve;
-
-        for (EnchantmentSlot slot : instance.enchantmentSlots) {
-            if (!slot.isUnlocked()) continue;
-            EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(slot.chosen());
-            if (def == null) continue;
-            int level = slot.currentLevel();
-            damageMultiplier += safeCompute(def, KEY_DAMAGE_BONUS, level, 1.0);
-            healthBoost += safeCompute(def, KEY_HEALTH_BOOST, level, 100.0);
-            movementSpeed += safeCompute(def, KEY_MOVEMENT_SPEED, level, 1.0);
-        }
-
-        return new WeaponStatBag(damageMultiplier, healthBoost, movementSpeed);
-    }
-
-    /**
-     * Builds a WeaponStatBag directly from a weapon BSON document.
-     * Used in the UI where only the document is available.
-     *
-     * @param doc      the weapon's BSON document
-     * @param forLevel the weapon level to compute stats for (pass current or next)
-     */
-    public static WeaponStatBag buildFromBson(BsonDocument doc, int forLevel) {
+    public static WeaponStatBag buildWeaponStatsFromBson(BsonDocument doc, int forLevel) {
         int quality = WeaponBsonSchema.readQuality(doc);
         WeaponStatCurves curves = WeaponStatRegistry.get().getCurves(quality);
         if (curves == null) return WeaponStatBag.empty();
@@ -71,30 +41,18 @@ public final class WeaponStatBagBuilder {
         return new WeaponStatBag(damageMultiplier, healthBoost, movementSpeed);
     }
 
-    // ── Stat curve formulas ───────────────────────────────────────────────────
-
-    /**
-     * Exponential curve: base * curve^(level-1)
-     * Used for multiplicative stats like damage.
-     */
     public static double computeCurve(double base, double curve, int level) {
         return base * Math.pow(curve, level - 1);
     }
 
-    /**
-     * Flat-per-level: base + flat * (level-1)
-     * Used for additive stats like health and speed.
-     */
     public static double computeFlat(double base, double flat, int level) {
         return base + flat * (level - 1);
     }
 
-    // ── Null-safe enchant stat lookup ─────────────────────────────────────────
-
     private static double safeCompute(EnchantmentDefinition def, String statKey,
                                       int level, double base) {
-        EnchantmentStatDefinition stat = def.getStat(statKey);
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById(statKey);
         if (stat == null) return 0.0;
-        return stat.compute(level, base);
+        return stat.computeStateValueForLevel(level, base);
     }
 }

@@ -90,11 +90,6 @@ $C = "../Common.ui";
   TextColor: #878e9c
 );
 
-// ── Core Wheel constants ───────────────────────────────────────────────────
-// Wheel is 310×310, centered over AbilitySlotWheelButton.
-// #CoreWheelSlot is a sibling of #CoreWheel (not a child) so that
-// MouseEntered/MouseExited bindings on #CoreWheelSlot do NOT force
-// the parent #CoreWheelContainer or #CoreWheel hit-testable.
 @WheelSize = 310;
 @WheelSlotSize = 68;
 @WheelRadius = 130;
@@ -106,7 +101,7 @@ Group #Root {
   Anchor: (Width: @TotalPageContentWidth, Bottom: 20);
   LayoutMode: Center;
 
-  // ── Window 1: Character — anchored top ───────────────────────────────────
+  // Window 1: Character — anchored top
   $C.@DecoratedContainer #PlayerPanel {
     Anchor: (Width: @SidePanelWidth, Height: 720, Top: 180);
 
@@ -305,16 +300,11 @@ Group #Root {
             }
           }
 
-          // ── Core Wheel ────────────────────────────────────────────────────
-          // #CoreWheelContainer is a non-interactive Group that positions the
-          // whole wheel area. #CoreWheelSlot and #CoreWheel are siblings inside
-          // it — this is the key: MouseEntered/Exited on #CoreWheelSlot only
-          // forces #CoreWheelSlot hit-testable, leaving #CoreWheel untouched.
           Group #CoreWheelContainer {
             Anchor: (Width: 310, Height: 310, Bottom: -100, Left: @ItemGridSpecialSlotLeftPos - 116);
             HitTestVisible: false;
 
-            // The trigger button — only this element receives mouse events.
+            // The trigger button - only this element receives mouse events.
             Button #CoreWheelSlot {
               Anchor: (Width: 64, Height: 64, Bottom: 110);
 
@@ -338,7 +328,6 @@ Group #Root {
               }
             }
 
-            // Pure display group — never hit-testable, never receives bindings.
             Group #CoreWheel {
               HitTestVisible: false;
 
@@ -352,7 +341,6 @@ Group #Root {
                   Anchor: (Width: 310, Height: 310);
                 }
 
-                // ── Equipped highlight overlays ───────────────────────────
                 Group #CoreSlot0BgEquipped {
                   Visible: false;
                   HitTestVisible: false;
@@ -440,7 +428,6 @@ Group #Root {
                   }
                 }
 
-                // ── Unequip — bottom center ───────────────────────────────
                 Button #CoreUnequipSlot {
                   Anchor: (Width: 33, Height: 33, Top: 250, Left: 140);
                   TooltipText: "Unequip Core";
@@ -571,7 +558,7 @@ Group #Root {
 
   Group { Anchor: (Width: 20); }
 
-  // ── Center column: Inventory anchored bottom, Weapon Upgrade takes rest ───
+  // Center column: Inventory anchored bottom, Weapon Upgrade takes rest
   Group #CenterColumn {
     Anchor: (Horizontal: @HorizontalPanelSpacing, Width: @CenterPanelWidth);
     LayoutMode: Bottom;
@@ -658,7 +645,7 @@ Group #Root {
 
   Group { Anchor: (Width: 20); }
 
-  // ── Window 4: Weapon Stats — anchored top ────────────────────────────────
+  // Window 4: Weapon Stats — anchored top
 
   $C.@DecoratedContainer #WeaponStatsPanel {
     Anchor: (Width: @SidePanelWidth, Height: 500, Top: 180);

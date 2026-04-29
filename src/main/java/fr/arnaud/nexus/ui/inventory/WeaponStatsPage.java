@@ -6,13 +6,13 @@ import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
-import fr.arnaud.nexus.item.weapon.level.WeaponConfigCalculator;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatBag;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatBagBuilder;
+import fr.arnaud.nexus.item.weapon.stats.WeaponStatCalculator;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatRegistry;
 import org.bson.BsonDocument;
 
@@ -63,7 +63,7 @@ public final class WeaponStatsPage {
             return;
         }
 
-        WeaponStatBag current = WeaponStatBagBuilder.buildFromBson(doc, level);
+        WeaponStatBag current = WeaponStatBagBuilder.buildWeaponStatsFromBson(doc, level);
         cmd.set("#WeaponDamageMultiplier.Text", formatDamage(current.damageMultiplier));
         cmd.set("#WeaponHealthAdder.Text", formatFlat(current.healthBoost));
         cmd.set("#WeaponMovementSpeedAdder.Text", formatFlat(current.movementSpeedBoost));
@@ -71,7 +71,7 @@ public final class WeaponStatsPage {
         PlayerStatsManager statsManager = Nexus.get().getPlayerStatsManager();
         float balance = statsManager.isReady()
             ? statsManager.getEssenceDust(ref, store) : 0f;
-        float cost = WeaponConfigCalculator.calculateUpgradeCost(doc);
+        float cost = WeaponStatCalculator.calculateUpgradeCost(doc);
         boolean canAfford = statsManager.isReady() && balance >= cost;
 
         cmd.set("#UpgradeCost.Text", formatCost(cost));
@@ -83,8 +83,8 @@ public final class WeaponStatsPage {
                                                     int currentLevel,
                                                     float cost) {
         int nextLevel = currentLevel + 1;
-        WeaponStatBag current = WeaponStatBagBuilder.buildFromBson(doc, currentLevel);
-        WeaponStatBag next = WeaponStatBagBuilder.buildFromBson(doc, nextLevel);
+        WeaponStatBag current = WeaponStatBagBuilder.buildWeaponStatsFromBson(doc, currentLevel);
+        WeaponStatBag next = WeaponStatBagBuilder.buildWeaponStatsFromBson(doc, nextLevel);
 
         double dmgDelta = next.damageMultiplier - current.damageMultiplier;
         double healthDelta = next.healthBoost - current.healthBoost;

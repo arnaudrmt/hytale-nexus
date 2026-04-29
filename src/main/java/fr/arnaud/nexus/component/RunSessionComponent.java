@@ -21,20 +21,12 @@ public final class RunSessionComponent implements Component<EntityStore> {
     public static final int DEATH_PENALTY = 100;
 
     private long accumulatedPlayMs;
-    /**
-     * Wall-clock ms at which the current login session started. -1 when offline.
-     */
     private long sessionStartMs;
 
     private long accumulatedCurrentLevelMs;
-    /**
-     * Wall-clock ms at which the current level started (login-relative). -1 when offline.
-     */
     private long currentLevelSessionStartMs;
 
-    /**
-     * Immutable splits appended each time a level is completed, in order.
-     */
+    //Immutable splits appended each time a level is completed, in order.
     private List<Long> levelSplitMs = new ArrayList<>();
 
     private float totalDamageDealt;
@@ -43,6 +35,9 @@ public final class RunSessionComponent implements Component<EntityStore> {
     private int deathCount;
     private float essenceDustSnapshot;
     private boolean tutorialCompleted;
+
+    @Nullable
+    private static ComponentType<EntityStore, RunSessionComponent> componentType;
 
     public RunSessionComponent() {
         long now = System.currentTimeMillis();
@@ -69,11 +64,6 @@ public final class RunSessionComponent implements Component<EntityStore> {
         this.tutorialCompleted = tutorialCompleted;
     }
 
-    // --- Session lifecycle ---
-
-    /**
-     * Call on player disconnect. Flushes active wall-time into accumulators.
-     */
     public void pauseSession() {
         if (sessionStartMs == -1) return;
         long now = System.currentTimeMillis();
@@ -83,20 +73,14 @@ public final class RunSessionComponent implements Component<EntityStore> {
         currentLevelSessionStartMs = -1;
     }
 
-    /**
-     * Call on player reconnect. Resumes wall-clock tracking.
-     */
     public void resumeSession() {
         long now = System.currentTimeMillis();
         sessionStartMs = now;
         currentLevelSessionStartMs = now;
     }
 
-    // --- Level splits ---
-
     /**
-     * Finalizes the current level's duration, appends it to splits,
-     * and resets the level timer for the next level.
+     * Finalizes the current level's duration, appends it to splits.
      */
     public long recordLevelSplit() {
         long levelMs = getCurrentLevelDurationMs();
@@ -107,8 +91,6 @@ public final class RunSessionComponent implements Component<EntityStore> {
         }
         return levelMs;
     }
-
-    // --- Queries ---
 
     public long getTotalDurationMs() {
         if (sessionStartMs == -1) return accumulatedPlayMs;
@@ -130,8 +112,6 @@ public final class RunSessionComponent implements Component<EntityStore> {
                 - deathCount * DEATH_PENALTY
         );
     }
-
-    // --- Mutations ---
 
     public void addDamageDealt(float amount) {
         totalDamageDealt += Math.max(0f, amount);
@@ -161,8 +141,6 @@ public final class RunSessionComponent implements Component<EntityStore> {
         this.tutorialCompleted = true;
     }
 
-    // --- Accessors ---
-
     public int getKillCount() {
         return killCount;
     }
@@ -187,8 +165,6 @@ public final class RunSessionComponent implements Component<EntityStore> {
         return tutorialCompleted;
     }
 
-    // --- Codec ---
-
     public static final BuilderCodec<RunSessionComponent> CODEC = BuilderCodec
         .builder(RunSessionComponent.class, RunSessionComponent::new)
         .append(new KeyedCodec<>("AccumulatedPlayMs", Codec.LONG),
@@ -211,11 +187,6 @@ public final class RunSessionComponent implements Component<EntityStore> {
         .append(new KeyedCodec<>("TutorialCompleted", Codec.BOOLEAN),
             (c, v) -> c.tutorialCompleted = v, c -> c.tutorialCompleted).add()
         .build();
-
-    // --- ECS boilerplate ---
-
-    @Nullable
-    private static ComponentType<EntityStore, RunSessionComponent> componentType;
 
     @NonNullDecl
     public static ComponentType<EntityStore, RunSessionComponent> getComponentType() {

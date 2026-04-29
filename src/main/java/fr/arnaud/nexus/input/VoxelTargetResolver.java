@@ -12,9 +12,7 @@ import javax.annotation.Nullable;
 import java.util.LinkedList;
 
 /**
- * Resolves the true target block by recasting from the reconstructed ISO camera
- * position. Barriers and occluded blocks are already Air in the world by the
- * time this runs, so no predicate or avoid list is needed.
+ * Resolves the true target block by recasting from the reconstructed ISO camera position.
  */
 public final class VoxelTargetResolver {
 

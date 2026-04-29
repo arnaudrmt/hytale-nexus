@@ -10,28 +10,11 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
-/**
- * Base class for all Core ability systems.
- *
- * <p>Subclasses declare which {@link CoreAbility} they own via {@link #getAbility()}.
- * The base tick early-exits if the player does not have that Core equipped,
- * so subclasses only run when they are the active Core.
- *
- * <p>Subclasses must call {@code super.getQuery()} and AND it with their own
- * component requirements, or override {@link #buildQuery()} instead.
- */
 public abstract class AbstractCoreAbilitySystem extends EntityTickingSystem<EntityStore> {
 
-    /**
-     * The Core ability this system drives.
-     */
     @NonNullDecl
     public abstract CoreAbility getAbility();
 
-    /**
-     * Called once per tick for each player who has this Core equipped.
-     * Guaranteed: {@link ActiveCoreComponent} is present and matches {@link #getAbility()}.
-     */
     public abstract void tickCore(float deltaSeconds, int index,
                                   ArchetypeChunk<EntityStore> chunk,
                                   Store<EntityStore> store,
@@ -39,10 +22,6 @@ public abstract class AbstractCoreAbilitySystem extends EntityTickingSystem<Enti
                                   Ref<EntityStore> ref,
                                   ActiveCoreComponent activeCore);
 
-    /**
-     * Subclasses that need additional query constraints should override this
-     * and AND their requirements onto the result.
-     */
     @NonNullDecl
     protected Query<EntityStore> buildQuery() {
         return Query.and(

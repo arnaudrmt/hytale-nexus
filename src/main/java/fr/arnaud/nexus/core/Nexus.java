@@ -5,14 +5,13 @@ import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
 import fr.arnaud.nexus.ability.CoreAbilityRouter;
 import fr.arnaud.nexus.ability.impl.DashAbility;
 import fr.arnaud.nexus.ability.impl.SwitchStrikeAbility;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.input.PlayerInputListener;
 import fr.arnaud.nexus.input.VoxelTargetResolver;
 import fr.arnaud.nexus.input.hover.PlayerMouseMotionListener;
 import fr.arnaud.nexus.item.weapon.generator.EnchantmentPoolService;
 import fr.arnaud.nexus.item.weapon.generator.WeaponGenerator;
 import fr.arnaud.nexus.item.weapon.level.WeaponUpgradeService;
-import fr.arnaud.nexus.item.weapon.system.StatIndexResolver;
 import fr.arnaud.nexus.item.weapon.system.WeaponAbilityGuard;
 import fr.arnaud.nexus.item.weapon.system.WeaponEquipSystem;
 import fr.arnaud.nexus.level.LevelManager;
@@ -33,41 +32,45 @@ public final class Nexus extends JavaPlugin {
 
     private static Nexus instance;
 
+    // Diagnostics
     private final PacketDiagnostic packetDiagnostic = new PacketDiagnostic();
     private final InventoryPacketInterceptor inventoryPacketInterceptor = new InventoryPacketInterceptor();
 
+    // Player stats
     private final PlayerStatsManager playerStatsManager = new PlayerStatsManager();
 
+    // Input
     private final VoxelTargetResolver voxelTargetResolver = new VoxelTargetResolver();
-
     private final DashAbility dashAbility = new DashAbility();
     private final SwitchStrikeAbility switchStrikeAbility = new SwitchStrikeAbility();
     private final CoreAbilityRouter coreAbilityRouter = new CoreAbilityRouter(dashAbility);
-
     private final PlayerInputListener playerInputListener = new PlayerInputListener(coreAbilityRouter);
     private final PlayerMouseMotionListener playerMouseMotionListener = new PlayerMouseMotionListener(voxelTargetResolver);
 
+    // World & level
     private final NexusWorldLoadSystem nexusWorldLoadSystem = new NexusWorldLoadSystem();
     private final LevelManager levelManager = new LevelManager();
-    private final MobSpawnerManager mobSpawnerManager = new MobSpawnerManager(new ChestManager());
+    private final NewRunService newRunService = new NewRunService();
 
+    // Spawner
+    private final MobSpawnerManager mobSpawnerManager = new MobSpawnerManager(new ChestManager());
     private final WaveBarStateProvider waveBarStateProvider = new WaveBarStateProvider();
 
+    // Weapon
     private final EnchantmentPoolService enchantmentPoolService = new EnchantmentPoolService();
-    private final StatIndexResolver statIndexResolver = new StatIndexResolver();
     private final WeaponEquipSystem weaponEquipSystem = new WeaponEquipSystem();
     private final WeaponGenerator weaponGenerator = new WeaponGenerator(enchantmentPoolService);
     private final WeaponUpgradeService weaponUpgradeService = new WeaponUpgradeService(playerStatsManager);
+    private final WeaponAbilityGuard weaponAbilityGuard = new WeaponAbilityGuard();
 
+    // Tutorial
     private final TutorialInterceptor tutorialInterceptor = new TutorialInterceptor();
     private final TutorialManager tutorialManager = new TutorialManager();
 
+    // UI
     private final NexusHudSystem nexusHudSystem = new NexusHudSystem();
     private final WaveBarSystem waveBarSystem = new WaveBarSystem();
 
-    private final WeaponAbilityGuard weaponAbilityGuard = new WeaponAbilityGuard();
-
-    private final NewRunService newRunService = new NewRunService();
 
     public Nexus(@NonNullDecl JavaPluginInit init) {
         super(init);
@@ -76,7 +79,7 @@ public final class Nexus extends JavaPlugin {
 
     @Override
     protected void setup() {
-        new NexusInitializer(this).init();
+        new NexusInitializer(this).initialize();
     }
 
     @Override
@@ -136,6 +139,10 @@ public final class Nexus extends JavaPlugin {
         return levelManager;
     }
 
+    public NewRunService getNewRunService() {
+        return newRunService;
+    }
+
     public MobSpawnerManager getMobSpawnerManager() {
         return mobSpawnerManager;
     }
@@ -148,10 +155,6 @@ public final class Nexus extends JavaPlugin {
         return enchantmentPoolService;
     }
 
-    public StatIndexResolver getStatIndexResolver() {
-        return statIndexResolver;
-    }
-
     public WeaponEquipSystem getWeaponEquipSystem() {
         return weaponEquipSystem;
     }
@@ -162,6 +165,10 @@ public final class Nexus extends JavaPlugin {
 
     public WeaponUpgradeService getWeaponUpgradeService() {
         return weaponUpgradeService;
+    }
+
+    public WeaponAbilityGuard getWeaponAbilityGuard() {
+        return weaponAbilityGuard;
     }
 
     public TutorialInterceptor getTutorialInterceptor() {
@@ -178,13 +185,5 @@ public final class Nexus extends JavaPlugin {
 
     public WaveBarSystem getWaveBarSystem() {
         return waveBarSystem;
-    }
-
-    public WeaponAbilityGuard getWeaponAbilityGuard() {
-        return weaponAbilityGuard;
-    }
-
-    public NewRunService getNewRunService() {
-        return newRunService;
     }
 }

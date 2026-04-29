@@ -6,16 +6,8 @@
     "Model": "Items/Weapons/Dagger/Mithril.blockymodel",
     "Texture": "Items/Weapons/Dagger/Mithril_Texture.png",
     "Icon": "Icons/ItemsGenerated/Weapon_Daggers_Mithril.png",
-    "DurabilityLossOnHit": 0,
     "Interactions": {
-        "Ability2": {
-            "Interactions": [
-                {
-                    "Type": "ChangeActiveSlot",
-                    "TargetSlot": 0
-                }
-            ]
-        }
+        "Ability2": {}
     },
     "Recipe": {
         "TimeSeconds": 5,

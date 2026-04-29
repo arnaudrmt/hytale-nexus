@@ -13,38 +13,16 @@ import javax.annotation.Nullable;
 
 public final class PlayerWeaponStateComponent implements Component<EntityStore> {
 
-    private static ComponentType<EntityStore, PlayerWeaponStateComponent> componentType;
-
     public WeaponTag activeTag;
     @Nullable
     public BsonDocument meleeDocument;
     @Nullable
     public BsonDocument rangedDocument;
 
+    private static ComponentType<EntityStore, PlayerWeaponStateComponent> componentType;
+
     public PlayerWeaponStateComponent() {
         activeTag = WeaponTag.MELEE;
-    }
-
-    public static ComponentType<EntityStore, PlayerWeaponStateComponent> getComponentType() {
-        return componentType;
-    }
-
-    public static void setComponentType(ComponentType<EntityStore, PlayerWeaponStateComponent> type) {
-        componentType = type;
-    }
-
-    @Nullable
-    public BsonDocument getActiveDocument() {
-        return activeTag == WeaponTag.MELEE ? meleeDocument : rangedDocument;
-    }
-
-    @Nullable
-    public BsonDocument getInactiveDocument() {
-        return activeTag == WeaponTag.MELEE ? rangedDocument : meleeDocument;
-    }
-
-    public WeaponTag getInactiveTag() {
-        return activeTag == WeaponTag.MELEE ? WeaponTag.RANGED : WeaponTag.MELEE;
     }
 
     public void setDocument(WeaponTag tag, BsonDocument doc) {
@@ -73,6 +51,28 @@ public final class PlayerWeaponStateComponent implements Component<EntityStore> 
         )
         .add()
         .build();
+
+    @Nullable
+    public BsonDocument getActiveDocument() {
+        return activeTag == WeaponTag.MELEE ? meleeDocument : rangedDocument;
+    }
+
+    @Nullable
+    public BsonDocument getInactiveDocument() {
+        return activeTag == WeaponTag.MELEE ? rangedDocument : meleeDocument;
+    }
+
+    public WeaponTag getInactiveTag() {
+        return activeTag == WeaponTag.MELEE ? WeaponTag.RANGED : WeaponTag.MELEE;
+    }
+
+    public static ComponentType<EntityStore, PlayerWeaponStateComponent> getComponentType() {
+        return componentType;
+    }
+
+    public static void setComponentType(ComponentType<EntityStore, PlayerWeaponStateComponent> type) {
+        componentType = type;
+    }
 
     @Override
     public PlayerWeaponStateComponent clone() {

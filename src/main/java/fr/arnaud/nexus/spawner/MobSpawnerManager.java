@@ -6,14 +6,11 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.math.util.ChunkUtil;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
-import com.hypixel.hytale.protocol.Color;
-import com.hypixel.hytale.protocol.Direction;
-import com.hypixel.hytale.protocol.Position;
 import com.hypixel.hytale.protocol.SoundCategory;
-import com.hypixel.hytale.protocol.packets.world.SpawnParticleSystem;
 import com.hypixel.hytale.server.core.asset.type.soundevent.config.SoundEvent;
 import com.hypixel.hytale.server.core.modules.entity.EntityModule;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
+import com.hypixel.hytale.server.core.universe.world.ParticleUtil;
 import com.hypixel.hytale.server.core.universe.world.SoundUtil;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.chunk.ChunkFlag;
@@ -22,7 +19,6 @@ import com.hypixel.hytale.server.core.universe.world.storage.ChunkStore;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.npc.NPCPlugin;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.input.PlayerInputListener;
 import fr.arnaud.nexus.level.LevelConfig;
 import fr.arnaud.nexus.level.LevelProgressComponent;
 import fr.arnaud.nexus.level.LevelTransitionService;
@@ -65,6 +61,7 @@ public final class MobSpawnerManager {
         levelTransitionTriggered = false;
         retryQueue.clear();
         int idSequence = 0;
+        stateRestored = false;
         for (LevelConfig.SpawnerConfig spawnerConfig : config.getSpawners()) {
             spawnerStates.add(new SpawnerState(idSequence++, spawnerConfig));
         }
@@ -91,6 +88,8 @@ public final class MobSpawnerManager {
         drainRetryQueue();
         chestManager.tick(position);
 
+        restoreCompletedSpawners(progress);
+
         if (!portalSpawned && areAllSpawnersComplete()) {
             spawnFinishPortal();
         }
@@ -100,6 +99,8 @@ public final class MobSpawnerManager {
         }
 
         for (SpawnerState state : spawnerStates) {
+            if (state.isChestSpawned()) continue;
+
             if (!state.isTriggered() && progress != null
                 && progress.triggeredSpawners.contains(state.getId())) {
                 state.markTriggered();
@@ -113,9 +114,22 @@ public final class MobSpawnerManager {
         }
     }
 
+    private boolean stateRestored = false;
+
+    private void restoreCompletedSpawners(LevelProgressComponent progress) {
+        if (stateRestored || progress == null || progress.completedSpawners.isEmpty()) return;
+        stateRestored = true;
+        for (SpawnerState state : spawnerStates) {
+            if (progress.completedSpawners.contains(state.getId())) {
+                state.markTriggered();
+                state.markChestSpawned();
+            }
+        }
+    }
+
     private boolean areAllSpawnersComplete() {
         if (spawnerStates.isEmpty()) return false;
-        SpawnerState last = spawnerStates.get(spawnerStates.size() - 1);
+        SpawnerState last = spawnerStates.getLast();
         if (last.getConfig().hasLootChest()) {
             return last.isChestSpawned();
         }
@@ -126,16 +140,15 @@ public final class MobSpawnerManager {
     private void spawnFinishPortal() {
         portalSpawned = true;
         LevelConfig.Position pos = Nexus.get().getLevelManager().getCurrentConfig().getFinishPoint();
-        SpawnParticleSystem packet = new SpawnParticleSystem(
-            "MagicPortal",
-            new Position(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5),
-            new Direction(0, 360, 0),
-            1.0f,
-            new Color((byte) 255, (byte) 255, (byte) 255)
-        );
-        activeWorld.getPlayerRefs().forEach(playerRef ->
-            playerRef.getPacketHandler().writeNoCache(packet)
-        );
+        Vector3d portalPos = new Vector3d(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5);
+
+        activeWorld.execute(() -> activeWorld.getPlayerRefs().forEach(_ ->
+            ParticleUtil.spawnParticleEffect(
+                "MagicPortal_Default",
+                portalPos,
+                activeWorld.getEntityStore().getStore()
+            )
+        ));
     }
 
     private void checkPortalProximity(Vector3d position, Ref<EntityStore> playerRef,
@@ -148,21 +161,6 @@ public final class MobSpawnerManager {
         if (dx * dx + dy * dy + dz * dz > PORTAL_TRIGGER_RADIUS * PORTAL_TRIGGER_RADIUS) return;
 
         levelTransitionTriggered = true;
-
-        // Stop the looping portal particle before transitioning
-        Position center = new Position(pos.getX() + 0.5, pos.getY() + 1.5, pos.getZ() + 0.5);
-        SpawnParticleSystem stopPacket = new SpawnParticleSystem(
-            "MagicPortal_Stop",
-            center,
-            new Direction(0, 0, 0),
-            0.0f,
-            new Color((byte) 0, (byte) 0, (byte) 0)
-        );
-        activeWorld.execute(() ->
-            activeWorld.getPlayerRefs().forEach(p ->
-                p.getPacketHandler().writeNoCache(stopPacket)
-            )
-        );
 
         getLevelTransitionService().onPortalEntered(playerRef, commandBuffer, activeWorld);
     }
@@ -233,6 +231,11 @@ public final class MobSpawnerManager {
         spawnLootChest(state);
 
         if (progress != null) {
+            progress.completedSpawners.add(state.getId());
+            commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
+        }
+
+        if (progress != null) {
             LevelConfig.Position pos = state.getConfig().getPosition();
             progress.checkpointX = (float) pos.getX();
             progress.checkpointY = (float) pos.getY();
@@ -271,37 +274,10 @@ public final class MobSpawnerManager {
         });
     }
 
-    /**
-     * Called by {@link PlayerInputListener} when a player left-clicks a block.
-     * Checks if the clicked position matches any pending chest, ejects the loot,
-     * and breaks the chest block.
-     *
-     * @return true if the click was consumed by a chest interaction
-     */
     public boolean tryOpenChest(Vector3d clickedBlockCenter, Ref<EntityStore> playerRef,
                                 Store<EntityStore> store) {
         return chestManager.tryOpenChest(
             clickedBlockCenter, playerRef, store, Collections.unmodifiableList(spawnerStates));
-    }
-
-    private com.hypixel.hytale.server.core.inventory.ItemStack buildLootStack(String itemId) {
-        if (isNexusWeapon(itemId)) {
-            com.hypixel.hytale.server.core.asset.type.item.config.Item item =
-                com.hypixel.hytale.server.core.asset.type.item.config.Item
-                    .getAssetMap().getAsset(itemId);
-            if (item != null) {
-                org.bson.BsonDocument doc = fr.arnaud.nexus.core.Nexus.get()
-                                                                      .getWeaponGenerator().generateWeapon(item);
-                if (doc != null) {
-                    return new com.hypixel.hytale.server.core.inventory.ItemStack(itemId, 1, doc);
-                }
-            }
-        }
-        return new com.hypixel.hytale.server.core.inventory.ItemStack(itemId, 1);
-    }
-
-    private static boolean isNexusWeapon(String itemId) {
-        return itemId.startsWith("Nexus_Melee_") || itemId.startsWith("Nexus_Ranged_");
     }
 
     private void tickTimeWaveTransition(SpawnerState state, LevelConfig.WaveConfig nextWave, float dt) {

@@ -15,21 +15,13 @@ import fr.arnaud.nexus.ability.CoreAbility;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.feature.combat.PlayerBodyStateComponent;
 import fr.arnaud.nexus.feature.movement.PlayerDashComponent;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-/**
- * Core ability: Dash.
- *
- * <p>Replaces {@code PlayerDashSystem}. Direction resolution logic lives here.
- * The tick loop is a no-op for Dash — all state advancement happens inside
- * {@link PlayerDashComponent#tick(float)} driven by {@link fr.arnaud.nexus.feature.combat.PlayerLocomotionSystem}.
- * This system only serves as the activation entry point via {@link #tryActivate}.
- */
 public final class DashAbility extends AbstractCoreAbilitySystem {
 
     @NonNullDecl
@@ -47,20 +39,13 @@ public final class DashAbility extends AbstractCoreAbilitySystem {
         );
     }
 
-    /**
-     * Tick is intentionally empty — dash state is advanced by
-     * {@link fr.arnaud.nexus.feature.combat.PlayerLocomotionSystem}.
-     */
+    // Dash state is advanced by PlayerLocomotionSystem — no per-tick logic needed here.
     @Override
     public void tickCore(float deltaSeconds, int index, ArchetypeChunk<EntityStore> chunk,
                          Store<EntityStore> store, CommandBuffer<EntityStore> cmd,
                          Ref<EntityStore> ref, ActiveCoreComponent activeCore) {
-        // No per-tick logic needed for Dash at the ability level.
     }
 
-    /**
-     * Input-driven activation. Called by {@link fr.arnaud.nexus.ability.CoreAbilityRouter}.
-     */
     public void tryActivate(@NonNullDecl Player player,
                             @NonNullDecl Ref<EntityStore> ref,
                             @NonNullDecl Store<EntityStore> store) {
@@ -80,8 +65,6 @@ public final class DashAbility extends AbstractCoreAbilitySystem {
 
         store.putComponent(ref, PlayerDashComponent.getComponentType(), dash);
     }
-
-    // --- Direction resolution (absorbed from PlayerDashSystem) ---
 
     private static float[] resolveDirection(@NonNullDecl Ref<EntityStore> ref,
                                             @NonNullDecl Store<EntityStore> store,

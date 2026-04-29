@@ -9,6 +9,7 @@ import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.entity.UUIDComponent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
+import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.modules.entity.component.TransformComponent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
@@ -23,6 +24,8 @@ import fr.arnaud.nexus.feature.combat.strike.StrikeComponent;
 import fr.arnaud.nexus.feature.movement.PlayerDashComponent;
 import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import fr.arnaud.nexus.input.hover.PlayerHoverStateComponent;
+import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
+import fr.arnaud.nexus.level.LevelProgressComponent;
 import fr.arnaud.nexus.level.NexusWorldLoadSystem;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
@@ -39,15 +42,16 @@ public final class PlayerSessionListener {
         var store = ref.getStore();
         World currentWorld = store.getExternalData().getWorld();
 
-        if (currentWorld.getName().toLowerCase().contains("nexus")) {
+        if (currentWorld.getName().startsWith(NexusWorldLoadSystem.LEVEL_WORLD_KEY_PREFIX)) {
             if (store.getComponent(ref, PlayerCameraComponent.getComponentType()) == null) {
-                bootstrapComponents(ref, store);
+                attachPlayerComponents(ref, store);
             }
+            restorePlayerState(ref, store);
             return;
         }
 
         NexusWorldLoadSystem levelSystem = Nexus.get().getNexusWorldLoadSystem();
-        CompletableFuture<World> pending = levelSystem.getPendingNexusWorld();
+        CompletableFuture<World> pending = levelSystem.getPendingActiveWorld();
 
         if (pending == null) return;
         if (pending.isDone() && pending.join() == null) return;
@@ -68,21 +72,37 @@ public final class PlayerSessionListener {
                 Ref<EntityStore> newRef = entityStore.getRefFromUUID(playerUuid);
                 if (newRef == null || !newRef.isValid()) return;
 
-
                 if (store.getComponent(ref, PlayerCameraComponent.getComponentType()) == null) {
-                    bootstrapComponents(ref, store);
+                    attachPlayerComponents(ref, store);
+                    restorePlayerState(newRef, entityStore.getStore());
                 }
-                return;
             });
         });
 
-        currentWorld.execute(() -> {
-            InstancesPlugin.teleportPlayerToLoadingInstance(ref, store, pending, returnLocation);
+        currentWorld.execute(() -> InstancesPlugin.teleportPlayerToLoadingInstance(ref, store, pending, returnLocation));
+    }
+
+    private static void restorePlayerState(Ref<EntityStore> ref, Store<EntityStore> store) {
+        store.getExternalData().getWorld().execute(() -> {
+            if (!ref.isValid()) return;
+
+            PlayerCameraComponent camera = store.getComponent(ref, PlayerCameraComponent.getComponentType());
+            if (camera != null) {
+                camera.markClientReady();
+                store.putComponent(ref, PlayerCameraComponent.getComponentType(), camera);
+            }
+
+            PlayerWeaponStateComponent weaponState = store.getComponent(ref, PlayerWeaponStateComponent.getComponentType());
+            if (weaponState != null && weaponState.getActiveDocument() != null) {
+                String archetypeId = weaponState.getActiveDocument().getString("archetype_id").getValue();
+                ItemStack stack = new ItemStack(archetypeId, 1, weaponState.getActiveDocument());
+                Nexus.get().getWeaponEquipSystem().onWeaponEquipped(ref, stack, store);
+            }
         });
     }
 
-    private static void bootstrapComponents(@NonNullDecl Ref<EntityStore> ref,
-                                            @NonNullDecl Store<EntityStore> store) {
+    private static void attachPlayerComponents(@NonNullDecl Ref<EntityStore> ref,
+                                               @NonNullDecl Store<EntityStore> store) {
         store.putComponent(ref, HeadLockComponent.getComponentType(), new HeadLockComponent());
         store.putComponent(ref, PlayerCameraComponent.getComponentType(), new PlayerCameraComponent());
         store.putComponent(ref, PlayerBodyStateComponent.getComponentType(), new PlayerBodyStateComponent());
@@ -91,6 +111,10 @@ public final class PlayerSessionListener {
         store.putComponent(ref, StrikeComponent.getComponentType(), new StrikeComponent());
         store.putComponent(ref, PlayerOcclusionComponent.getComponentType(), new PlayerOcclusionComponent());
         store.putComponent(ref, PlayerHoverStateComponent.getComponentType(), new PlayerHoverStateComponent());
+
+        if (store.getComponent(ref, LevelProgressComponent.getComponentType()) == null) {
+            store.putComponent(ref, LevelProgressComponent.getComponentType(), new LevelProgressComponent());
+        }
 
         if (store.getComponent(ref, RunSessionComponent.getComponentType()) == null) {
             store.putComponent(ref, RunSessionComponent.getComponentType(), new RunSessionComponent());

@@ -1,7 +1,7 @@
 package fr.arnaud.nexus.item.weapon.enchantment.impl;
 
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
@@ -19,14 +19,18 @@ public final class EnchantVampirism implements EnchantEffectHandler {
 
     @Override
     public void onKill(NexusEnchantEvent event, int enchantLevel) {
+
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return;
-        EnchantmentStatDefinition stat = def.getStat(STAT_ID);
+
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById(STAT_ID);
         if (stat == null) return;
+
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;
+        
         float maxHealth = psm.getMaxHealth(event.attacker(), event.store());
-        float healAmount = (float) stat.compute(enchantLevel, maxHealth);
+        float healAmount = (float) stat.computeStateValueForLevel(enchantLevel, maxHealth);
         psm.addHealth(event.attacker(), event.store(), healAmount);
     }
 }

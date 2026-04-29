@@ -15,12 +15,6 @@ import java.util.logging.Level;
 
 /**
  * Reads a level JSON file from the plugin's resources and returns a {@link LevelConfig}.
- *
- * <p>Files must be placed at: {@code resources/levels/<levelId>.json}
- *
- * <p>This class is stateless — call {@link #load(String)} each time you need
- * to parse a config. Parsing happens once at world load; the result is handed
- * to {@link LevelManager} and kept for the duration of the run.
  */
 public final class LevelConfigLoader {
 
@@ -30,14 +24,7 @@ public final class LevelConfigLoader {
     private LevelConfigLoader() {
     }
 
-    /**
-     * Loads and parses {@code resources/levels/<levelId>.json}.
-     *
-     * @param levelId the level identifier, e.g. {@code "level_1"}
-     * @return the parsed {@link LevelConfig}, or {@code null} if the file is
-     * missing or malformed (error is logged)
-     */
-    public static LevelConfig load(String levelId) {
+    public static LevelConfig loadAndParseLevelConfig(String levelId) {
         String resourcePath = LEVELS_PATH + levelId + ".json";
         InputStream stream = Nexus.class.getResourceAsStream(resourcePath);
 
@@ -63,6 +50,7 @@ public final class LevelConfigLoader {
         String name = root.get("name").getAsString();
         float difficulty = root.get("difficulty").getAsFloat();
         String nextLevelId = root.has("nextLevelId") ? root.get("nextLevelId").getAsString() : null;
+        String instanceTemplate = root.get("instanceTemplate").getAsString();
 
         LevelConfig.Position spawnPoint = parsePosition(root.getAsJsonObject("spawnPoint"));
         LevelConfig.Position finishPoint = parsePosition(root.getAsJsonObject("finishPoint"));
@@ -81,7 +69,7 @@ public final class LevelConfigLoader {
         }
 
 
-        return new LevelConfig(id, name, difficulty, spawnPoint, finishPoint, spawners, independentChests, nextLevelId);
+        return new LevelConfig(id, name, difficulty, spawnPoint, finishPoint, spawners, independentChests, nextLevelId, instanceTemplate);
     }
 
     private static LevelConfig.Position parsePosition(JsonObject obj) {
@@ -113,7 +101,7 @@ public final class LevelConfigLoader {
             }
         }
 
-        // "lootChest" is optional — absent means no chest spawns for this spawner
+        // "lootChest" is optional - absent means no chest spawns for this spawner
         LevelConfig.LootChestConfig lootChest = null;
         JsonObject lootChestObj = obj.getAsJsonObject("lootChest");
         if (lootChestObj != null) {

@@ -13,8 +13,6 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
  * Listens for Ability2 (weapon swap) on the Netty thread.
- * Confirms the Strike combo transition if the player is in SWITCH_WINDOW.
- * Consumed flag prevents double-fire within the same window.
  */
 public final class StrikeWeaponSwapInterceptor {
 

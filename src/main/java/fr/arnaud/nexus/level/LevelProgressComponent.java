@@ -17,6 +17,7 @@ public class LevelProgressComponent implements Component<EntityStore> {
     private static ComponentType<EntityStore, LevelProgressComponent> TYPE;
 
     public List<Integer> triggeredSpawners = new ArrayList<>();
+    public List<Integer> completedSpawners = new ArrayList<>();
 
     public float checkpointX = Float.NaN;
     public float checkpointY = Float.NaN;
@@ -35,7 +36,13 @@ public class LevelProgressComponent implements Component<EntityStore> {
         .add().append(new KeyedCodec<>("CheckpointX", Codec.FLOAT), (c, v) -> c.checkpointX = v, c -> c.checkpointX)
         .add().append(new KeyedCodec<>("CheckpointY", Codec.FLOAT), (c, v) -> c.checkpointY = v, c -> c.checkpointY)
         .add().append(new KeyedCodec<>("CheckpointZ", Codec.FLOAT), (c, v) -> c.checkpointZ = v, c -> c.checkpointZ)
-        .add().build();
+        .add().append(
+            new KeyedCodec<>("CompletedSpawners", new ArrayCodec<>(Codec.INTEGER, size -> new Integer[size])),
+            (component, value) -> component.completedSpawners = value != null ? new ArrayList<>(Arrays.asList(value)) : new ArrayList<>(),
+            component -> component.completedSpawners.toArray(new Integer[0])
+        )
+        .add()
+        .build();
 
     public boolean hasCheckpoint() {
         return !Float.isNaN(checkpointX);
@@ -53,6 +60,7 @@ public class LevelProgressComponent implements Component<EntityStore> {
     public LevelProgressComponent clone() {
         LevelProgressComponent clone = new LevelProgressComponent();
         clone.triggeredSpawners.addAll(this.triggeredSpawners);
+        clone.completedSpawners.addAll(this.completedSpawners);
         clone.checkpointX = this.checkpointX;
         clone.checkpointY = this.checkpointY;
         clone.checkpointZ = this.checkpointZ;

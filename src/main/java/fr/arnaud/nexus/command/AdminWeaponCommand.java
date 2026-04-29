@@ -15,12 +15,16 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.level.WeaponUpgradeService;
 import org.bson.BsonDocument;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
+/**
+ * Dev command for managing weapons.
+ * Usage: /nexusweapon <give|stats|levelup|essence> [params]
+ */
 public final class AdminWeaponCommand extends AbstractPlayerCommand {
 
     private final RequiredArg<String> subcommandArg = this.withRequiredArg(

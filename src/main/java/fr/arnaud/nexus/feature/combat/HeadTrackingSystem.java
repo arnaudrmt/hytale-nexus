@@ -35,8 +35,7 @@ public final class HeadTrackingSystem extends EntityTickingSystem<EntityStore> {
         HeadRotation head = chunk.getComponent(index, HeadRotation.getComponentType());
 
         if (lock.getLockedEntityNetworkId() != -1) {
-            Ref<EntityStore> targetRef = store.getExternalData()
-                                              .getRefFromNetworkId(lock.getLockedEntityNetworkId());
+            Ref<EntityStore> targetRef = store.getExternalData().getRefFromNetworkId(lock.getLockedEntityNetworkId());
 
             if (targetRef == null || !targetRef.isValid()) {
                 lock.unlock();
@@ -48,12 +47,8 @@ public final class HeadTrackingSystem extends EntityTickingSystem<EntityStore> {
             TransformComponent targetTransform = store.getComponent(targetRef, TransformComponent.getComponentType());
             if (playerTransform == null || targetTransform == null) return;
 
-            Vector3f rotation = computeAimRotation(
-                playerTransform.getPosition(), targetTransform.getPosition());
+            Vector3f rotation = computeAimRotation(playerTransform.getPosition(), targetTransform.getPosition());
             head.teleportRotation(rotation);
-
-            double dx = targetTransform.getPosition().getX() - playerTransform.getPosition().getX();
-            double dz = targetTransform.getPosition().getZ() - playerTransform.getPosition().getZ();
 
             lock.lockOnEntity(rotation, lock.getRemainingTimeSec(), lock.getLockedEntityNetworkId());
         } else {
@@ -61,7 +56,6 @@ public final class HeadTrackingSystem extends EntityTickingSystem<EntityStore> {
         }
 
         if (!lock.tick(dt)) {
-            // Timer expired — write the unock
             cmd.run(s -> {
                 s.putComponent(ref, HeadRotation.getComponentType(), head);
                 s.putComponent(ref, HeadLockComponent.getComponentType(), lock);

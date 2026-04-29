@@ -1,7 +1,7 @@
 package fr.arnaud.nexus.item.weapon.enchantment.impl;
 
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
@@ -21,10 +21,10 @@ public final class EnchantLifeDrain implements EnchantEffectHandler {
         EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition stat = def.getStat("LifeDrainAmount");
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById("LifeDrainAmount");
         if (stat == null) return;
 
-        float healAmount = (float) stat.getValue(enchantLevel);
+        float healAmount = (float) stat.getStatValueForLevel(enchantLevel);
         PlayerStatsManager psm = Nexus.get().getPlayerStatsManager();
         if (!psm.isReady()) return;
 

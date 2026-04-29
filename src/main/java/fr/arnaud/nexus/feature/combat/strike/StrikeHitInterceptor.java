@@ -12,8 +12,6 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
  * During the HIT_WINDOW phase, registers any damaged entity as a Strike target.
- * During the COMBO phase, folds incoming damage on frozen targets into the per-target
- * combo accumulator and cancels the real damage event.
  */
 public final class StrikeHitInterceptor extends DamageEventSystem {
 

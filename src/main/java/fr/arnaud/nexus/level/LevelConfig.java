@@ -3,10 +3,6 @@ package fr.arnaud.nexus.level;
 import javax.annotation.Nullable;
 import java.util.List;
 
-/**
- * Immutable data model representing a single level's static configuration.
- * Parsed once from JSON at world load time. Never modified at runtime.
- */
 public final class LevelConfig {
 
     private final String id;
@@ -17,12 +13,13 @@ public final class LevelConfig {
     private final List<SpawnerConfig> spawners;
     private final List<IndependentChestConfig> independentChests;
     private final String nextLevelId;
+    private final String instanceTemplate;
 
     public LevelConfig(String id, String name, float difficulty,
                        Position spawnPoint, Position finishPoint,
                        List<SpawnerConfig> spawners,
                        List<IndependentChestConfig> independentChests,
-                       String nextLevelId) {
+                       String nextLevelId, String instanceTemplate) {
         this.id = id;
         this.name = name;
         this.difficulty = difficulty;
@@ -31,6 +28,7 @@ public final class LevelConfig {
         this.spawners = List.copyOf(spawners);
         this.independentChests = List.copyOf(independentChests);
         this.nextLevelId = nextLevelId;
+        this.instanceTemplate = instanceTemplate;
     }
 
     public String getId() {
@@ -59,6 +57,10 @@ public final class LevelConfig {
 
     public List<IndependentChestConfig> getIndependentChests() {
         return independentChests;
+    }
+
+    public String getInstanceTemplate() {
+        return instanceTemplate;
     }
 
     @Nullable
@@ -267,13 +269,6 @@ public final class LevelConfig {
         }
     }
 
-    // -------------------------------------------------------------------------
-
-    /**
-     * Loot table attached to a spawner. Evaluated once when the spawner's final wave ends.
-     * Each item rolls independently — a chest can contain any subset, including none.
-     * If all rolls fail, the highest-chance item is guaranteed as a fallback.
-     */
     public static class LootChestConfig {
         private final List<LootChestItem> items;
 
@@ -289,9 +284,6 @@ public final class LevelConfig {
     public static final class LootChestItem {
         private final String itemId;
 
-        /**
-         * Independent drop probability in [0.0, 1.0]. Each item is rolled separately.
-         */
         private final float chance;
 
         public LootChestItem(String itemId, float chance) {

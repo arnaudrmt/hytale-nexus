@@ -7,7 +7,7 @@ import com.hypixel.hytale.server.core.ui.builder.UICommandBuilder;
 import com.hypixel.hytale.server.core.ui.builder.UIEventBuilder;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
@@ -188,8 +188,8 @@ public final class EnchantmentGridPage {
         StringBuilder sb = new StringBuilder();
 
         for (EnchantmentStatDefinition stat : def.getStats()) {
-            double currentVal = stat.getValue(currentLevel);
-            double nextVal = stat.getValue(nextLevel);
+            double currentVal = stat.getStatValueForLevel(currentLevel);
+            double nextVal = stat.getStatValueForLevel(nextLevel);
             double delta = nextVal - currentVal;
 
             if (stat.getType() == EnchantmentStatDefinition.StatType.CURVE) {
@@ -316,7 +316,7 @@ public final class EnchantmentGridPage {
     }
 
     private static String formatStatValue(@Nonnull EnchantmentStatDefinition stat, int level) {
-        double raw = stat.getValue(level);
+        double raw = stat.getStatValueForLevel(level);
         if (stat.getType() == EnchantmentStatDefinition.StatType.CURVE) {
             return String.format("×%.2f", raw);
         } else {

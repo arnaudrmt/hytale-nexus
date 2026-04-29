@@ -1,8 +1,10 @@
 package fr.arnaud.nexus.level;
 
+import com.hypixel.hytale.builtin.instances.InstancesPlugin;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.component.RemoveReason;
 import com.hypixel.hytale.component.Store;
+import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
@@ -21,7 +23,7 @@ import fr.arnaud.nexus.ability.ActiveCoreComponent;
 import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.component.RunSessionComponent;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.feature.ressource.PlayerStatsManager;
+import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
@@ -29,35 +31,61 @@ import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import org.bson.BsonDocument;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public final class NewRunService {
 
     private static final String STARTING_LEVEL_ID = "level_1";
 
-    /**
-     * Resets all run state and teleports the player to the start of level 1.
-     * Must be called from within a world.execute() context.
-     */
     public void startNewRun(Ref<EntityStore> playerRef, Store<EntityStore> store, World world) {
-        boolean loaded = Nexus.get().getLevelManager().loadLevel(STARTING_LEVEL_ID);
-        if (!loaded) return;
+        Nexus.get().getNexusWorldLoadSystem()
+             .spawnLevelWorld(STARTING_LEVEL_ID, world)
+             .thenAccept(nextWorld -> {
+                 if (nextWorld == null) return;
 
-        LevelConfig config = Nexus.get().getLevelManager().getCurrentConfig();
-        Nexus.get().getMobSpawnerManager().onLevelLoaded(world, config);
+                 LevelConfig config = LevelConfigLoader.loadAndParseLevelConfig(STARTING_LEVEL_ID);
+                 if (config == null) return;
 
-        world.execute(() -> {
-            Store<EntityStore> s = world.getEntityStore().getStore();
-            s.forEachChunk(
-                SpawnerTagComponent.getComponentType(),
-                (chunk, cmd) -> {
-                    for (int i = 0; i < chunk.size(); i++) {
-                        Ref<EntityStore> ref = chunk.getReferenceTo(i);
-                        if (ref.isValid()) cmd.removeEntity(ref, RemoveReason.REMOVE);
-                    }
-                }
-            );
-            resetPlayerComponents(playerRef, s, config);
-        });
+                 LevelConfig.Position spawn = config.getSpawnPoint();
+                 Transform spawnTransform = new Transform(
+                     new Vector3d(spawn.getX(), spawn.getY(), spawn.getZ()),
+                     new Vector3f(0f, CameraPacketBuilder.ISO_YAW_RAD, 0f)
+                 );
+
+                 world.execute(() -> {
+                     if (!playerRef.isValid()) return;
+                     Store<EntityStore> s = world.getEntityStore().getStore();
+                     resetPlayerComponents(playerRef, s, config);
+                     Nexus.get().getNexusWorldLoadSystem().activateLevelWorld(nextWorld, STARTING_LEVEL_ID);
+
+                     if (nextWorld == world) {
+                         s.addComponent(playerRef,
+                             com.hypixel.hytale.server.core.modules.entity.teleport.Teleport.getComponentType(),
+                             com.hypixel.hytale.server.core.modules.entity.teleport.Teleport.createForPlayer(
+                                 new com.hypixel.hytale.math.vector.Vector3d(spawn.getX(), spawn.getY(), spawn.getZ()),
+                                 new com.hypixel.hytale.math.vector.Vector3f(0f, fr.arnaud.nexus.camera.CameraPacketBuilder.ISO_YAW_RAD, 0f)
+                             ));
+                     } else {
+                         InstancesPlugin.teleportPlayerToLoadingInstance(
+                             playerRef, s,
+                             CompletableFuture.completedFuture(nextWorld),
+                             spawnTransform
+                         );
+                     }
+
+                     world.execute(() -> {
+                         s.forEachChunk(
+                             SpawnerTagComponent.getComponentType(),
+                             (chunk, cmd) -> {
+                                 for (int i = 0; i < chunk.size(); i++) {
+                                     Ref<EntityStore> ref = chunk.getReferenceTo(i);
+                                     if (ref.isValid()) cmd.removeEntity(ref, RemoveReason.REMOVE);
+                                 }
+                             }
+                         );
+                     });
+                 });
+             });
     }
 
     private void resetPlayerComponents(Ref<EntityStore> playerRef,
@@ -84,6 +112,7 @@ public final class NewRunService {
             playerRef, LevelProgressComponent.getComponentType());
         if (progress != null) {
             progress.triggeredSpawners.clear();
+            progress.completedSpawners.clear();
             progress.checkpointX = Float.NaN;
             progress.checkpointY = Float.NaN;
             progress.checkpointZ = Float.NaN;

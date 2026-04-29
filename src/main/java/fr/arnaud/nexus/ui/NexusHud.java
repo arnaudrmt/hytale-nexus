@@ -20,8 +20,6 @@ public final class NexusHud extends CustomUIHud {
         cmd.append("TutorialHud.ui");
     }
 
-    // ── Wave bar ─────────────────────────────────────────────────────────
-
     public void showWave(int currentWave, int totalWaves, int killed, int total) {
         UICommandBuilder cmd = new UICommandBuilder();
         cmd.set("#WaveBarPanel.Visible", true);
@@ -48,8 +46,6 @@ public final class NexusHud extends CustomUIHud {
         cmd.set("#WaveBarPanel.Visible", false);
         update(false, cmd);
     }
-
-    // ── Tutorial ─────────────────────────────────────────────────────────
 
     public void showTutorialStep(TutorialStepConfig step) {
         UICommandBuilder cmd = new UICommandBuilder();

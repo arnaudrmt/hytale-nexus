@@ -13,6 +13,10 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 import java.util.List;
 
+/**
+ * Dev command for inspecting run sessions.
+ * Usage: /nexusrun
+ */
 public final class AdminRunCommand extends AbstractPlayerCommand {
 
     public AdminRunCommand() {
@@ -56,9 +60,6 @@ public final class AdminRunCommand extends AbstractPlayerCommand {
         });
     }
 
-    /**
-     * Formats milliseconds as mm:ss:SSS
-     */
     private static String formatMs(long ms) {
         long minutes = ms / 60_000;
         long seconds = (ms % 60_000) / 1_000;

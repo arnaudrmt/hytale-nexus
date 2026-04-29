@@ -34,7 +34,7 @@ public final class SpawnerProximitySystem extends EntityTickingSystem<EntityStor
         Ref<EntityStore> playerRef = chunk.getReferenceTo(index);
         LevelProgressComponent progress = chunk.getComponent(index, LevelProgressComponent.getComponentType());
 
-        if (progress == null) {
+        if (progress != null && !progress.triggeredSpawners.isEmpty()) {
             progress = new LevelProgressComponent();
             commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
         }

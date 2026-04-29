@@ -14,14 +14,7 @@
     "Interactions": {
         "Primary": "Battleaxe_Scythe_Void_Attack",
         "Secondary": "Spear_Block",
-        "Ability2": {
-            "Interactions": [
-                {
-                    "Type": "ChangeActiveSlot",
-                    "TargetSlot": 0
-                }
-            ]
-        }
+        "Ability2": {}
     },
     "InteractionVars": {
         "Spear_Block_Damage": "Spear_Block_Damage",

@@ -6,11 +6,6 @@ import java.util.Set;
 
 /**
  * Defines which asset IDs are eligible for cursor hover highlighting.
- * <p>
- * Block IDs match the furniture/block asset name (e.g. "Furniture_Dungeon_Chest_Epic").
- * Entity type IDs match the NPC role name used by NPCPlugin.
- * <p>
- * Extend both sets freely as new interactables are added to the mod.
  */
 public final class CursorHoverAllowlist {
 

@@ -46,11 +46,6 @@ public final class WeaponGenerator {
                      .orElse(WeaponTag.MELEE);
     }
 
-    /**
-     * Rolls two distinct enchantment choices per slot.
-     * No enchantment id may appear more than once across all slots in either choice position.
-     * slotCount is driven by quality value (Common=0, Rare=1, Epic=2, Legendary=3).
-     */
     private List<EnchantmentSlot> rollEnchantmentSlots(WeaponTag tag, int slotCount) {
         List<EnchantmentSlot> slots = new ArrayList<>();
         List<EnchantmentDefinition> pool = new ArrayList<>(poolService.getPoolForTag(tag));
@@ -65,11 +60,9 @@ public final class WeaponGenerator {
 
             if (available.size() < 2) break;
 
-            // Pick choice A
             EnchantmentDefinition choiceA = available.get(random.nextInt(available.size()));
             usedIds.add(choiceA.getId());
 
-            // Pick choice B from what remains after A is excluded
             List<EnchantmentDefinition> remainingAfterA = available.stream()
                                                                    .filter(def -> !def.getId().equals(choiceA.getId()))
                                                                    .toList();

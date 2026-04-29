@@ -4,7 +4,6 @@ import com.hypixel.hytale.protocol.*;
 import com.hypixel.hytale.protocol.packets.camera.SetServerCamera;
 
 /**
- * Factory class for creating {@link SetServerCamera} packets.
  * Handles the state transitions between ISO and First-Person views.
  */
 public final class CameraPacketBuilder {
@@ -19,14 +18,6 @@ public final class CameraPacketBuilder {
     private CameraPacketBuilder() {
     }
 
-    /**
-     * Builds the packet for the default Isometric view.
-     * <p>
-     * IMPORTANT: {@code movementForceRotation} must match the camera yaw so the
-     * client remaps WASD axes relative to the camera, not the player's body yaw.
-     * Without this, pressing S when the character faces the camera moves them in
-     * the wrong direction (controls appear flipped at ±180° body yaw).
-     */
     public static SetServerCamera buildIso(PlayerCameraComponent cam) {
         ServerCameraSettings s = new ServerCameraSettings();
 
@@ -49,20 +40,10 @@ public final class CameraPacketBuilder {
         return new SetServerCamera(ClientCameraView.Custom, true, s);
     }
 
-    /**
-     * Builds the packet for the First-Person Glimpse state.
-     * Uses the native {@link ClientCameraView#FirstPerson} view which correctly
-     * captures the cursor at the OS level, unlike {@code Custom} with {@code isFirstPerson = true}.
-     */
     public static SetServerCamera buildGlimpseActive() {
         return new SetServerCamera(ClientCameraView.FirstPerson, true, null);
     }
 
-    /**
-     * Builds the packet for the ISO → Glimpse transition.
-     *
-     * @param t Normalized transition progress (0.0 to 1.0).
-     */
     public static SetServerCamera buildEntryTransition(float t, float isoDistance) {
         float eased = easeInOutCubic(t);
 
@@ -84,11 +65,6 @@ public final class CameraPacketBuilder {
         return new SetServerCamera(ClientCameraView.Custom, true, s);
     }
 
-    /**
-     * Builds the packet for the Glimpse → ISO exit transition.
-     *
-     * @param t Normalized transition progress (0.0 to 1.0).
-     */
     public static SetServerCamera buildExitTransition(float t, float isoDistance) {
         float eased = easeInOutQuad(t);
 
@@ -111,9 +87,6 @@ public final class CameraPacketBuilder {
         return new SetServerCamera(ClientCameraView.Custom, true, s);
     }
 
-    /**
-     * Releases server camera control, restoring the client's default camera behavior.
-     */
     public static SetServerCamera buildReset() {
         return new SetServerCamera(ClientCameraView.Custom, false, null);
     }
@@ -128,18 +101,12 @@ public final class CameraPacketBuilder {
         s.applyMovementType = ApplyMovementType.CharacterController;
     }
 
-    /**
-     * Easing function: Cubic S-curve for snappy entry movement.
-     */
     public static float easeInOutCubic(float t) {
         if (t < 0.5f) return 4f * t * t * t;
         float f = -2f * t + 2f;
         return 1f - (f * f * f) / 2f;
     }
 
-    /**
-     * Easing function: Quadratic S-curve for gentle exit movement.
-     */
     public static float easeInOutQuad(float t) {
         return t < 0.5f ? 2f * t * t : 1f - (-2f * t + 2f) * (-2f * t + 2f) / 2f;
     }
