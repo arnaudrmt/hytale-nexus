@@ -1,0 +1,77 @@
+{
+    "steps": [
+        {
+            "id": "WELCOME",
+            "titleKey": "tutorial.welcome.title",
+            "bodyKey": "tutorial.welcome.body",
+            "triggerType": "MANUAL",
+            "displaySeconds": 6.0
+        },
+        {
+            "id": "WEAPON_SWAP",
+            "titleKey": "tutorial.weapon_swap.title",
+            "bodyKey": "tutorial.weapon_swap.body",
+            "triggerType": "WEAPON_SWAP"
+        },
+        {
+            "id": "OPEN_INVENTORY",
+            "titleKey": "tutorial.open_inventory.title",
+            "bodyKey": "tutorial.open_inventory.body",
+            "triggerType": "INVENTORY_OPEN"
+        },
+        {
+            "id": "INVENTORY_OVERVIEW",
+            "titleKey": "tutorial.inventory_overview.title",
+            "bodyKey": "tutorial.inventory_overview.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "CHARACTER_SLOTS",
+            "titleKey": "tutorial.character_slots.title",
+            "bodyKey": "tutorial.character_slots.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "CORE_SLOT",
+            "titleKey": "tutorial.core_slot.title",
+            "bodyKey": "tutorial.core_slot.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "CHARACTER_BUTTONS",
+            "titleKey": "tutorial.character_buttons.title",
+            "bodyKey": "tutorial.character_buttons.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "CHARACTER_STATS",
+            "titleKey": "tutorial.character_stats.title",
+            "bodyKey": "tutorial.character_stats.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "ENCHANTMENT_STATION",
+            "titleKey": "tutorial.enchantment_station.title",
+            "bodyKey": "tutorial.enchantment_station.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "WEAPON_PANEL",
+            "titleKey": "tutorial.weapon_panel.title",
+            "bodyKey": "tutorial.weapon_panel.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "INVENTORY_PANEL",
+            "titleKey": "tutorial.inventory_panel.title",
+            "bodyKey": "tutorial.inventory_panel.body",
+            "triggerType": "MANUAL"
+        },
+        {
+            "id": "CLOSING",
+            "titleKey": "tutorial.closing.title",
+            "bodyKey": "tutorial.closing.body",
+            "triggerType": "MANUAL"
+        }
+    ]
+}

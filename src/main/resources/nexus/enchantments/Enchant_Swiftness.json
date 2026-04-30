@@ -1,0 +1,23 @@
+{
+    "Id": "Enchant_Swiftness",
+    "Name": "Swiftness",
+    "Description": "Increases your movement speed.",
+    "Icon": "CharacterPanelStatIconStamina.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 75,
+    "CostCurve": 1.42,
+    "Stats": [
+        {
+            "Id": "Swiftness",
+            "DisplayName": "Speed",
+            "Type": "Flat",
+            "Values": {
+                "1": 0.5,
+                "2": 0.9,
+                "3": 1.4,
+                "4": 2.0,
+                "5": 2.8
+            }
+        }
+    ]
+}

@@ -1,0 +1,2246 @@
+{
+    "id": "level_2",
+    "name": "The Weird Mesa",
+    "difficulty": 1.0,
+    "instanceTemplate": "Nexus_Level_2",
+    "spawnPoint": {
+        "x": 0.5,
+        "y": 80.0,
+        "z": 0.5
+    },
+    "finishPoint": {
+        "x": 1047.5,
+        "y": 61.0,
+        "z": -81.5
+    },
+    "spawners": [
+        {
+            "_comment": "S1 - Opener, Outlander_Unsworn + Wolf_Black",
+            "position": {
+                "x": 26.0,
+                "y": 79.0,
+                "z": -8.0
+            },
+            "triggerRadius": 5.0,
+            "spawnRadius": 3.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Trork_Warrior",
+                    "minCount": 3,
+                    "maxCount": 4,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 14,
+                    "maxEssence": 24
+                },
+                {
+                    "mobId": "Wolf_Black",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 0.9,
+                    "wave": 2,
+                    "minEssence": 12,
+                    "maxEssence": 20
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.6
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S2 - Outlander_Cultist + Outlander_Berserker",
+            "position": {
+                "x": 87.0,
+                "y": 80.0,
+                "z": -51.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Trork_Shaman",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 16,
+                    "maxEssence": 28
+                },
+                {
+                    "mobId": "Trork_Brawler",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 20,
+                    "maxEssence": 36
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina",
+                        "chance": 0.6
+                    },
+                    {
+                        "itemId": "Food_Salad_Caesar",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S3 - Trork_Hunter pack + Wraith (1), large radius",
+            "position": {
+                "x": 170.0,
+                "y": 80.0,
+                "z": -46.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Trork_Hunter",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 16,
+                    "maxEssence": 28
+                },
+                {
+                    "mobId": "Wraith",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 2.0,
+                    "wave": 2,
+                    "minEssence": 28,
+                    "maxEssence": 46
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Apple",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.6
+                    },
+                    {
+                        "itemId": "Potion_Signature_Small",
+                        "chance": 0.45
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S4 - Outlander_Marauder + Hound_Bleached pack",
+            "position": {
+                "x": 196.0,
+                "y": 80.0,
+                "z": -18.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Hyena",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.7,
+                    "wave": 1,
+                    "minEssence": 14,
+                    "maxEssence": 24
+                },
+                {
+                    "mobId": "Trork_Warrior",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.0,
+                    "wave": 2,
+                    "minEssence": 20,
+                    "maxEssence": 34
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Greater",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.6
+                    },
+                    {
+                        "itemId": "Food_Salad_Caesar",
+                        "chance": 0.55
+                    },
+                    {
+                        "itemId": "Nexus_Melee_Daggers_Ancient",
+                        "chance": 0.5
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S5 - Outlander_Stalker + Outlander_Sorcerer",
+            "position": {
+                "x": 246.0,
+                "y": 80.0,
+                "z": -2.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Trork_Sentry",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.2,
+                    "wave": 1,
+                    "minEssence": 26,
+                    "maxEssence": 44
+                },
+                {
+                    "mobId": "Trork_Shaman",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 28,
+                    "maxEssence": 50
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Signature_Small",
+                        "chance": 0.5
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S6 - Outlander_Brute + Shadow_Knight intro",
+            "position": {
+                "x": 256.0,
+                "y": 80.0,
+                "z": -64.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Trork_Mauler",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.1,
+                    "wave": 1,
+                    "minEssence": 26,
+                    "maxEssence": 46
+                },
+                {
+                    "mobId": "Shadow_Knight",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 2.0,
+                    "wave": 2,
+                    "minEssence": 35,
+                    "maxEssence": 60
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.5
+                    },
+                    {
+                        "itemId": "Nexus_Melee_Scythe_Void",
+                        "chance": 0.05
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S7 - Outlander_Priest + Outlander_Berserker, large radius",
+            "position": {
+                "x": 308.0,
+                "y": 79.0,
+                "z": -94.0
+            },
+            "triggerRadius": 15.0,
+            "spawnRadius": 10.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Trork_Brawler",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 22,
+                    "maxEssence": 38
+                },
+                {
+                    "mobId": "Trork_Sentry",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 26,
+                    "maxEssence": 44
+                },
+                {
+                    "mobId": "Trork_Chieftain",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.0,
+                    "wave": 3,
+                    "minEssence": 34,
+                    "maxEssence": 58
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S8 - Shadow_Knight + Wraith + Hound_Bleached, large radius",
+            "position": {
+                "x": 385.0,
+                "y": 80.0,
+                "z": -120.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 5.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Hyena",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.7,
+                    "wave": 1,
+                    "minEssence": 16,
+                    "maxEssence": 28
+                },
+                {
+                    "mobId": "Shadow_Knight",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 1.8,
+                    "wave": 2,
+                    "minEssence": 38,
+                    "maxEssence": 65
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.6
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S9 - Trork_Mauler + Trork_Shaman + Wraith (1), large radius",
+            "position": {
+                "x": 413.0,
+                "y": 83.0,
+                "z": -69.0
+            },
+            "triggerRadius": 15.0,
+            "spawnRadius": 8.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Trork_Mauler",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.1,
+                    "wave": 1,
+                    "minEssence": 28,
+                    "maxEssence": 50
+                },
+                {
+                    "mobId": "Trork_Shaman",
+                    "minCount": 3,
+                    "maxCount": 4,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 30,
+                    "maxEssence": 55
+                },
+                {
+                    "mobId": "Wraith",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 2.0,
+                    "wave": 3,
+                    "minEssence": 32,
+                    "maxEssence": 56
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.6
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S10 - Sand intro + Trork_Guard reinforcement",
+            "position": {
+                "x": 579.0,
+                "y": 70.0,
+                "z": -69.0
+            },
+            "triggerRadius": 20.0,
+            "spawnRadius": 10.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 4,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Zombie_Sand",
+                    "minCount": 5,
+                    "maxCount": 8,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 18,
+                    "maxEssence": 32
+                },
+                {
+                    "mobId": "Skeleton_Sand_Scout",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 1.0,
+                    "wave": 2,
+                    "minEssence": 20,
+                    "maxEssence": 36
+                },
+                {
+                    "mobId": "Dungeon_Skeleton_Sand_Soldier",
+                    "minCount": 2,
+                    "maxCount": 4,
+                    "spawnRate": 1.2,
+                    "wave": 3,
+                    "minEssence": 24,
+                    "maxEssence": 42
+                },
+                {
+                    "mobId": "Trork_Guard",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.4,
+                    "wave": 4,
+                    "minEssence": 28,
+                    "maxEssence": 48
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.6
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S11 - Skeleton_Sand_Archer + Ranger + Ghoul finisher",
+            "position": {
+                "x": 619.0,
+                "y": 70.0,
+                "z": -82.0
+            },
+            "triggerRadius": 20.0,
+            "spawnRadius": 10.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Dungeon_Skeleton_Sand_Archer",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 22,
+                    "maxEssence": 38
+                },
+                {
+                    "mobId": "Skeleton_Sand_Ranger",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 26,
+                    "maxEssence": 44
+                },
+                {
+                    "mobId": "Ghoul",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.0,
+                    "wave": 3,
+                    "minEssence": 38,
+                    "maxEssence": 64
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.6
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S12 - Huge arena. Sand Golem + Thunder Golem gauntlet, loot Nexus_Melee_Daggers_Mithril 100 percent chance",
+            "position": {
+                "x": 674.0,
+                "y": 70.0,
+                "z": -80.0
+            },
+            "triggerRadius": 20.0,
+            "spawnRadius": 10.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 4,
+                    "type": "time",
+                    "value": 15
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Dungeon_Skeleton_Sand_Soldier",
+                    "minCount": 5,
+                    "maxCount": 8,
+                    "spawnRate": 0.9,
+                    "wave": 1,
+                    "minEssence": 26,
+                    "maxEssence": 44
+                },
+                {
+                    "mobId": "Skeleton_Sand_Mage",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 28,
+                    "maxEssence": 48
+                },
+                {
+                    "mobId": "Skeleton_Sand_Assassin",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.4,
+                    "wave": 3,
+                    "minEssence": 30,
+                    "maxEssence": 52
+                },
+                {
+                    "mobId": "Golem_Crystal_Sand",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.0,
+                    "wave": 4,
+                    "minEssence": 60,
+                    "maxEssence": 100
+                },
+                {
+                    "mobId": "Trork_Chieftain",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.0,
+                    "wave": 2,
+                    "minEssence": 40,
+                    "maxEssence": 68
+                },
+                {
+                    "mobId": "Golem_Crystal_Thunder",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.0,
+                    "wave": 4,
+                    "minEssence": 65,
+                    "maxEssence": 110
+                },
+                {
+                    "mobId": "Skeleton_Sand",
+                    "minCount": 5,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 4,
+                    "minEssence": 20,
+                    "maxEssence": 34
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.95
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.65
+                    },
+                    {
+                        "itemId": "Nexus_Melee_Daggers_Mithril",
+                        "chance": 1.0
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S13 - Skeleton_Sand_Guard + Zombie_Sand + Ghoul",
+            "position": {
+                "x": 692.0,
+                "y": 70.0,
+                "z": -44.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 3.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Zombie_Sand",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 1,
+                    "minEssence": 20,
+                    "maxEssence": 36
+                },
+                {
+                    "mobId": "Skeleton_Sand_Guard",
+                    "minCount": 2,
+                    "maxCount": 4,
+                    "spawnRate": 1.3,
+                    "wave": 2,
+                    "minEssence": 30,
+                    "maxEssence": 52
+                },
+                {
+                    "mobId": "Ghoul",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.0,
+                    "wave": 3,
+                    "minEssence": 36,
+                    "maxEssence": 60
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Signature",
+                        "chance": 0.6
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S14 - Skeleton_Sand_Assassin + Ranger + Trork_Guard + sand swarm",
+            "position": {
+                "x": 778.0,
+                "y": 67.0,
+                "z": -59.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 3.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Sand_Assassin",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.4,
+                    "wave": 1,
+                    "minEssence": 32,
+                    "maxEssence": 55
+                },
+                {
+                    "mobId": "Skeleton_Sand_Ranger",
+                    "minCount": 2,
+                    "maxCount": 4,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 28,
+                    "maxEssence": 48
+                },
+                {
+                    "mobId": "Trork_Guard",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.4,
+                    "wave": 3,
+                    "minEssence": 30,
+                    "maxEssence": 52
+                },
+                {
+                    "mobId": "Zombie_Sand",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 0.7,
+                    "wave": 3,
+                    "minEssence": 18,
+                    "maxEssence": 30
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S15 - Skeleton_Sand_Mage + Guard + Golem_Crystal_Thunder swarm",
+            "position": {
+                "x": 807.0,
+                "y": 67.0,
+                "z": -51.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 3.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Sand_Guard",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.1,
+                    "wave": 1,
+                    "minEssence": 30,
+                    "maxEssence": 52
+                },
+                {
+                    "mobId": "Skeleton_Sand_Mage",
+                    "minCount": 2,
+                    "maxCount": 4,
+                    "spawnRate": 1.5,
+                    "wave": 2,
+                    "minEssence": 30,
+                    "maxEssence": 52
+                },
+                {
+                    "mobId": "Golem_Crystal_Thunder",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.0,
+                    "wave": 3,
+                    "minEssence": 62,
+                    "maxEssence": 105
+                },
+                {
+                    "mobId": "Skeleton_Sand",
+                    "minCount": 5,
+                    "maxCount": 6,
+                    "spawnRate": 0.8,
+                    "wave": 3,
+                    "minEssence": 20,
+                    "maxEssence": 34
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.7
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.55
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S16 - Golem_Crystal_Sand + Skeleton_Sand_Assassin + Wraith (1)",
+            "position": {
+                "x": 787.0,
+                "y": 67.0,
+                "z": -110.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 8.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Sand_Assassin",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 1.2,
+                    "wave": 1,
+                    "minEssence": 34,
+                    "maxEssence": 58
+                },
+                {
+                    "mobId": "Golem_Crystal_Sand",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.0,
+                    "wave": 2,
+                    "minEssence": 60,
+                    "maxEssence": 100
+                },
+                {
+                    "mobId": "Wraith",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 2.5,
+                    "wave": 3,
+                    "minEssence": 45,
+                    "maxEssence": 75
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.9
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.6
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S17 - Skeleton_Sand_Archmage + Guard + Trork_Mauler",
+            "position": {
+                "x": 840.0,
+                "y": 70.0,
+                "z": -83.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 8.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "time",
+                    "value": 10
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Sand_Guard",
+                    "minCount": 4,
+                    "maxCount": 7,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 32,
+                    "maxEssence": 56
+                },
+                {
+                    "mobId": "Skeleton_Sand_Archmage",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.5,
+                    "wave": 2,
+                    "minEssence": 50,
+                    "maxEssence": 85
+                },
+                {
+                    "mobId": "Trork_Mauler",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 1.6,
+                    "wave": 3,
+                    "minEssence": 38,
+                    "maxEssence": 65
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.9
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.65
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S18 - Skeleton_Sand_Mage + Assassin + Archmage + Spawn_Void finisher",
+            "position": {
+                "x": 868.0,
+                "y": 70.0,
+                "z": -26.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 10.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "time",
+                    "value": 5
+                },
+                {
+                    "wave": 4,
+                    "type": "time",
+                    "value": 5
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Sand_Mage",
+                    "minCount": 3,
+                    "maxCount": 5,
+                    "spawnRate": 1.5,
+                    "wave": 1,
+                    "minEssence": 32,
+                    "maxEssence": 56
+                },
+                {
+                    "mobId": "Skeleton_Sand_Assassin",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 1.2,
+                    "wave": 2,
+                    "minEssence": 34,
+                    "maxEssence": 58
+                },
+                {
+                    "mobId": "Skeleton_Sand_Archmage",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.5,
+                    "wave": 3,
+                    "minEssence": 52,
+                    "maxEssence": 88
+                },
+                {
+                    "mobId": "Spawn_Void",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.5,
+                    "wave": 4,
+                    "minEssence": 80,
+                    "maxEssence": 130
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.9
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.65
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S19 - Golem_Crystal_Sand + Thunder + Ghoul + sand swarm elite corridor",
+            "position": {
+                "x": 967.0,
+                "y": 69.0,
+                "z": -81.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 8.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Sand_Guard",
+                    "minCount": 5,
+                    "maxCount": 8,
+                    "spawnRate": 1.0,
+                    "wave": 1,
+                    "minEssence": 34,
+                    "maxEssence": 60
+                },
+                {
+                    "mobId": "Golem_Crystal_Sand",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.0,
+                    "wave": 2,
+                    "minEssence": 65,
+                    "maxEssence": 110
+                },
+                {
+                    "mobId": "Golem_Crystal_Thunder",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.0,
+                    "wave": 3,
+                    "minEssence": 65,
+                    "maxEssence": 110
+                },
+                {
+                    "mobId": "Skeleton_Sand",
+                    "minCount": 5,
+                    "maxCount": 6,
+                    "spawnRate": 0.7,
+                    "wave": 3,
+                    "minEssence": 20,
+                    "maxEssence": 32
+                },
+                {
+                    "mobId": "Ghoul",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 2.0,
+                    "wave": 2,
+                    "minEssence": 42,
+                    "maxEssence": 70
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.9
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.75
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.7
+                    }
+                ]
+            }
+        },
+        {
+            "_comment": "S20 - Final corridor. Archmage + Assassin + Golem + Shadow_Knight + Spawn_Void + Wraith closer",
+            "position": {
+                "x": 1033.0,
+                "y": 60.0,
+                "z": -82.0
+            },
+            "triggerRadius": 10.0,
+            "spawnRadius": 8.0,
+            "waves": [
+                {
+                    "wave": 1,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 2,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                },
+                {
+                    "wave": 3,
+                    "type": "time",
+                    "value": 12
+                },
+                {
+                    "wave": 4,
+                    "type": "kill",
+                    "value": 0.75,
+                    "timeout": 0.0
+                }
+            ],
+            "mobs": [
+                {
+                    "mobId": "Skeleton_Sand_Assassin",
+                    "minCount": 4,
+                    "maxCount": 6,
+                    "spawnRate": 1.2,
+                    "wave": 1,
+                    "minEssence": 36,
+                    "maxEssence": 62
+                },
+                {
+                    "mobId": "Skeleton_Sand_Archmage",
+                    "minCount": 2,
+                    "maxCount": 3,
+                    "spawnRate": 2.5,
+                    "wave": 2,
+                    "minEssence": 55,
+                    "maxEssence": 92
+                },
+                {
+                    "mobId": "Golem_Crystal_Sand",
+                    "minCount": 1,
+                    "maxCount": 2,
+                    "spawnRate": 3.0,
+                    "wave": 3,
+                    "minEssence": 70,
+                    "maxEssence": 120
+                },
+                {
+                    "mobId": "Shadow_Knight",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 2.0,
+                    "wave": 3,
+                    "minEssence": 80,
+                    "maxEssence": 150
+                },
+                {
+                    "mobId": "Spawn_Void",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 3.5,
+                    "wave": 3,
+                    "minEssence": 85,
+                    "maxEssence": 140
+                },
+                {
+                    "mobId": "Wraith",
+                    "minCount": 1,
+                    "maxCount": 1,
+                    "spawnRate": 2.5,
+                    "wave": 4,
+                    "minEssence": 55,
+                    "maxEssence": 95
+                }
+            ],
+            "lootChest": {
+                "items": [
+                    {
+                        "itemId": "Potion_Health_Large",
+                        "chance": 0.95
+                    },
+                    {
+                        "itemId": "Bandage_Crude",
+                        "chance": 0.8
+                    },
+                    {
+                        "itemId": "Potion_Stamina_Greater",
+                        "chance": 0.9
+                    },
+                    {
+                        "itemId": "Food_Pie_Meat",
+                        "chance": 0.85
+                    },
+                    {
+                        "itemId": "Potion_Signature_Greater",
+                        "chance": 0.75
+                    }
+                ]
+            }
+        }
+    ],
+    "independentChests": [
+        {
+            "_comment": "IC 1 - Opening, strong consumables carryover from L1 endgame",
+            "position": {
+                "x": -27.0,
+                "y": 80.0,
+                "z": -16.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Potion_Health_Greater",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Stamina",
+                    "chance": 0.65
+                }
+            ]
+        },
+        {
+            "_comment": "IC 2 - Early, pies + stamina",
+            "position": {
+                "x": 70.0,
+                "y": 80.0,
+                "z": -10.0
+            },
+            "triggerRadius": 2.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Apple",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Food_Salad_Caesar",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Stamina_Greater",
+                    "chance": 0.6
+                }
+            ]
+        },
+        {
+            "_comment": "IC 3 - Early, health potions",
+            "position": {
+                "x": 147.0,
+                "y": 80.0,
+                "z": -67.0
+            },
+            "triggerRadius": 2.0,
+            "items": [
+                {
+                    "itemId": "Potion_Health_Greater",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Stamina_Greater",
+                    "chance": 0.6
+                }
+            ]
+        },
+        {
+            "_comment": "IC 4 - Mid-early, pies + signature lesser",
+            "position": {
+                "x": 212.0,
+                "y": 80.0,
+                "z": -40.0
+            },
+            "triggerRadius": 2.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Greater",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Signature_Small",
+                    "chance": 0.5
+                }
+            ]
+        },
+        {
+            "_comment": "IC 5 - Mid-early, salads + stamina",
+            "position": {
+                "x": 220.0,
+                "y": 80.0,
+                "z": 13.0
+            },
+            "triggerRadius": 2.0,
+            "items": [
+                {
+                    "itemId": "Food_Salad_Caesar",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Food_Pie_Apple",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Stamina_Greater",
+                    "chance": 0.65
+                }
+            ]
+        },
+        {
+            "_comment": "IC 6 - Mid, pies + signature",
+            "position": {
+                "x": 270.0,
+                "y": 83.0,
+                "z": -81.0
+            },
+            "triggerRadius": 2.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.65
+                },
+                {
+                    "itemId": "Potion_Signature",
+                    "chance": 0.55
+                }
+            ]
+        },
+        {
+            "_comment": "IC 7 - Mid, large health + signature, large radius",
+            "position": {
+                "x": 357.0,
+                "y": 81.0,
+                "z": -76.0
+            },
+            "triggerRadius": 5.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Signature",
+                    "chance": 0.55
+                }
+            ]
+        },
+        {
+            "_comment": "IC 8 - Mid, pies + signature",
+            "position": {
+                "x": 378.0,
+                "y": 84.0,
+                "z": -29.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Apple",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Signature",
+                    "chance": 0.6
+                }
+            ]
+        },
+        {
+            "_comment": "IC 9 - Mid-late, large health + signature",
+            "position": {
+                "x": 448.0,
+                "y": 80.0,
+                "z": -72.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.7
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.5
+                }
+            ]
+        },
+        {
+            "_comment": "IC 10 - Pre-sand, last forest chest",
+            "position": {
+                "x": 522.0,
+                "y": 75.0,
+                "z": -83.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.55
+                }
+            ]
+        },
+        {
+            "_comment": "IC 11 - Sand zone, large health + greater signature",
+            "position": {
+                "x": 603.0,
+                "y": 71.0,
+                "z": -108.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.6
+                }
+            ]
+        },
+        {
+            "_comment": "IC 12 - Post-arena recovery",
+            "position": {
+                "x": 643.0,
+                "y": 70.0,
+                "z": -76.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.9
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.65
+                }
+            ]
+        },
+        {
+            "_comment": "IC 13 - Deep sand, best potions",
+            "position": {
+                "x": 689.0,
+                "y": 70.0,
+                "z": -113.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.65
+                }
+            ]
+        },
+        {
+            "_comment": "IC 14 - Mid-endgame, signature greater",
+            "position": {
+                "x": 731.0,
+                "y": 70.0,
+                "z": -75.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.75
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.7
+                }
+            ]
+        },
+        {
+            "_comment": "IC 15 - Late, best consumables",
+            "position": {
+                "x": 775.0,
+                "y": 68.0,
+                "z": -38.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.9
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.7
+                }
+            ]
+        },
+        {
+            "_comment": "IC 16 - Late, cliff path hidden",
+            "position": {
+                "x": 816.0,
+                "y": 68.0,
+                "z": -110.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.9
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.7
+                }
+            ]
+        },
+        {
+            "_comment": "IC 17 - Elevated path reward",
+            "position": {
+                "x": 811.0,
+                "y": 79.0,
+                "z": -94.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.9
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.75
+                }
+            ]
+        },
+        {
+            "_comment": "IC 18 - Endgame prep",
+            "position": {
+                "x": 899.0,
+                "y": 70.0,
+                "z": -108.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.9
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.8
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.9
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.75
+                }
+            ]
+        },
+        {
+            "_comment": "IC 19 - Pre-final corridor",
+            "position": {
+                "x": 974.0,
+                "y": 70.0,
+                "z": -55.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.95
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.9
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.8
+                }
+            ]
+        },
+        {
+            "_comment": "IC 20 - Final, best-of-best before finish",
+            "position": {
+                "x": 1015.0,
+                "y": 71.0,
+                "z": -57.0
+            },
+            "triggerRadius": 3.0,
+            "items": [
+                {
+                    "itemId": "Food_Pie_Meat",
+                    "chance": 0.95
+                },
+                {
+                    "itemId": "Bandage_Crude",
+                    "chance": 0.85
+                },
+                {
+                    "itemId": "Potion_Health_Large",
+                    "chance": 0.95
+                },
+                {
+                    "itemId": "Potion_Signature_Greater",
+                    "chance": 0.85
+                }
+            ]
+        }
+    ]
+}

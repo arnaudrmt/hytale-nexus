@@ -1,0 +1,131 @@
+$Common = "../Common.ui";
+
+Group {
+    LayoutMode: Full;
+
+    $Common.@DecoratedContainer #DashboardRoot {
+        Anchor: (Width: 600, Height: 380);
+
+        #Title {
+            $Common.@Title {
+                @Text = "Run Complete";
+            }
+        }
+
+        #Content {
+            LayoutMode: Top;
+            Padding: (Full: 16);
+
+            // Time
+            Group {
+                LayoutMode: Left;
+                Anchor: (Height: 48, Bottom: 10);
+                Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                Padding: (Horizontal: 14);
+
+                Label {
+                    Text: "Total Time";
+                    Style: (FontSize: 13, TextColor: #878e9c, VerticalAlignment: Center);
+                    FlexWeight: 1;
+                }
+
+                Label #StatTime {
+                    Text: "00:00";
+                    Style: (FontSize: 16, TextColor: #b4c8c9, RenderBold: true, VerticalAlignment: Center);
+                }
+            }
+
+            // Score
+            Group {
+                LayoutMode: Left;
+                Anchor: (Height: 48, Bottom: 10);
+                Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                Padding: (Horizontal: 14);
+
+                Label {
+                    Text: "Score";
+                    Style: (FontSize: 13, TextColor: #878e9c, VerticalAlignment: Center);
+                    FlexWeight: 1;
+                }
+
+                Label #StatScore {
+                    Text: "0";
+                    Style: (FontSize: 16, TextColor: #e2c96e, RenderBold: true, VerticalAlignment: Center);
+                }
+            }
+
+            // Kills / Deaths
+            Group {
+                LayoutMode: Left;
+                Anchor: (Height: 48, Bottom: 10);
+
+                Group {
+                    LayoutMode: Left;
+                    FlexWeight: 1;
+                    Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                    Padding: (Horizontal: 14);
+                    Anchor: (Right: 6);
+
+                    Label {
+                        Text: "Kills";
+                        Style: (FontSize: 13, TextColor: #878e9c, VerticalAlignment: Center);
+                        FlexWeight: 1;
+                    }
+
+                    Label #StatKills {
+                        Text: "0";
+                        Style: (FontSize: 16, TextColor: #99c995, RenderBold: true, VerticalAlignment: Center);
+                    }
+                }
+
+                Group {
+                    LayoutMode: Left;
+                    FlexWeight: 1;
+                    Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                    Padding: (Horizontal: 14);
+
+                    Label {
+                        Text: "Deaths";
+                        Style: (FontSize: 13, TextColor: #878e9c, VerticalAlignment: Center);
+                        FlexWeight: 1;
+                    }
+
+                    Label #StatDeaths {
+                        Text: "0";
+                        Style: (FontSize: 16, TextColor: #c99595, RenderBold: true, VerticalAlignment: Center);
+                    }
+                }
+            }
+
+            // Damage Dealt
+            Group {
+                LayoutMode: Left;
+                Anchor: (Height: 48, Bottom: 10);
+                Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+                Padding: (Horizontal: 14);
+
+                Label {
+                    Text: "Damage Dealt";
+                    Style: (FontSize: 13, TextColor: #878e9c, VerticalAlignment: Center);
+                    FlexWeight: 1;
+                }
+
+                Label #StatDamageDealt {
+                    Text: "0";
+                    Style: (FontSize: 16, TextColor: #b4c8c9, RenderBold: true, VerticalAlignment: Center);
+                }
+            }
+
+            // Close button — no FlexWeight, sits directly below stats
+            Group {
+                LayoutMode: Center;
+                Anchor: (Top: 14);
+
+                $Common.@TextButton #CloseButton {
+                    @Anchor = (Width: 180, Height: 15, Bottom: 0);
+                    @Text = "START NEW RUN";
+                }
+            }
+        }
+    }
+}

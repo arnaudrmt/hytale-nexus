@@ -1,0 +1,119 @@
+package fr.arnaud.nexus.feature.movement;
+
+import com.hypixel.hytale.component.Component;
+import com.hypixel.hytale.component.ComponentType;
+import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
+import fr.arnaud.nexus.util.MessageUtil;
+import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
+
+import javax.annotation.Nullable;
+
+public final class PlayerDashComponent implements Component<EntityStore> {
+
+    public enum DashState {IDLE, DASHING}
+
+    public static final float DASH_DURATION_SEC = 0.25f;
+    public static final float IFRAME_DURATION_SEC = 0.15f;
+
+    @Nullable
+    private static ComponentType<EntityStore, PlayerDashComponent> componentType;
+
+    private DashState dashState = DashState.IDLE;
+    private float dashElapsedSec;
+    private float iFrameElapsedSec;
+    private float dashDirX, dashDirZ;
+    private boolean pendingDashImpulse;
+
+    private boolean perfectDodgeWindowOpen;
+    private boolean perfectDodgeConsumed;
+    private float perfectDodgeWindowRemaining;
+
+    public PlayerDashComponent() {
+    }
+
+    public boolean beginDash(float dirX, float dirZ) {
+        if (dashState != DashState.IDLE) return false;
+        dashState = DashState.DASHING;
+        dashElapsedSec = 0f;
+        iFrameElapsedSec = 0f;
+        pendingDashImpulse = true;
+        dashDirX = dirX;
+        dashDirZ = dirZ;
+        return true;
+    }
+
+    public boolean consumeDashImpulse() {
+        if (!pendingDashImpulse) return false;
+        pendingDashImpulse = false;
+        return true;
+    }
+
+    public void tick(float deltaSec) {
+        if (dashState == DashState.DASHING) {
+            dashElapsedSec += deltaSec;
+            iFrameElapsedSec += deltaSec;
+            if (dashElapsedSec >= DASH_DURATION_SEC) {
+                dashState = DashState.IDLE;
+            }
+        }
+
+        if (perfectDodgeWindowOpen) {
+            perfectDodgeWindowRemaining -= deltaSec;
+            if (perfectDodgeWindowRemaining <= 0f) {
+                perfectDodgeWindowOpen = false;
+                perfectDodgeConsumed = false;
+            }
+        }
+    }
+
+    public DashState getDashState() {
+        return dashState;
+    }
+
+    public float getDashDirX() {
+        return dashDirX;
+    }
+
+    public float getDashDirZ() {
+        return dashDirZ;
+    }
+
+    public float getDashElapsedSec() {
+        return dashElapsedSec;
+    }
+
+    public boolean isIdle() {
+        return dashState == DashState.IDLE;
+    }
+
+    public boolean isIFrameActive() {
+        return dashState == DashState.DASHING && iFrameElapsedSec < IFRAME_DURATION_SEC;
+    }
+
+    @NonNullDecl
+    public static ComponentType<EntityStore, PlayerDashComponent> getComponentType() {
+        if (componentType == null)
+            throw new IllegalStateException(MessageUtil.componentNotRegistered(PlayerDashComponent.class.getSimpleName()));
+        return componentType;
+    }
+
+    public static void setComponentType(@Nullable ComponentType<EntityStore, PlayerDashComponent> type) {
+        componentType = type;
+    }
+
+    @Override
+    @NonNullDecl
+    public PlayerDashComponent clone() {
+        PlayerDashComponent c = new PlayerDashComponent();
+        c.dashState = this.dashState;
+        c.dashElapsedSec = this.dashElapsedSec;
+        c.iFrameElapsedSec = this.iFrameElapsedSec;
+        c.dashDirX = this.dashDirX;
+        c.dashDirZ = this.dashDirZ;
+        c.pendingDashImpulse = this.pendingDashImpulse;
+        c.perfectDodgeWindowOpen = this.perfectDodgeWindowOpen;
+        c.perfectDodgeConsumed = this.perfectDodgeConsumed;
+        c.perfectDodgeWindowRemaining = this.perfectDodgeWindowRemaining;
+        return c;
+    }
+}

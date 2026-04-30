@@ -1,0 +1,35 @@
+{
+    "Id": "Enchant_Poison",
+    "Name": "Poison",
+    "Description": "Poisons enemies on hit.",
+    "Icon": "CharacterPanelStatIconHealth.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 55,
+    "CostCurve": 1.38,
+    "Stats": [
+        {
+            "Id": "PoisonDuration",
+            "DisplayName": "Poison Duration (s)",
+            "Type": "Flat",
+            "Values": {
+                "1": 2.5,
+                "2": 3.5,
+                "3": 5.0,
+                "4": 6.5,
+                "5": 8.5
+            }
+        },
+        {
+            "Id": "PoisonDamagePerSecond",
+            "DisplayName": "Damage per Second",
+            "Type": "Flat",
+            "Values": {
+                "1": 2.5,
+                "2": 4.0,
+                "3": 6.0,
+                "4": 9.0,
+                "5": 13.0
+            }
+        }
+    ]
+}

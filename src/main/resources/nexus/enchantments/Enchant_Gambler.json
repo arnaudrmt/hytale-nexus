@@ -1,0 +1,23 @@
+{
+    "Id": "Enchant_Gambler",
+    "Name": "Gambler",
+    "Description": "Randomly doubles or halves your damage.",
+    "Icon": "CharacterPanelStatIconDamage.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 45,
+    "CostCurve": 1.35,
+    "Stats": [
+        {
+            "Id": "GamblerDoubleChance",
+            "DisplayName": "Double Chance",
+            "Type": "Flat",
+            "Values": { "1": 0.12, "2": 0.20, "3": 0.28, "4": 0.36, "5": 0.45 }
+        },
+        {
+            "Id": "GamblerHalveChance",
+            "DisplayName": "Halve Chance",
+            "Type": "Flat",
+            "Values": { "1": 0.12, "2": 0.12, "3": 0.14, "4": 0.16, "5": 0.20 }
+        }
+    ]
+}

@@ -1,0 +1,74 @@
+{
+    "Qualities": [
+        {
+            "_comment": "Common — free to upgrade, minor damage scaling only, no secondary stats",
+            "Quality": 0,
+            "LevelCostBase": 0,
+            "LevelCostCurve": 1,
+            "DamageMultiplierBase": 1.00,
+            "DamageMultiplierCurve": 0.015,
+            "HealthBoostBase": 0,
+            "HealthBoostFlat": 0,
+            "HealthBoostCap": 0,
+            "MovementSpeedBase": 0,
+            "MovementSpeedFlat": 0,
+            "MovementSpeedCap": 0
+        },
+        {
+            "_comment": "Rare — ~136 total essence to L10, unlocks minor health secondary",
+            "Quality": 1,
+            "LevelCostBase": 10,
+            "LevelCostCurve": 1.1,
+            "DamageMultiplierBase": 1.10,
+            "DamageMultiplierCurve": 0.02,
+            "HealthBoostBase": 0,
+            "HealthBoostFlat": 3,
+            "HealthBoostCap": 40,
+            "MovementSpeedBase": 0,
+            "MovementSpeedFlat": 0,
+            "MovementSpeedCap": 0
+        },
+        {
+            "_comment": "Epic — ~407 total essence to L10, health + small speed. Level 1 only drop.",
+            "Quality": 2,
+            "LevelCostBase": 30,
+            "LevelCostCurve": 1.10,
+            "DamageMultiplierBase": 1.25,
+            "DamageMultiplierCurve": 0.025,
+            "HealthBoostBase": 10,
+            "HealthBoostFlat": 5,
+            "HealthBoostCap": 80,
+            "MovementSpeedBase": 0,
+            "MovementSpeedFlat": 0.3,
+            "MovementSpeedCap": 4
+        },
+        {
+            "_comment": "Legendary (Q3) — ~1527 total essence to L10. Level 2 only drop.",
+            "Quality": 3,
+            "LevelCostBase": 80,
+            "LevelCostCurve": 1.18,
+            "DamageMultiplierBase": 1.45,
+            "DamageMultiplierCurve": 0.035,
+            "HealthBoostBase": 15,
+            "HealthBoostFlat": 8,
+            "HealthBoostCap": 150,
+            "MovementSpeedBase": 0,
+            "MovementSpeedFlat": 0.4,
+            "MovementSpeedCap": 6
+        },
+        {
+            "_comment": "Legendary (Q4) — ~4081 total essence to L10. Rarest drop, max power.",
+            "Quality": 4,
+            "LevelCostBase": 180,
+            "LevelCostCurve": 1.22,
+            "DamageMultiplierBase": 1.60,
+            "DamageMultiplierCurve": 0.045,
+            "HealthBoostBase": 20,
+            "HealthBoostFlat": 12,
+            "HealthBoostCap": 200,
+            "MovementSpeedBase": 0.5,
+            "MovementSpeedFlat": 0.5,
+            "MovementSpeedCap": 7
+        }
+    ]
+}
