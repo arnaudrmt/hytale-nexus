@@ -1,0 +1,23 @@
+{
+    "Group": "nexus",
+    "Name": "Nexus",
+    "Version": "1.0.2",
+    "Description": "Discover a fast-paced isometric action-roguelite.",
+    "Authors": [
+        {
+            "Name": "Arnaud",
+            "Email": "your.email@example.com",
+            "Url": "https://github.com/arnaudrmt/hytale-nexus"
+        }
+    ],
+    "Website": "https://your-plugin-website.com",
+    "DisabledByDefault": false,
+    "IncludesAssetPack": true,
+    "Dependencies": {},
+    "OptionalDependencies": {},
+    "ServerVersion": "*",
+    "Main": "fr.arnaud.nexus.core.Nexus",
+    "Worlds": [
+        "Nexus"
+    ]
+}

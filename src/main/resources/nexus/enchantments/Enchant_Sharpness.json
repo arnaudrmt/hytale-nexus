@@ -1,0 +1,23 @@
+{
+    "Id": "Enchant_Sharpness",
+    "Name": "Sharpness",
+    "Description": "Multiplies your weapon damage.",
+    "Icon": "CharacterPanelStatIconDamage.png",
+    "CompatibleTag": "MELEE",
+    "BaseCost": 90,
+    "CostCurve": 1.48,
+    "Stats": [
+        {
+            "Id": "DamageMultiplier",
+            "DisplayName": "Damage Multiplier",
+            "Type": "Curve",
+            "Values": {
+                "1": 1.20,
+                "2": 1.35,
+                "3": 1.55,
+                "4": 1.75,
+                "5": 2.00
+            }
+        }
+    ]
+}

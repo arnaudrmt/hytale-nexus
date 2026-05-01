@@ -1,0 +1,28 @@
+Group {
+    LayoutMode: Full;
+
+    Group #TutorialPanel {
+        Anchor: (Width: 340, Height: 160, Bottom: 180, Right: 20);
+        Background: #0A1525EE;
+        LayoutMode: Top;
+        Padding: (Full: 14);
+        Visible: false;
+
+        Label #TutorialTitle {
+            Style: (FontSize: 13, TextColor: #b4c8c9, RenderBold: true, RenderUppercase: true);
+            Anchor: (Bottom: 8);
+        }
+
+        Label #TutorialBody {
+            Style: (FontSize: 13, TextColor: #A6B2C2FF, Wrap: true);
+            FlexWeight: 1;
+        }
+
+        Label #TutorialClickHint {
+            Text: %tutorial.click.to.continue.button;
+            Style: (FontSize: 12, TextColor: #929CA9FF, RenderBold: false);
+            Anchor: (Top: 6);
+            Visible: false;
+        }
+    }
+}

@@ -1,0 +1,23 @@
+{
+    "Id": "Enchant_StaminaBoost",
+    "Name": "Stamina Boost",
+    "Description": "Increases your maximum stamina.",
+    "Icon": "CharacterPanelStatIconStamina.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 50,
+    "CostCurve": 1.35,
+    "Stats": [
+        {
+            "Id": "StaminaBoost",
+            "DisplayName": "Stamina Boost",
+            "Type": "Flat",
+            "Values": {
+                "1": 1.0,
+                "2": 1.0,
+                "3": 2.0,
+                "4": 3.0,
+                "5": 4.0
+            }
+        }
+    ]
+}
