@@ -10,16 +10,14 @@ import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.input.PlayerInputListener;
 import fr.arnaud.nexus.input.VoxelTargetResolver;
 import fr.arnaud.nexus.input.hover.PlayerMouseMotionListener;
-import fr.arnaud.nexus.item.weapon.generator.EnchantmentPoolService;
 import fr.arnaud.nexus.item.weapon.generator.WeaponGenerator;
 import fr.arnaud.nexus.item.weapon.level.WeaponUpgradeService;
 import fr.arnaud.nexus.item.weapon.system.WeaponEquipSystem;
 import fr.arnaud.nexus.item.weapon.system.WeaponUsageGuard;
-import fr.arnaud.nexus.level.LevelManager;
-import fr.arnaud.nexus.level.NewRunService;
-import fr.arnaud.nexus.level.NexusWorldLoadSystem;
-import fr.arnaud.nexus.spawner.ChestManager;
-import fr.arnaud.nexus.spawner.MobSpawnerManager;
+import fr.arnaud.nexus.level.LevelTransitionService;
+import fr.arnaud.nexus.level.LevelWorldService;
+import fr.arnaud.nexus.level.RunStartService;
+import fr.arnaud.nexus.spawner.SpawnerRegistry;
 import fr.arnaud.nexus.spawner.WaveBarStateProvider;
 import fr.arnaud.nexus.tutorial.TutorialInterceptor;
 import fr.arnaud.nexus.tutorial.TutorialManager;
@@ -39,9 +37,9 @@ public final class Nexus extends JavaPlugin {
     private final PacketDiagnostic packetDiagnostic = new PacketDiagnostic();
 
     // World & Level
-    private final NexusWorldLoadSystem nexusWorldLoadSystem = new NexusWorldLoadSystem();
-    private final LevelManager levelManager = new LevelManager();
-    private final NewRunService newRunService = new NewRunService();
+    private final LevelWorldService levelWorldService = new LevelWorldService();
+    private final LevelTransitionService levelTransitionService = new LevelTransitionService();
+    private final RunStartService runStartService = new RunStartService();
 
     // Player
     private final PlayerStatsManager playerStatsManager = new PlayerStatsManager();
@@ -62,13 +60,12 @@ public final class Nexus extends JavaPlugin {
     private final NexusHudSystem nexusHudSystem = new NexusHudSystem();
     private final WaveBarSystem waveBarSystem = new WaveBarSystem();
 
-    // Combat
-    private final MobSpawnerManager mobSpawnerManager = new MobSpawnerManager(new ChestManager());
+    // Spawner
     private final WaveBarStateProvider waveBarStateProvider = new WaveBarStateProvider();
+    private final SpawnerRegistry spawnerRegistry = new SpawnerRegistry(levelTransitionService, waveBarStateProvider);
 
     // Weapon
-    private final EnchantmentPoolService enchantmentPoolService = new EnchantmentPoolService();
-    private final WeaponGenerator weaponGenerator = new WeaponGenerator(enchantmentPoolService);
+    private final WeaponGenerator weaponGenerator = new WeaponGenerator();
     private final WeaponUpgradeService weaponUpgradeService = new WeaponUpgradeService(playerStatsManager);
     private final WeaponEquipSystem weaponEquipSystem = new WeaponEquipSystem();
     private final WeaponUsageGuard weaponAbilityGuard = new WeaponUsageGuard();
@@ -139,28 +136,24 @@ public final class Nexus extends JavaPlugin {
         return playerMouseMotionListener;
     }
 
-    public NexusWorldLoadSystem getNexusWorldLoadSystem() {
-        return nexusWorldLoadSystem;
+    public LevelWorldService getLevelWorldService() {
+        return levelWorldService;
     }
 
-    public LevelManager getLevelManager() {
-        return levelManager;
+    public LevelTransitionService getLevelTransitionService() {
+        return levelTransitionService;
     }
 
-    public NewRunService getNewRunService() {
-        return newRunService;
+    public RunStartService getRunStartService() {
+        return runStartService;
     }
 
-    public MobSpawnerManager getMobSpawnerManager() {
-        return mobSpawnerManager;
+    public SpawnerRegistry getSpawnerRegistry() {
+        return spawnerRegistry;
     }
 
     public WaveBarStateProvider getWaveBarStateProvider() {
         return waveBarStateProvider;
-    }
-
-    public EnchantmentPoolService getEnchantmentPoolService() {
-        return enchantmentPoolService;
     }
 
     public WeaponEquipSystem getWeaponEquipSystem() {

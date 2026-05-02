@@ -17,23 +17,25 @@ import java.util.concurrent.*;
 public final class EnchantSwiftnessOnKill implements EnchantEffectHandler {
 
     public static final EnchantSwiftnessOnKill INSTANCE = new EnchantSwiftnessOnKill();
-    private static final String ENCHANT_ID = "Enchant_SwiftnessOnKill";
+    public static final String ENCHANT_ID = "Enchant_SwiftnessOnKill";
+
+    public static final String STAT_SPEED_BONUS = "PredatorSpeedBonus";
+    public static final String STAT_DURATION = "PredatorDuration";
 
     private final Map<Ref<EntityStore>, ScheduledFuture<?>> pendingRemovals = new ConcurrentHashMap<>();
     private final Map<Ref<EntityStore>, Float> activeBonuses = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
-
 
     private EnchantSwiftnessOnKill() {
     }
 
     @Override
     public void onKill(NexusEnchantEvent event, int enchantLevel) {
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition speedStat = def.getEnchantmentStatById("PredatorSpeedBonus");
-        EnchantmentStatDefinition durationStat = def.getEnchantmentStatById("PredatorDuration");
+        EnchantmentStatDefinition speedStat = def.getEnchantmentStatById(STAT_SPEED_BONUS);
+        EnchantmentStatDefinition durationStat = def.getEnchantmentStatById(STAT_DURATION);
         if (speedStat == null || durationStat == null) return;
 
         float speedBonus = (float) speedStat.getStatValueForLevel(enchantLevel);

@@ -13,7 +13,6 @@ import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentCostCalculator;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
@@ -112,13 +111,13 @@ public final class EnchantmentGridPage {
                                             float essence) {
         String base = slotBase(i);
 
-        EnchantmentDefinition defA = EnchantmentRegistry.get().getDefinition(slot.choiceA());
-        EnchantmentDefinition defB = EnchantmentRegistry.get().getDefinition(slot.choiceB());
+        EnchantmentDefinition defA = EnchantmentRegistry.getInstance().getDefinition(slot.choiceA());
+        EnchantmentDefinition defB = EnchantmentRegistry.getInstance().getDefinition(slot.choiceB());
 
         if (defA != null) {
             cmd.set(base + " #ChoiceATitle.Text", defA.name());
             cmd.set(base + " #ChoiceADesc.Text", defA.description());
-            int costA = EnchantmentCostCalculator.costForLevel(defA, 1);
+            int costA = defA.costForLevel(1);
             cmd.set(base + " #ChoiceAButton.Text", costA + " ESSENCES");
             cmd.set(base + " #ChoiceAButton.Disabled", essence < costA);
         }
@@ -126,7 +125,7 @@ public final class EnchantmentGridPage {
         if (defB != null) {
             cmd.set(base + " #ChoiceBTitle.Text", defB.name());
             cmd.set(base + " #ChoiceBDesc.Text", defB.description());
-            int costB = EnchantmentCostCalculator.costForLevel(defB, 1);
+            int costB = defB.costForLevel(1);
             cmd.set(base + " #ChoiceBButton.Text", costB + " ESSENCES");
             cmd.set(base + " #ChoiceBButton.Disabled", essence < costB);
         }
@@ -137,7 +136,7 @@ public final class EnchantmentGridPage {
                                             @Nonnull EnchantmentSlot slot,
                                             float essence) {
         String base = slotBase(i);
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(slot.chosen());
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(slot.chosen());
         if (def == null) return;
 
         int currentLevel = slot.currentLevel();
@@ -146,7 +145,7 @@ public final class EnchantmentGridPage {
         cmd.set(base + " #EnchantLevel.Text", "Level " + currentLevel);
         cmd.set(base + " #EnchantDesc.Text", def.description());
 
-        for (EnchantmentDefinition e : EnchantmentRegistry.get().getAllDefinitions()) {
+        for (EnchantmentDefinition e : EnchantmentRegistry.getInstance().getAllDefinitions()) {
             cmd.set(base + " #EnchantIcon " + enchantIconElementId(e.id()) + ".Visible", false);
         }
 
@@ -176,7 +175,7 @@ public final class EnchantmentGridPage {
             cmd.set(base + " #UpgradeEnchantButton.TooltipText", Message.translation("nexus.maximum.item.level.reached"));
         } else {
             int nextLevel = currentLevel + 1;
-            int cost = EnchantmentCostCalculator.costForLevel(def, nextLevel);
+            int cost = def.costForLevel(nextLevel);
             cmd.set(base + " #EnchantCost.Text", formatNumber(cost));
             cmd.set(base + " #UpgradeEnchantButton.Disabled", essence < cost);
             cmd.set(base + " #UpgradeEnchantButton.TooltipText",
@@ -244,11 +243,11 @@ public final class EnchantmentGridPage {
         if (slot.chosen() != null) return false;
 
         String chosenId = pickA ? slot.choiceA() : slot.choiceB();
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(chosenId);
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(chosenId);
         if (def == null) return false;
 
         PlayerStatsManager statsManager = Nexus.getInstance().getPlayerStatsManager();
-        int cost = EnchantmentCostCalculator.costForLevel(def, 1);
+        int cost = def.costForLevel(1);
         if (!statsManager.isReady() || statsManager.getEssenceDust(ref, store) < cost) return false;
 
         statsManager.removeEssenceDust(ref, store, cost);
@@ -283,14 +282,14 @@ public final class EnchantmentGridPage {
         EnchantmentSlot slot = slots.get(slotIndex);
         if (slot.chosen() == null) return false;
 
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(slot.chosen());
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(slot.chosen());
         if (def == null) return false;
 
         int currentLevel = slot.currentLevel();
         if (currentLevel >= def.maxLevel()) return false;
 
         int nextLevel = currentLevel + 1;
-        int cost = EnchantmentCostCalculator.costForLevel(def, nextLevel);
+        int cost = def.costForLevel(nextLevel);
 
         PlayerStatsManager statsManager = Nexus.getInstance().getPlayerStatsManager();
         if (!statsManager.isReady() || statsManager.getEssenceDust(ref, store) < cost) return false;

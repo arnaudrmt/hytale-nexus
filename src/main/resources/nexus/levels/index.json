@@ -1,0 +1,14 @@
+{
+    "levels": [
+        "level_1",
+        "level_2"
+    ],
+    "defaults": {
+        "activationRadius": 8.0,
+        "spawnRadius": 4.0,
+        "spawnStaggerInterval": 1,
+        "waveTimeoutSeconds": 0.0,
+        "killWaveThreshold": 0.8,
+        "timeWaveInterval": 10.0
+    }
+}

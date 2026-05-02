@@ -20,9 +20,9 @@ public final class WeaponInstanceComponent implements Component<EntityStore> {
     public WeaponTag weaponTag;
     public List<EnchantmentSlot> enchantmentSlots;
 
-    public double damageMultiplierCurve;
-    public double healthBoostCurve;
-    public double movementSpeedCurve;
+    public double damageMultiplier;
+    public double healthBonus;
+    public double movementSpeedBonus;
 
     public WeaponInstanceComponent() {
         enchantmentSlots = new ArrayList<>();
@@ -45,9 +45,9 @@ public final class WeaponInstanceComponent implements Component<EntityStore> {
         c.level = this.level;
         c.weaponTag = this.weaponTag;
         c.enchantmentSlots = new ArrayList<>(this.enchantmentSlots);
-        c.damageMultiplierCurve = this.damageMultiplierCurve;
-        c.healthBoostCurve = this.healthBoostCurve;
-        c.movementSpeedCurve = this.movementSpeedCurve;
+        c.damageMultiplier = this.damageMultiplier;
+        c.healthBonus = this.healthBonus;
+        c.movementSpeedBonus = this.movementSpeedBonus;
         return c;
     }
 }

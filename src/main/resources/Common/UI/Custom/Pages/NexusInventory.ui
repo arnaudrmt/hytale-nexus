@@ -715,7 +715,7 @@ Group #Root {
             Label {
               Anchor: (Top: 1);
               Style: (TextColor: #878e9c, FontSize: 11);
-              Text: %invntory.weapon.stats.damage.multiplier;
+              Text: %inventory.weapon.stats.damage.multiplier;
             }
 
             Label #WeaponDamageMultiplier {

@@ -17,16 +17,7 @@ insufficient.essence=Insufficient Essence Dust
 max.item.level.display=MAX
 maximum.item.level.reached=Maximum level reached.
 
-# Quality
-quality.common=Common
-quality.uncommon=Uncommon
-quality.rare=Rare
-quality.epic=Epic
-quality.legendary=Legendary
-quality.developer=Developer
-
 # Levels
-level.title={name}
 level.subtitle=Welcome, adventurer.
 level.loading=Level loading...
 

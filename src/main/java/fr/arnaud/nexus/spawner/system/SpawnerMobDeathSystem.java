@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.spawner;
+package fr.arnaud.nexus.spawner.system;
 
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -15,7 +15,9 @@ import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
 import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
+import fr.arnaud.nexus.item.weapon.enchantment.impl.EnchantSoulHarvest;
 import fr.arnaud.nexus.session.RunSessionComponent;
+import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -33,7 +35,7 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         SpawnerTagComponent tag = store.getComponent(ref, SpawnerTagComponent.getComponentType());
         if (tag == null) return;
 
-        Nexus.getInstance().getMobSpawnerManager().onMobDied(tag.getSpawnerId());
+        Nexus.getInstance().getSpawnerRegistry().onMobDied(tag.getSpawnerId(), tag.getWaveIndex());
 
         Damage deathInfo = component.getDeathInfo();
         if (deathInfo == null) return;
@@ -72,13 +74,12 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
 
         for (EnchantmentSlot slot : weapon.enchantmentSlots) {
             if (!slot.isUnlocked()) continue;
-            if (!"Enchant_SoulHarvest".equals(slot.chosen())) continue;
+            if (!EnchantSoulHarvest.ENCHANT_ID.equals(slot.chosen())) continue;
 
-            EnchantmentDefinition def = EnchantmentRegistry.get()
-                                                           .getDefinition("Enchant_SoulHarvest");
+            EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(EnchantSoulHarvest.ENCHANT_ID);
             if (def == null) return 0f;
 
-            EnchantmentStatDefinition stat = def.getEnchantmentStatById("SoulHarvestMultiplier");
+            EnchantmentStatDefinition stat = def.getEnchantmentStatById(EnchantSoulHarvest.STAT_HARVEST_MULTIPLIER);
             if (stat == null) return 0f;
 
             float multiplier = (float) stat.getStatValueForLevel(slot.currentLevel());

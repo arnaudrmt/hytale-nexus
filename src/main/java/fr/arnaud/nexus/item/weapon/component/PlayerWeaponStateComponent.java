@@ -25,6 +25,20 @@ public final class PlayerWeaponStateComponent implements Component<EntityStore> 
         activeTag = WeaponTag.MELEE;
     }
 
+    @Nullable
+    public BsonDocument getActiveDocument() {
+        return activeTag == WeaponTag.MELEE ? meleeDocument : rangedDocument;
+    }
+
+    @Nullable
+    public BsonDocument getInactiveDocument() {
+        return activeTag == WeaponTag.MELEE ? rangedDocument : meleeDocument;
+    }
+
+    public WeaponTag getInactiveTag() {
+        return activeTag == WeaponTag.MELEE ? WeaponTag.RANGED : WeaponTag.MELEE;
+    }
+
     public void setDocument(WeaponTag tag, BsonDocument doc) {
         if (tag == WeaponTag.MELEE) meleeDocument = doc;
         else rangedDocument = doc;
@@ -51,20 +65,6 @@ public final class PlayerWeaponStateComponent implements Component<EntityStore> 
         )
         .add()
         .build();
-
-    @Nullable
-    public BsonDocument getActiveDocument() {
-        return activeTag == WeaponTag.MELEE ? meleeDocument : rangedDocument;
-    }
-
-    @Nullable
-    public BsonDocument getInactiveDocument() {
-        return activeTag == WeaponTag.MELEE ? rangedDocument : meleeDocument;
-    }
-
-    public WeaponTag getInactiveTag() {
-        return activeTag == WeaponTag.MELEE ? WeaponTag.RANGED : WeaponTag.MELEE;
-    }
 
     public static ComponentType<EntityStore, PlayerWeaponStateComponent> getComponentType() {
         if (componentType == null) throw new IllegalStateException("PlayerWeaponStateComponent not registered.");

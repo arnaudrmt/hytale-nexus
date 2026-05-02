@@ -1,17 +1,23 @@
 {
     "Id": "Enchant_FreezeAspect",
     "Name": "Freeze Aspect",
-    "Description": "Stuns enemies on hit.",
+    "Description": "Freezes enemies on hit.",
     "Icon": "CharacterPanelStatIconStamina.png",
     "CompatibleTag": "ANY",
     "BaseCost": 75,
     "CostCurve": 1.48,
     "Stats": [
         {
-            "Id": "StunDuration",
-            "DisplayName": "Stun Duration (s)",
+            "Id": "FreezeDuration",
+            "DisplayName": "Freeze Duration (s)",
             "Type": "Flat",
-            "Values": { "1": 0.4, "2": 0.65, "3": 0.95, "4": 1.3, "5": 1.8 }
+            "Values": {
+                "1": 0.4,
+                "2": 0.65,
+                "3": 0.95,
+                "4": 1.3,
+                "5": 1.8
+            }
         }
     ]
 }

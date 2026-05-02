@@ -27,7 +27,7 @@ public final class OcclusionCleanupSystem extends RefSystem<EntityStore> {
         PlayerOcclusionComponent occlusion = store.getComponent(ref, PlayerOcclusionComponent.getComponentType());
         if (occlusion == null) return;
 
-        World world = Nexus.getInstance().getNexusWorldLoadSystem().getActiveWorld();
+        World world = Nexus.getInstance().getLevelWorldService().getCurrentLevelWorld();
         if (world == null) return;
 
         occlusion.markDestroyed();

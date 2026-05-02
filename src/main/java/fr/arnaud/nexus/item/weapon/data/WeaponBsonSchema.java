@@ -12,8 +12,8 @@ public final class WeaponBsonSchema {
     private static final String KEY_WEAPON_TAG = "nexus_weapon_tag";
     private static final String KEY_QUALITY_VALUE = "nexus_quality_value";
 
-    private static final String KEY_NAME_KEY = "nexus_name_key";
-    private static final String KEY_DESCRIPTION_KEY = "nexus_description_key";
+    private static final String KEY_NAME = "nexus_name_key";
+    private static final String KEY_DESCRIPTION = "nexus_description_key";
 
     private static final String KEY_ENCHANT_SLOTS = "nexus_enchant_slots";
     private static final String KEY_SLOT_INDEX = "slot";
@@ -35,32 +35,32 @@ public final class WeaponBsonSchema {
         return value.asInt32().getValue();
     }
 
-    public static void writeQuality(BsonDocument doc, int quality) {
+    public static void writeQualityValue(BsonDocument doc, int quality) {
         doc.put(KEY_QUALITY_VALUE, new BsonInt32(quality));
     }
 
-    public static int readQuality(BsonDocument doc) {
+    public static int readQualityValue(BsonDocument doc) {
         BsonValue value = doc.get(KEY_QUALITY_VALUE);
         if (value == null || !value.isInt32()) return 1;
         return value.asInt32().getValue();
     }
 
     public static void writeName(BsonDocument doc, String name) {
-        doc.put(KEY_NAME_KEY, new BsonString(name));
+        doc.put(KEY_NAME, new BsonString(name));
     }
 
     public static String readName(BsonDocument doc) {
-        BsonValue value = doc.get(KEY_NAME_KEY);
+        BsonValue value = doc.get(KEY_NAME);
         if (value == null) return Message.translation("nexus.unknown").getRawText();
         return value.asString().getValue();
     }
 
     public static void writeDescription(BsonDocument doc, String description) {
-        doc.put(KEY_DESCRIPTION_KEY, new BsonString(description));
+        doc.put(KEY_DESCRIPTION, new BsonString(description));
     }
 
     public static String readDescription(BsonDocument doc) {
-        BsonValue value = doc.get(KEY_DESCRIPTION_KEY);
+        BsonValue value = doc.get(KEY_DESCRIPTION);
         if (value == null) return Message.translation("nexus.unknown").getRawText();
         return value.asString().getValue();
     }
@@ -113,5 +113,9 @@ public final class WeaponBsonSchema {
                 chosen, currentLevel));
         }
         return slots;
+    }
+
+    public static boolean isNexusWeapon(BsonDocument doc) {
+        return doc != null && doc.containsKey("nexus_quality_value");
     }
 }

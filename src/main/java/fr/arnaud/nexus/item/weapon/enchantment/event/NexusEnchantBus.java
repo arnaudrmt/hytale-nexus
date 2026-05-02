@@ -11,30 +11,29 @@ import java.util.Map;
 public final class NexusEnchantBus {
 
     private static final NexusEnchantBus INSTANCE = new NexusEnchantBus();
-    private final Map<String, EnchantEffectHandler> handlers = new HashMap<>();
+    private final Map<String, EnchantEffectHandler> handlersByEnchantmentId = new HashMap<>();
 
     private NexusEnchantBus() {
     }
 
-    public static NexusEnchantBus get() {
+    public static NexusEnchantBus getInstance() {
         return INSTANCE;
     }
 
     public void register(String enchantmentId, EnchantEffectHandler handler) {
-        handlers.put(enchantmentId, handler);
+        handlersByEnchantmentId.put(enchantmentId, handler);
     }
 
     public void publish(NexusEnchantEvent event) {
         Ref<EntityStore> attacker = event.attacker();
         if (!attacker.isValid()) return;
 
-        WeaponInstanceComponent weapon = event.store().getComponent(
-            attacker, WeaponInstanceComponent.getComponentType());
+        WeaponInstanceComponent weapon = event.store().getComponent(attacker, WeaponInstanceComponent.getComponentType());
         if (weapon == null) return;
 
         for (EnchantmentSlot slot : weapon.enchantmentSlots) {
             if (!slot.isUnlocked()) continue;
-            EnchantEffectHandler handler = handlers.get(slot.chosen());
+            EnchantEffectHandler handler = handlersByEnchantmentId.get(slot.chosen());
             if (handler == null) continue;
 
             int level = slot.currentLevel();

@@ -44,14 +44,15 @@ import fr.arnaud.nexus.item.weapon.system.PlayerWeaponInitSystem;
 import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
 import fr.arnaud.nexus.item.weapon.system.WeaponUsageGuard;
 import fr.arnaud.nexus.level.LevelProgressComponent;
+import fr.arnaud.nexus.level.LevelRegistry;
 import fr.arnaud.nexus.session.PlayerSessionTracker;
 import fr.arnaud.nexus.session.RunCompletedEvent;
 import fr.arnaud.nexus.session.RunCompletedHandler;
 import fr.arnaud.nexus.session.RunSessionComponent;
-import fr.arnaud.nexus.spawner.PlayerRespawnSystem;
-import fr.arnaud.nexus.spawner.SpawnerMobDeathSystem;
-import fr.arnaud.nexus.spawner.SpawnerProximitySystem;
 import fr.arnaud.nexus.spawner.SpawnerTagComponent;
+import fr.arnaud.nexus.spawner.system.PlayerRespawnSystem;
+import fr.arnaud.nexus.spawner.system.SpawnerMobDeathSystem;
+import fr.arnaud.nexus.spawner.system.SpawnerProximitySystem;
 import fr.arnaud.nexus.system.NexusStoragePickupGuard;
 import fr.arnaud.nexus.tutorial.TutorialTimerSystem;
 import org.jetbrains.annotations.NotNull;
@@ -73,8 +74,9 @@ public final class NexusInitializer {
     }
 
     private void initializeLoaders() {
+        LevelRegistry.getInstance().loadAllLevels();
         WeaponStatConfigLoader.load();
-        EnchantmentRegistry.get().loadAllEnchantments();
+        EnchantmentRegistry.getInstance().loadAllEnchantments();
         EnchantmentRegistrar.registerAll();
         plugin.getTutorialInterceptor().register();
         plugin.getTutorialManager().loadSteps();
@@ -169,7 +171,7 @@ public final class NexusInitializer {
         var events = plugin.getEventRegistry();
 
         // World
-        events.registerGlobal(StartWorldEvent.class, plugin.getNexusWorldLoadSystem()::onWorldStart);
+        events.registerGlobal(StartWorldEvent.class, plugin.getLevelWorldService()::handleWorldStart);
 
         // Session
         events.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);

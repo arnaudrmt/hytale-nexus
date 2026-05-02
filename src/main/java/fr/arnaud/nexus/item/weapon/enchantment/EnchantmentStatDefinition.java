@@ -18,14 +18,14 @@ public final class EnchantmentStatDefinition {
     private final String displayName;
     private final StatType type;
 
-    private final Map<Integer, Double> values;
+    private final Map<Integer, Double> valuesByLevel;
 
     public EnchantmentStatDefinition(String id, String displayName,
-                                     StatType type, Map<Integer, Double> values) {
+                                     StatType type, Map<Integer, Double> valuesByLevel) {
         this.id = id;
         this.displayName = displayName;
         this.type = type;
-        this.values = Collections.unmodifiableMap(values);
+        this.valuesByLevel = Collections.unmodifiableMap(valuesByLevel);
     }
 
     public String getId() {
@@ -41,10 +41,14 @@ public final class EnchantmentStatDefinition {
     }
 
     public double getStatValueForLevel(int level) {
-        return values.getOrDefault(level, 0.0);
+        return valuesByLevel.getOrDefault(level, 0.0);
     }
 
-    public double computeStateValueForLevel(int level, double base) {
+    /**
+     * Returns the effective contribution of this stat at the given level.
+     * FLAT stats return their raw value, CURVE stats scale the provided base.
+     */
+    public double computeEffectiveValue(int level, double base) {
         double raw = getStatValueForLevel(level);
         return type == StatType.CURVE ? base * raw : raw;
     }

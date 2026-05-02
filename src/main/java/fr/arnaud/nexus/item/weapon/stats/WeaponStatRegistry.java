@@ -6,24 +6,24 @@ import java.util.Map;
 public final class WeaponStatRegistry {
 
     private static final WeaponStatRegistry INSTANCE = new WeaponStatRegistry();
-    private final Map<Integer, WeaponStatCurves> curvesByQuality = new HashMap<>();
+    private final Map<Integer, WeaponStatCurves> curvesByQualityValue = new HashMap<>();
 
     private WeaponStatRegistry() {
     }
 
-    public static WeaponStatRegistry get() {
+    public static WeaponStatRegistry getInstance() {
         return INSTANCE;
     }
 
     public void registerCurves(int quality, WeaponStatCurves curves) {
-        curvesByQuality.put(quality, curves);
+        curvesByQualityValue.put(quality, curves);
     }
 
     public WeaponStatCurves getCurves(int quality) {
-        return curvesByQuality.getOrDefault(quality, curvesByQuality.get(0));
+        return curvesByQualityValue.getOrDefault(quality, curvesByQualityValue.get(0));
     }
 
     public boolean isReady() {
-        return !curvesByQuality.isEmpty();
+        return !curvesByQualityValue.isEmpty();
     }
 }

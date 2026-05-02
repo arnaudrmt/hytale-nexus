@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.spawner;
+package fr.arnaud.nexus.spawner.system;
 
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;
@@ -16,6 +16,7 @@ import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.level.LevelConfig;
 import fr.arnaud.nexus.level.LevelProgressComponent;
+import fr.arnaud.nexus.math.WorldPosition;
 import fr.arnaud.nexus.session.RunSessionComponent;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +28,9 @@ public final class PlayerRespawnSystem extends RespawnSystems.OnRespawnSystem {
     }
 
     @Override
-    public void onComponentAdded(@NotNull Ref<EntityStore> ref, @NotNull DeathComponent component, @NotNull Store<EntityStore> store, @NotNull CommandBuffer<EntityStore> commandBuffer) {
+    public void onComponentAdded(@NotNull Ref<EntityStore> ref, @NotNull DeathComponent component,
+                                 @NotNull Store<EntityStore> store,
+                                 @NotNull CommandBuffer<EntityStore> commandBuffer) {
         RunSessionComponent session = store.getComponent(ref, RunSessionComponent.getComponentType());
         if (session != null) {
             session.incrementDeathCount();
@@ -39,34 +42,40 @@ public final class PlayerRespawnSystem extends RespawnSystems.OnRespawnSystem {
 
     @Override
     public void onComponentRemoved(@NotNull Ref<EntityStore> ref, @NotNull DeathComponent component,
-                                   @NotNull Store<EntityStore> store, CommandBuffer<EntityStore> commandBuffer) {
-
+                                   @NotNull Store<EntityStore> store,
+                                   CommandBuffer<EntityStore> commandBuffer) {
         commandBuffer.run(s -> {
             LevelProgressComponent progress = s.getComponent(ref, LevelProgressComponent.getComponentType());
             Vector3d respawnPos = resolveRespawnPosition(progress);
 
             s.addComponent(ref, Teleport.getComponentType(),
-                Teleport.createForPlayer(new Transform(respawnPos, new Vector3f(0f, CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f))));
+                Teleport.createForPlayer(new Transform(
+                    respawnPos,
+                    new Vector3f(0f, CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f)
+                )));
 
             RunSessionComponent session = s.getComponent(ref, RunSessionComponent.getComponentType());
             if (session == null) return;
-            Nexus.getInstance().getPlayerStatsManager().addEssenceDust(ref, s, session.getEssenceDustSnapshot());
+            Nexus.getInstance().getPlayerStatsManager()
+                 .addEssenceDust(ref, s, session.getEssenceDustSnapshot());
         });
     }
 
     private Vector3d resolveRespawnPosition(LevelProgressComponent progress) {
-        if (progress != null && progress.hasCheckpoint()) {
-            return new Vector3d(progress.checkpointX, progress.checkpointY, progress.checkpointZ);
+        if (progress != null && progress.hasReachedCheckpoint() && progress.lastCheckpointPosition != null) {
+            return new Vector3d(
+                progress.lastCheckpointPosition.x(),
+                progress.lastCheckpointPosition.y(),
+                progress.lastCheckpointPosition.z()
+            );
         }
 
-        LevelConfig config = Nexus.getInstance().getLevelManager().getCurrentConfig();
-        if (config != null) {
-            LevelConfig.Position spawn = config.spawnPoint();
+        LevelConfig currentConfig = Nexus.getInstance().getLevelWorldService().getActiveLevelConfig();
+        if (currentConfig != null) {
+            WorldPosition spawn = currentConfig.spawnPoint();
             return new Vector3d(spawn.x(), spawn.y(), spawn.z());
         }
 
         return new Vector3d(0.5, 80.0, 0.5);
     }
-
-
 }

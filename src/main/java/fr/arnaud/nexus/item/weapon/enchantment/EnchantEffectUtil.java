@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.item.weapon.enchantment.impl;
+package fr.arnaud.nexus.item.weapon.enchantment;
 
 import com.hypixel.hytale.component.CommandBuffer;
 import com.hypixel.hytale.component.Ref;

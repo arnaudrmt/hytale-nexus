@@ -26,6 +26,7 @@ import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.component.WeaponInstanceComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
+import fr.arnaud.nexus.math.WorldPosition;
 import fr.arnaud.nexus.session.RunSessionComponent;
 import fr.arnaud.nexus.spawner.SpawnerTagComponent;
 import org.bson.BsonDocument;
@@ -33,20 +34,20 @@ import org.bson.BsonDocument;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public final class NewRunService {
-
-    private static final String STARTING_LEVEL_ID = "level_1";
+public final class RunStartService {
 
     public void startNewRun(Ref<EntityStore> playerRef, Store<EntityStore> store, World world) {
-        Nexus.getInstance().getNexusWorldLoadSystem()
-             .spawnLevelWorld(STARTING_LEVEL_ID, world)
+        String firstLevelId = LevelRegistry.getInstance().getFirstLevelId();
+
+        Nexus.getInstance().getLevelWorldService()
+             .getOrCreateLevelWorld(firstLevelId, world)
              .thenAccept(nextWorld -> {
                  if (nextWorld == null) return;
 
-                 LevelConfig config = LevelConfigLoader.loadAndParseLevelConfig(STARTING_LEVEL_ID);
+                 LevelConfig config = LevelRegistry.getInstance().getLevel(firstLevelId);
                  if (config == null) return;
 
-                 LevelConfig.Position spawn = config.spawnPoint();
+                 WorldPosition spawn = config.spawnPoint();
                  Transform spawnTransform = new Transform(
                      new Vector3d(spawn.x(), spawn.y(), spawn.z()),
                      new Vector3f(0f, CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f)
@@ -55,15 +56,14 @@ public final class NewRunService {
                  world.execute(() -> {
                      if (!playerRef.isValid()) return;
                      Store<EntityStore> s = world.getEntityStore().getStore();
-                     resetPlayerComponents(playerRef, s, config);
-                     Nexus.getInstance().getNexusWorldLoadSystem().onPlayerJoinWorld(nextWorld, STARTING_LEVEL_ID);
+                     resetPlayerState(playerRef, s, config);
+                     Nexus.getInstance().getLevelWorldService().activateLevel(nextWorld, firstLevelId);
 
                      if (nextWorld == world) {
-                         s.addComponent(playerRef,
-                             com.hypixel.hytale.server.core.modules.entity.teleport.Teleport.getComponentType(),
-                             com.hypixel.hytale.server.core.modules.entity.teleport.Teleport.createForPlayer(
-                                 new com.hypixel.hytale.math.vector.Vector3d(spawn.x(), spawn.y(), spawn.z()),
-                                 new com.hypixel.hytale.math.vector.Vector3f(0f, fr.arnaud.nexus.camera.CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f)
+                         s.addComponent(playerRef, Teleport.getComponentType(),
+                             Teleport.createForPlayer(
+                                 new Vector3d(spawn.x(), spawn.y(), spawn.z()),
+                                 new Vector3f(0f, CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f)
                              ));
                      } else {
                          InstancesPlugin.teleportPlayerToLoadingInstance(
@@ -73,31 +73,29 @@ public final class NewRunService {
                          );
                      }
 
-                     world.execute(() -> {
-                         s.forEachChunk(
-                             SpawnerTagComponent.getComponentType(),
-                             (chunk, cmd) -> {
-                                 for (int i = 0; i < chunk.size(); i++) {
-                                     Ref<EntityStore> ref = chunk.getReferenceTo(i);
-                                     if (ref.isValid()) cmd.removeEntity(ref, RemoveReason.REMOVE);
-                                 }
+                     world.execute(() -> s.forEachChunk(
+                         SpawnerTagComponent.getComponentType(),
+                         (chunk, cmd) -> {
+                             for (int i = 0; i < chunk.size(); i++) {
+                                 Ref<EntityStore> ref = chunk.getReferenceTo(i);
+                                 if (ref.isValid()) cmd.removeEntity(ref, RemoveReason.REMOVE);
                              }
-                         );
-                     });
+                         }
+                     ));
                  });
              });
     }
 
-    private void resetPlayerComponents(Ref<EntityStore> playerRef,
-                                       Store<EntityStore> store,
-                                       LevelConfig config) {
+    private void resetPlayerState(Ref<EntityStore> playerRef,
+                                  Store<EntityStore> store,
+                                  LevelConfig config) {
         resetSession(playerRef, store);
         resetWeapons(playerRef, store);
         resetInventory(playerRef, store);
         resetCores(playerRef, store);
         resetEssence(playerRef, store);
         resetStats(playerRef, store);
-        teleportToSpawn(playerRef, store, config);
+        sendPlayerToSpawn(playerRef, store, config);
     }
 
     private void resetSession(Ref<EntityStore> playerRef, Store<EntityStore> store) {
@@ -111,11 +109,9 @@ public final class NewRunService {
         LevelProgressComponent progress = store.getComponent(
             playerRef, LevelProgressComponent.getComponentType());
         if (progress != null) {
-            progress.triggeredSpawners.clear();
-            progress.completedSpawners.clear();
-            progress.checkpointX = Float.NaN;
-            progress.checkpointY = Float.NaN;
-            progress.checkpointZ = Float.NaN;
+            progress.activatedSpawnerIndices.clear();
+            progress.clearedSpawnerIndices.clear();
+            progress.lastCheckpointPosition = new WorldPosition(Float.NaN, Float.NaN, Float.NaN);
             store.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
         }
     }
@@ -136,8 +132,7 @@ public final class NewRunService {
         state.activeTag = WeaponTag.MELEE;
         store.putComponent(playerRef, PlayerWeaponStateComponent.getComponentType(), state);
 
-        InventoryComponent.Hotbar hotbar = store.getComponent(
-            playerRef, InventoryComponent.Hotbar.getComponentType());
+        InventoryComponent.Hotbar hotbar = store.getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
         if (hotbar != null) {
             hotbar.getInventory().setItemStackForSlot(
                 (short) 0, new ItemStack("Nexus_Melee_Sword_Default", 1, meleeDoc));
@@ -182,9 +177,7 @@ public final class NewRunService {
         ActiveCoreComponent core = store.getComponent(
             playerRef, ActiveCoreComponent.getComponentType());
         if (core == null) return;
-
-        store.putComponent(playerRef, ActiveCoreComponent.getComponentType(),
-            new ActiveCoreComponent());
+        store.putComponent(playerRef, ActiveCoreComponent.getComponentType(), new ActiveCoreComponent());
     }
 
     private void resetEssence(Ref<EntityStore> playerRef, Store<EntityStore> store) {
@@ -214,8 +207,7 @@ public final class NewRunService {
         Map<String, Modifier> modifiers = stat.getModifiers();
         if (modifiers != null) {
             new java.util.ArrayList<>(modifiers.keySet())
-                .forEach(key -> stats.removeModifier(
-                    EntityStatMap.Predictable.NONE, index, key));
+                .forEach(key -> stats.removeModifier(EntityStatMap.Predictable.NONE, index, key));
         }
 
         EntityStatType asset = EntityStatType.getAssetMap().getAsset(index);
@@ -233,11 +225,13 @@ public final class NewRunService {
         if (playerRef2 != null) mm.update(playerRef2.getPacketHandler());
     }
 
-    private void teleportToSpawn(Ref<EntityStore> playerRef, Store<EntityStore> store,
-                                 LevelConfig config) {
-        LevelConfig.Position spawn = config.spawnPoint();
-        Vector3d spawnPos = new Vector3d(spawn.x(), spawn.y(), spawn.z());
+    private void sendPlayerToSpawn(Ref<EntityStore> playerRef, Store<EntityStore> store,
+                                   LevelConfig config) {
+        WorldPosition spawn = config.spawnPoint();
         store.addComponent(playerRef, Teleport.getComponentType(),
-            Teleport.createForPlayer(spawnPos, new Vector3f(0f, CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f)));
+            Teleport.createForPlayer(
+                new Vector3d(spawn.x(), spawn.y(), spawn.z()),
+                new Vector3f(0f, CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f)
+            ));
     }
 }

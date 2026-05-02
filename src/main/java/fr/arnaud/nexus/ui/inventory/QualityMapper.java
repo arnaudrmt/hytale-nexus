@@ -7,38 +7,35 @@ public final class QualityMapper {
     public static final String COLOR_RARE = "#0070dd";
     public static final String COLOR_EPIC = "#a335ee";
     public static final String COLOR_LEGENDARY = "#FFD700";
-    public static final String COLOR_DEVELOPER = "#ff0000";
+    public static final String COLOR_SPECIAL = "#be253f";
 
-    public static final String NAME_COMMON = "Common";
-    public static final String NAME_UNCOMMON = "Uncommon";
-    public static final String NAME_RARE = "Rare";
-    public static final String NAME_EPIC = "Epic";
-    public static final String NAME_LEGENDARY = "Legendary";
-    public static final String NAME_DEVELOPER = "Developer";
+    public static final String KEY_NAME_COMMON = "weapon.quality.common";
+    public static final String KEY_NAME_UNCOMMON = "weapon.quality.uncommon";
+    public static final String KEY_NAME_RARE = "weapon.quality.rare";
+    public static final String KEY_NAME_EPIC = "weapon.quality.epic";
+    public static final String KEY_NAME_LEGENDARY = "weapon.quality.legendary";
+    public static final String KEY_NAME_SPECIAL = "weapon.quality.special";
 
     private QualityMapper() {
     }
 
     public static String toColor(int quality) {
+        return getString(quality, COLOR_COMMON, COLOR_UNCOMMON, COLOR_RARE, COLOR_EPIC, COLOR_LEGENDARY, COLOR_SPECIAL);
+    }
+
+    private static String getString(int quality, String colorCommon, String colorUncommon, String colorRare, String colorEpic, String colorLegendary, String colorSpecial) {
         return switch (quality) {
-            case 0 -> COLOR_COMMON;
-            case 1 -> COLOR_UNCOMMON;
-            case 2 -> COLOR_RARE;
-            case 3 -> COLOR_EPIC;
-            case 4 -> COLOR_LEGENDARY;
-            default -> COLOR_DEVELOPER;
+            case 0 -> colorCommon;
+            case 1 -> colorUncommon;
+            case 2 -> colorRare;
+            case 3 -> colorEpic;
+            case 4 -> colorLegendary;
+            default -> colorSpecial;
         };
     }
 
-    public static String toName(int quality) {
-        return switch (quality) {
-            case 0 -> NAME_COMMON;
-            case 1 -> NAME_UNCOMMON;
-            case 2 -> NAME_RARE;
-            case 3 -> NAME_EPIC;
-            case 4 -> NAME_LEGENDARY;
-            default -> NAME_DEVELOPER;
-        };
+    public static String toNameKey(int quality) {
+        return getString(quality, KEY_NAME_COMMON, KEY_NAME_UNCOMMON, KEY_NAME_RARE, KEY_NAME_EPIC, KEY_NAME_LEGENDARY, KEY_NAME_SPECIAL);
     }
 
     public static int levelToQuality(int level) {

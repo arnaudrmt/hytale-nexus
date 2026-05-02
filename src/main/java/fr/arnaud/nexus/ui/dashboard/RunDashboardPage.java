@@ -70,7 +70,7 @@ public final class RunDashboardPage extends InteractiveCustomUIPage<RunDashboard
                 }
             }
 
-            Nexus.getInstance().getNewRunService().startNewRun(ref, ws, world);
+            Nexus.getInstance().getRunStartService().startNewRun(ref, ws, world);
         });
     }
 

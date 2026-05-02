@@ -35,7 +35,7 @@ public class FormatUtil {
     // Formats a delta as either a signed percentage (1 decimal) or a signed number. 0.15, true -> "+15.0%"
     public static String formatChange(double delta, boolean asPercentage) {
         if (asPercentage) {
-            return String.format(Locale.ROOT, "%+.1f%%", delta * 100.0);
+            return String.format(Locale.ROOT, "%+.1f", delta * 100.0);
         }
         return formatSignedSmart(delta);
     }

@@ -10,13 +10,15 @@ import java.util.Map;
 
 public final class SpawnerState {
 
-    private final LevelConfig.SpawnerConfig config;
+    private final LevelConfig.Spawner config;
     private final int id;
 
     private boolean triggered = false;
     private boolean chestSpawned = false;
-    private Vector3d chestPosition = null;
 
+    private boolean markedComplete = false;
+
+    private Vector3d chestPosition = null;
     private List<String> pendingChestLoot = Collections.emptyList();
 
     private int activeWave = 0;
@@ -29,12 +31,12 @@ public final class SpawnerState {
     private final Map<Integer, Float> spawnRateAccumulatorPerEntry = new HashMap<>();
     private final Map<Integer, Integer> pendingSpawnsPerEntry = new HashMap<>();
 
-    public SpawnerState(int id, LevelConfig.SpawnerConfig config) {
+    public SpawnerState(int id, LevelConfig.Spawner config) {
         this.id = id;
         this.config = config;
     }
 
-    public LevelConfig.SpawnerConfig getConfig() {
+    public LevelConfig.Spawner getConfig() {
         return config;
     }
 
@@ -56,6 +58,23 @@ public final class SpawnerState {
 
     public void markChestSpawned() {
         this.chestSpawned = true;
+    }
+
+    public void markComplete() {
+        this.triggered = true;
+        this.chestSpawned = true;
+        this.markedComplete = true;
+    }
+
+    public boolean isComplete() {
+        if (markedComplete) return true;
+        if (config.hasLootChest()) return chestSpawned;
+        if (!triggered || totalMobsInCurrentWave == 0) return false;
+        if (aliveMobsInCurrentWave > 0) return false;
+        for (LevelConfig.Wave wc : config.waves()) {
+            if (wc.wave() == activeWave + 1) return false;
+        }
+        return true;
     }
 
     public List<String> getPendingChestLoot() {
@@ -92,16 +111,6 @@ public final class SpawnerState {
 
     public int getTotalWaves() {
         return config.waves().size();
-    }
-
-    public boolean isComplete() {
-        if (config.hasLootChest()) return chestSpawned;
-        if (!triggered || totalMobsInCurrentWave == 0) return false;
-        if (aliveMobsInCurrentWave > 0) return false;
-        for (LevelConfig.WaveConfig wc : config.waves()) {
-            if (wc.wave() == activeWave + 1) return false;
-        }
-        return true;
     }
 
     public float getWaveTimer() {

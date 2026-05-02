@@ -5,7 +5,6 @@ import com.hypixel.hytale.component.query.Query;
 import com.hypixel.hytale.component.system.RefSystem;
 import com.hypixel.hytale.server.core.asset.type.item.config.Item;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
-import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
@@ -32,11 +31,10 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
                               @NotNull Store<EntityStore> store, @NotNull CommandBuffer<EntityStore> cmd) {
         if (reason != AddReason.LOAD) return;
 
-        PlayerWeaponStateComponent existing = store.getComponent(
-            ref, PlayerWeaponStateComponent.getComponentType());
+        PlayerWeaponStateComponent existing = store.getComponent(ref, PlayerWeaponStateComponent.getComponentType());
 
         if (existing != null && existing.meleeDocument != null) {
-            restoreActiveWeapon(ref, existing, store);
+            restoreEquippedWeapon(ref, existing, store);
             return;
         }
 
@@ -47,7 +45,7 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
 
         cmd.run(s -> s.putComponent(ref, PlayerWeaponStateComponent.getComponentType(), state));
 
-        placeWeaponInSlot(ref, "Nexus_Melee_Sword_Default", state.meleeDocument, store);
+        placeWeaponInHotbarSlot(ref, WeaponTag.MELEE, state.meleeDocument, store);
     }
 
     @Override
@@ -56,18 +54,12 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         equipSystem.onWeaponUnequipped(ref, store);
     }
 
-    private void restoreActiveWeapon(
-        Ref<EntityStore> ref,
-        PlayerWeaponStateComponent state,
-        Store<EntityStore> store
-    ) {
+    private void restoreEquippedWeapon(Ref<EntityStore> playerRef,
+                                       PlayerWeaponStateComponent state,
+                                       Store<EntityStore> store) {
         BsonDocument activeDoc = state.getActiveDocument();
-        if (activeDoc == null) return;
-
-        if (!activeDoc.containsKey("archetype_id")) return;
-        String archetypeId = activeDoc.getString("archetype_id").getValue();
-
-        placeWeaponInSlot(ref, archetypeId, activeDoc, store);
+        if (activeDoc == null || !activeDoc.containsKey("archetype_id")) return;
+        placeWeaponInHotbarSlot(playerRef, state.activeTag, activeDoc, store);
     }
 
     private BsonDocument generateDefaultWeapon(String archetypeId) {
@@ -76,17 +68,11 @@ public final class PlayerWeaponInitSystem extends RefSystem<EntityStore> {
         return Nexus.getInstance().getWeaponGenerator().generateWeapon(item);
     }
 
-    private void placeWeaponInSlot(
-        Ref<EntityStore> ref,
-        String archetypeId,
-        BsonDocument doc,
-        Store<EntityStore> store
-    ) {
-        InventoryComponent.Hotbar hotbar = store.getComponent(
-            ref, InventoryComponent.Hotbar.getComponentType());
+    private void placeWeaponInHotbarSlot(Ref<EntityStore> playerRef, WeaponTag tag,
+                                         BsonDocument doc, Store<EntityStore> store) {
+        InventoryComponent.Hotbar hotbar = store.getComponent(playerRef, InventoryComponent.Hotbar.getComponentType());
         if (hotbar == null) return;
-        hotbar.getInventory().setItemStackForSlot(
-            (short) 0, new ItemStack(archetypeId, 1, doc));
+        hotbar.getInventory().setItemStackForSlot((short) 0, WeaponSwapSystem.buildItemStackForWeapon(tag, doc));
         hotbar.markDirty();
     }
 }

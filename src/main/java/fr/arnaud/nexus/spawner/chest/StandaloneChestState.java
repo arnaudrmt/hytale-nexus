@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.spawner;
+package fr.arnaud.nexus.spawner.chest;
 
 import com.hypixel.hytale.math.vector.Vector3d;
 import fr.arnaud.nexus.level.LevelConfig;
@@ -6,10 +6,10 @@ import fr.arnaud.nexus.level.LevelConfig;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public final class IndependentChestState {
+public final class StandaloneChestState {
 
     private final int id;
-    private final LevelConfig.IndependentChestConfig config;
+    private final LevelConfig.StandaloneChest config;
 
     private boolean triggered = false;
     private boolean chestSpawned = false;
@@ -18,7 +18,7 @@ public final class IndependentChestState {
     @Nullable
     private Vector3d chestPosition = null;
 
-    public IndependentChestState(int id, LevelConfig.IndependentChestConfig config) {
+    public StandaloneChestState(int id, LevelConfig.StandaloneChest config) {
         this.id = id;
         this.config = config;
     }
@@ -27,7 +27,7 @@ public final class IndependentChestState {
         return id;
     }
 
-    public LevelConfig.IndependentChestConfig getConfig() {
+    public LevelConfig.StandaloneChest getConfig() {
         return config;
     }
 

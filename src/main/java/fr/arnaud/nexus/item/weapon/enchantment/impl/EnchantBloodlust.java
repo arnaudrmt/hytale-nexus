@@ -15,7 +15,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class EnchantBloodlust implements EnchantEffectHandler {
 
     public static final EnchantBloodlust INSTANCE = new EnchantBloodlust();
-    private static final String ENCHANT_ID = "Enchant_Bloodlust";
+    public static final String ENCHANT_ID = "Enchant_Bloodlust";
+
+    public static final String STAT_BONUS_PER_STACK = "BloodlustBonusPerStack";
+    public static final String STAT_MAX_STACKS = "BloodlustMaxStacks";
+    public static final String STAT_RESET_TIME = "BloodlustResetTime";
 
     private static final Map<Integer, BloodlustState> stateMap = new ConcurrentHashMap<>();
 
@@ -26,10 +30,10 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
         BloodlustState state = stateMap.get(attackerRef.getIndex());
         if (state == null || state.stacks <= 0) return 0.0;
 
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(ENCHANT_ID);
         if (def == null) return 0.0;
 
-        EnchantmentStatDefinition bonusStat = def.getEnchantmentStatById("BloodlustBonusPerStack");
+        EnchantmentStatDefinition bonusStat = def.getEnchantmentStatById(STAT_BONUS_PER_STACK);
         if (bonusStat == null) return 0.0;
 
         return bonusStat.getStatValueForLevel(enchantLevel) * state.stacks;
@@ -37,18 +41,18 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
 
     @Override
     public void onKill(NexusEnchantEvent event, int enchantLevel) {
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition maxStacksStat = def.getEnchantmentStatById("BloodlustMaxStacks");
-        EnchantmentStatDefinition resetTimeStat = def.getEnchantmentStatById("BloodlustResetTime");
+        EnchantmentStatDefinition maxStacksStat = def.getEnchantmentStatById(STAT_MAX_STACKS);
+        EnchantmentStatDefinition resetTimeStat = def.getEnchantmentStatById(STAT_RESET_TIME);
         if (maxStacksStat == null || resetTimeStat == null) return;
 
         int maxStacks = (int) maxStacksStat.getStatValueForLevel(enchantLevel);
         long resetMs = (long) (resetTimeStat.getStatValueForLevel(enchantLevel) * 1000.0);
 
         int refIndex = event.attacker().getIndex();
-        BloodlustState state = stateMap.computeIfAbsent(refIndex, k -> new BloodlustState());
+        BloodlustState state = stateMap.computeIfAbsent(refIndex, _ -> new BloodlustState());
 
         if (state.resetThread != null) {
             state.resetThread.interrupt();
@@ -61,7 +65,7 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
         final Ref<EntityStore> attacker = event.attacker();
         final World world = event.store().getExternalData().getWorld();
 
-        Thread resetThread = Thread.ofVirtual().start(() -> {
+        state.resetThread = Thread.ofVirtual().start(() -> {
             try {
                 Thread.sleep(capturedResetMs);
             } catch (InterruptedException ignored) {
@@ -76,8 +80,6 @@ public final class EnchantBloodlust implements EnchantEffectHandler {
                 if (s != null) s.stacks = 0;
             });
         });
-
-        state.resetThread = resetThread;
     }
 
     private static final class BloodlustState {

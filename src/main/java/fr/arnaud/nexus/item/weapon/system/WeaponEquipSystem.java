@@ -15,19 +15,21 @@ import javax.annotation.Nullable;
 
 public final class WeaponEquipSystem {
 
-    public void onWeaponEquipped(@Nonnull Ref<EntityStore> playerRef,
-                                 @Nullable ItemStack incomingStack,
+    public void onWeaponEquipped(@Nonnull Ref<EntityStore> playerRef, @Nullable ItemStack incomingStack,
                                  @Nonnull Store<EntityStore> store) {
-        tearDownWeapon(playerRef, store);
-
-        if (incomingStack == null || !isItemNexusWeapon(incomingStack)) return;
         if (!playerRef.isValid()) return;
 
-        BsonDocument doc = incomingStack.getMetadata();
-        WeaponInstanceComponent instance = buildWeaponInstance(doc);
+        BsonDocument doc = resolveNexusWeaponDoc(incomingStack);
 
         store.getExternalData().getWorld().execute(() -> {
             if (!playerRef.isValid()) return;
+
+            removeWeaponComponentIfPresent(playerRef, store);
+            WeaponPassiveApplicator.remove(playerRef, store);
+
+            if (doc == null) return;
+
+            WeaponInstanceComponent instance = buildWeaponInstance(doc);
             store.putComponent(playerRef, WeaponInstanceComponent.getComponentType(), instance);
             WeaponPassiveApplicator.apply(playerRef, store, instance);
         });
@@ -35,44 +37,41 @@ public final class WeaponEquipSystem {
 
     public void onWeaponUnequipped(@Nonnull Ref<EntityStore> playerRef,
                                    @Nonnull Store<EntityStore> store) {
-        tearDownWeapon(playerRef, store);
-    }
-
-    private void tearDownWeapon(@Nonnull Ref<EntityStore> playerRef,
-                                @Nonnull Store<EntityStore> store) {
         if (!playerRef.isValid()) return;
 
-        WeaponInstanceComponent current = store.getComponent(
-            playerRef, WeaponInstanceComponent.getComponentType());
-        if (current == null) return;
-
-        WeaponPassiveApplicator.remove(playerRef, store, current);
-
         store.getExternalData().getWorld().execute(() -> {
-            if (playerRef.isValid()) {
-                store.removeComponent(playerRef, WeaponInstanceComponent.getComponentType());
-            }
+            if (!playerRef.isValid()) return;
+            removeWeaponComponentIfPresent(playerRef, store);
+            WeaponPassiveApplicator.remove(playerRef, store);
         });
+    }
+
+    private @Nullable BsonDocument resolveNexusWeaponDoc(@Nullable ItemStack stack) {
+        if (stack == null) return null;
+        BsonDocument doc = stack.getMetadata();
+        return WeaponBsonSchema.isNexusWeapon(doc) ? doc : null;
+    }
+
+    private void removeWeaponComponentIfPresent(@Nonnull Ref<EntityStore> playerRef,
+                                                @Nonnull Store<EntityStore> store) {
+        if (store.getComponent(playerRef, WeaponInstanceComponent.getComponentType()) != null) {
+            store.removeComponent(playerRef, WeaponInstanceComponent.getComponentType());
+        }
     }
 
     private WeaponInstanceComponent buildWeaponInstance(@Nonnull BsonDocument doc) {
         WeaponInstanceComponent instance = new WeaponInstanceComponent();
-        instance.quality = ItemQuality.getAssetMap().getAsset(WeaponBsonSchema.readQuality(doc));
+        instance.quality = ItemQuality.getAssetMap().getAsset(WeaponBsonSchema.readQualityValue(doc));
         instance.level = WeaponBsonSchema.readLevel(doc);
         instance.weaponTag = WeaponBsonSchema.readWeaponTag(doc);
         instance.enchantmentSlots = WeaponBsonSchema.readEnchantmentSlots(doc);
         instance.archetypeId = doc.containsKey("archetype_id")
             ? doc.getString("archetype_id").getValue() : "Nexus_Default_Melee_Sword";
 
-        instance.damageMultiplierCurve = WeaponStatCalculator.calculateDamageMultiplier(doc);
-        instance.healthBoostCurve = WeaponStatCalculator.calculateHealthBoost(doc);
-        instance.movementSpeedCurve = WeaponStatCalculator.calculateMovementSpeedBoost(doc);
+        instance.damageMultiplier = WeaponStatCalculator.calculateDamageMultiplier(doc);
+        instance.healthBonus = WeaponStatCalculator.calculateHealthBonus(doc);
+        instance.movementSpeedBonus = WeaponStatCalculator.calculateMovementSpeedBonus(doc);
 
         return instance;
-    }
-
-    private boolean isItemNexusWeapon(@Nonnull ItemStack stack) {
-        BsonDocument doc = stack.getMetadata();
-        return doc != null && doc.containsKey("nexus_quality_value");
     }
 }

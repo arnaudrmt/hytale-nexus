@@ -1,4 +1,4 @@
-package fr.arnaud.nexus.spawner;
+package fr.arnaud.nexus.spawner.system;
 
 import com.hypixel.hytale.component.ArchetypeChunk;
 import com.hypixel.hytale.component.CommandBuffer;
@@ -30,17 +30,18 @@ public final class SpawnerProximitySystem extends EntityTickingSystem<EntityStor
 
         TransformComponent transform = chunk.getComponent(index, TransformComponent.getComponentType());
         if (transform == null) return;
-        if (!Nexus.getInstance().getLevelManager().isLevelLoaded()) return;
 
         Ref<EntityStore> playerRef = chunk.getReferenceTo(index);
         LevelProgressComponent progress = chunk.getComponent(index, LevelProgressComponent.getComponentType());
 
-        if (progress != null && !progress.triggeredSpawners.isEmpty()) {
+        // FIXME: Resetting progress when activatedSpawnerIndices is non-empty is counter-intuitive
+        // but removing this block causes mobs to stop spawning after a level transition. Investigate.
+        if (progress != null && !progress.activatedSpawnerIndices.isEmpty()) {
             progress = new LevelProgressComponent();
             commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
         }
 
         Vector3d position = transform.getPosition();
-        Nexus.getInstance().getMobSpawnerManager().tick(dt, position, progress, commandBuffer, playerRef);
+        Nexus.getInstance().getSpawnerRegistry().tick(dt, position, progress, commandBuffer, playerRef);
     }
 }

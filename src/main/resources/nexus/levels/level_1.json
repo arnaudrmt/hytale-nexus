@@ -1,8 +1,6 @@
 {
     "id": "level_1",
-    "name": "The Shattered Forest",
-    "difficulty": 1.0,
-    "nextLevelId": "level_2",
+    "name_key": "level.shattered.forest",
     "instanceTemplate": "Nexus_Level_1",
     "spawnPoint": {
         "x": 0.5,
@@ -22,8 +20,8 @@
                 "y": 81.0,
                 "z": 1.0
             },
-            "triggerRadius": 10.0,
-            "spawnRadius": 4.0,
+            "activationRadius": 10.0,
+            "spawnRadius": 3.0,
             "waves": [
                 {
                     "wave": 1,
@@ -35,8 +33,8 @@
             "mobs": [
                 {
                     "mobId": "Zombie",
-                    "minCount": 3,
-                    "maxCount": 4,
+                    "minCount": 1,
+                    "maxCount": 2,
                     "spawnRate": 1.2,
                     "wave": 1,
                     "minEssence": 3,
@@ -75,7 +73,7 @@
                 "y": 80.0,
                 "z": 5.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -143,7 +141,7 @@
                 "y": 74.0,
                 "z": 43.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 7.0,
             "waves": [
                 {
@@ -209,7 +207,7 @@
                 "y": 74.0,
                 "z": 82.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 15.0,
             "waves": [
                 {
@@ -295,7 +293,7 @@
                 "y": 74.0,
                 "z": 62.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 7.0,
             "waves": [
                 {
@@ -362,7 +360,7 @@
                 "y": 74.0,
                 "z": 12.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 7.0,
             "waves": [
                 {
@@ -429,7 +427,7 @@
                 "y": 73.0,
                 "z": 109.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -496,7 +494,7 @@
                 "y": 74.0,
                 "z": 91.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -563,7 +561,7 @@
                 "y": 75.0,
                 "z": 99.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 4.0,
             "waves": [
                 {
@@ -630,7 +628,7 @@
                 "y": 75.0,
                 "z": 69.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -697,7 +695,7 @@
                 "y": 68.0,
                 "z": 122.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -750,7 +748,7 @@
                 "y": 70.0,
                 "z": 176.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -821,7 +819,7 @@
                 "y": 74.0,
                 "z": 297.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -888,7 +886,7 @@
                 "y": 71.0,
                 "z": 346.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 10.0,
             "waves": [
                 {
@@ -941,7 +939,7 @@
                 "y": 74.0,
                 "z": 365.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 4.0,
             "waves": [
                 {
@@ -1004,7 +1002,7 @@
                 "y": 69.0,
                 "z": 372.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 7.0,
             "waves": [
                 {
@@ -1071,7 +1069,7 @@
                 "y": 69.0,
                 "z": 385.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 7.0,
             "waves": [
                 {
@@ -1138,7 +1136,7 @@
                 "y": 64.0,
                 "z": 401.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 7.0,
             "waves": [
                 {
@@ -1205,7 +1203,7 @@
                 "y": 64.0,
                 "z": 363.0
             },
-            "triggerRadius": 5.0,
+            "activationRadius": 5.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -1272,7 +1270,7 @@
                 "y": 64.0,
                 "z": 251.0
             },
-            "triggerRadius": 5.0,
+            "activationRadius": 5.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -1339,7 +1337,7 @@
                 "y": 67.0,
                 "z": 357.0
             },
-            "triggerRadius": 5.0,
+            "activationRadius": 5.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -1398,7 +1396,7 @@
                 "y": 65.0,
                 "z": 301.0
             },
-            "triggerRadius": 5.0,
+            "activationRadius": 5.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -1465,7 +1463,7 @@
                 "y": 63.0,
                 "z": 321.0
             },
-            "triggerRadius": 5.0,
+            "activationRadius": 5.0,
             "spawnRadius": 3.0,
             "waves": [
                 {
@@ -1564,7 +1562,7 @@
             }
         }
     ],
-    "independentChests": [
+    "standaloneChests": [
         {
             "_comment": "IC 1 — Opening, basics",
             "position": {
@@ -1572,7 +1570,7 @@
                 "y": 73.0,
                 "z": -9.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Bread",
@@ -1599,7 +1597,7 @@
                 "y": 78.0,
                 "z": 1.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Wildmeat_Raw",
@@ -1626,7 +1624,7 @@
                 "y": 74.0,
                 "z": 38.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Cheese",
@@ -1653,7 +1651,7 @@
                 "y": 74.0,
                 "z": 108.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Fish_Grilled",
@@ -1680,7 +1678,7 @@
                 "y": 74.0,
                 "z": 93.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Kebab_Vegetable",
@@ -1707,7 +1705,7 @@
                 "y": 74.0,
                 "z": 44.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Kebab_Meat",
@@ -1734,7 +1732,7 @@
                 "y": 76.0,
                 "z": 33.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Salad_Berry",
@@ -1761,7 +1759,7 @@
                 "y": 76.0,
                 "z": 56.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Kebab_Meat",
@@ -1788,7 +1786,7 @@
                 "y": 74.0,
                 "z": 123.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Salad_Caesar",
@@ -1815,7 +1813,7 @@
                 "y": 77.0,
                 "z": 21.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Salad_Caesar",
@@ -1834,7 +1832,7 @@
                 "y": 69.0,
                 "z": 113.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Pumpkin",
@@ -1861,7 +1859,7 @@
                 "y": 71.0,
                 "z": 235.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1888,7 +1886,7 @@
                 "y": 74.0,
                 "z": 330.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1915,7 +1913,7 @@
                 "y": 74.0,
                 "z": 378.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Salad_Caesar",
@@ -1942,7 +1940,7 @@
                 "y": 74.0,
                 "z": 376.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Apple",
@@ -1969,7 +1967,7 @@
                 "y": 69.0,
                 "z": 417.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1996,7 +1994,7 @@
                 "y": 69.0,
                 "z": 369.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Apple",
@@ -2023,7 +2021,7 @@
                 "y": 64.0,
                 "z": 428.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2050,7 +2048,7 @@
                 "y": 65.0,
                 "z": 281.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2077,7 +2075,7 @@
                 "y": 65.0,
                 "z": 263.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",

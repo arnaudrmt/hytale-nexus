@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.NotificationUtil;
 import fr.arnaud.nexus.camera.CameraPacketBuilder;
 import fr.arnaud.nexus.core.Nexus;
+import fr.arnaud.nexus.math.WorldPosition;
 import fr.arnaud.nexus.session.RunCompletedEvent;
 import fr.arnaud.nexus.session.RunSessionComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
@@ -22,15 +23,12 @@ import java.util.concurrent.CompletableFuture;
 
 public final class LevelTransitionService {
 
-    private final LevelManager levelManager;
-
-    public LevelTransitionService(@NonNullDecl LevelManager levelManager) {
-        this.levelManager = levelManager;
+    public LevelTransitionService() {
     }
 
-    public void onPortalEntered(@NonNullDecl Ref<EntityStore> playerRef,
-                                @NonNullDecl CommandBuffer<EntityStore> cmd,
-                                @NonNullDecl World currentWorld) {
+    public void handlePortalEntered(@NonNullDecl Ref<EntityStore> playerRef,
+                                    @NonNullDecl CommandBuffer<EntityStore> cmd,
+                                    @NonNullDecl World currentWorld) {
         RunSessionComponent session = cmd.getComponent(playerRef, RunSessionComponent.getComponentType());
         if (session != null) {
             session.pauseSession();
@@ -43,7 +41,11 @@ public final class LevelTransitionService {
             cmd.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
         });
 
-        @Nullable String nextLevelId = levelManager.getCurrentConfig().nextLevelId();
+        String activeLevelId = Nexus.getInstance().getLevelWorldService()
+                                    .getCurrentLevelWorld().getName()
+                                    .substring(LevelWorldService.LEVEL_WORLD_KEY_PREFIX.length());
+
+        @Nullable String nextLevelId = LevelRegistry.getInstance().getNextLevelId(activeLevelId);
 
         if (nextLevelId == null) {
             completeRun(playerRef, session);
@@ -65,28 +67,28 @@ public final class LevelTransitionService {
     private void loadNextLevel(Ref<EntityStore> playerRef,
                                World currentWorld,
                                String nextLevelId) {
-        NexusWorldLoadSystem worldLoadSystem = Nexus.getInstance().getNexusWorldLoadSystem();
+        LevelWorldService worldLoadSystem = Nexus.getInstance().getLevelWorldService();
 
-        World preloaded = worldLoadSystem.takePreloadedWorld(nextLevelId);
+        World preloaded = worldLoadSystem.consumePreloadedWorld(nextLevelId);
         CompletableFuture<World> nextWorldFuture = preloaded != null
             ? CompletableFuture.completedFuture(preloaded)
-            : worldLoadSystem.spawnLevelWorld(nextLevelId, currentWorld);
+            : worldLoadSystem.getOrCreateLevelWorld(nextLevelId, currentWorld);
 
         nextWorldFuture.thenAccept(nextWorld -> {
             if (nextWorld == null) return;
 
             String levelId = nextWorld.getName().substring(
-                NexusWorldLoadSystem.LEVEL_WORLD_KEY_PREFIX.length());
-            LevelConfig nextConfig = LevelConfigLoader.loadAndParseLevelConfig(levelId);
+                LevelWorldService.LEVEL_WORLD_KEY_PREFIX.length());
+            LevelConfig nextConfig = LevelRegistry.getInstance().getLevel(levelId);
             if (nextConfig == null) return;
 
-            LevelConfig.Position spawn = nextConfig.spawnPoint();
+            WorldPosition spawn = nextConfig.spawnPoint();
             Transform spawnTransform = new Transform(
                 new Vector3d(spawn.x(), spawn.y(), spawn.z()),
                 new Vector3f(0f, CameraPacketBuilder.ISO_CAMERA_YAW_RAD, 0f)
             );
 
-            Nexus.getInstance().getNexusWorldLoadSystem().onPlayerJoinWorld(nextWorld, levelId);
+            Nexus.getInstance().getLevelWorldService().activateLevel(nextWorld, levelId);
 
             currentWorld.execute(() ->
                 InstancesPlugin.teleportPlayerToLoadingInstance(
