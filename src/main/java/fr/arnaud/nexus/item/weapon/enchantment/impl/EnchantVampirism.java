@@ -31,7 +31,7 @@ public final class EnchantVampirism implements EnchantEffectHandler {
         if (!psm.isReady()) return;
 
         float maxHealth = psm.getMaxHealth(event.attacker(), event.store());
-        float healAmount = (float) stat.computeEffectiveValue(enchantLevel, maxHealth);
+        float healAmount = (float) stat.computeValue(enchantLevel, maxHealth);
         psm.addHealth(event.attacker(), event.store(), healAmount);
     }
 }

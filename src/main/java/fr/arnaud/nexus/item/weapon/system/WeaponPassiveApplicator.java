@@ -41,12 +41,12 @@ public final class WeaponPassiveApplicator {
 
             for (EnchantmentStatDefinition statDef : def.stats()) {
                 switch (statDef.getId()) {
-                    case EnchantHealthBoost.STAT_HEALTH_BOOST ->
-                        totalHealth += (float) statDef.getStatValueForLevel(level);
+                    case EnchantHealthBoost.STAT_HEALTH_BONUS ->
+                        totalHealth += (float) statDef.computeValue(level, 1.0);
                     case EnchantStaminaBoost.STAT_STAMINA_BOOST ->
-                        totalStamina += (float) statDef.getStatValueForLevel(level);
+                        totalStamina += (float) statDef.computeValue(level, 1.0);
                     case EnchantSwiftness.STAT_SWIFTNESS_BOOST ->
-                        totalSpeed += (float) statDef.getStatValueForLevel(level);
+                        totalSpeed += (float) statDef.computeValue(level, 1.0);
                 }
             }
         }

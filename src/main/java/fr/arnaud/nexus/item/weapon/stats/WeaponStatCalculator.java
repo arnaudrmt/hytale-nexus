@@ -1,10 +1,7 @@
 package fr.arnaud.nexus.item.weapon.stats;
 
-import fr.arnaud.nexus.item.weapon.data.EnchantmentSlot;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentDefinition;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentRegistry;
-import fr.arnaud.nexus.item.weapon.enchantment.EnchantmentStatDefinition;
+import fr.arnaud.nexus.math.StatMath;
 import org.bson.BsonDocument;
 
 /**
@@ -19,28 +16,28 @@ public final class WeaponStatCalculator {
     public static float calculateUpgradeCost(BsonDocument doc) {
         int level = WeaponBsonSchema.readLevel(doc);
         WeaponStatCurves curves = resolveCurves(doc);
-        return curves.upgradeCostBase() * (float) Math.pow(curves.upgradeCostMultiplierPerLevel(), level - 1);
+        return (float) StatMath.exponential(curves.levelCostBase(), curves.levelCostRate(), level);
     }
 
     public static float calculateDamageMultiplier(BsonDocument doc) {
         int level = WeaponBsonSchema.readLevel(doc);
         WeaponStatCurves curves = resolveCurves(doc);
-        return curves.damageMultiplierBase() + (curves.damageMultiplierPerLevel() * (level - 1));
+        return (float) StatMath.additive(curves.damageMultiplierBase(), curves.damageMultiplierPerLevel(), level);
     }
 
     public static float calculateHealthBonus(BsonDocument doc) {
         int level = WeaponBsonSchema.readLevel(doc);
         WeaponStatCurves curves = resolveCurves(doc);
-        float raw = curves.healthBonusBase() + (curves.healthBonusPerLevel() * level);
-        return curves.healthBonusCap() > 0 ? Math.min(raw, curves.healthBonusCap()) : raw;
+        float raw = (float) StatMath.additive(curves.healthBonusBase(), curves.healthBonusPerLevel(), level);
+        return (float) StatMath.cappedValue(raw, curves.healthBonusCap());
     }
 
 
     public static float calculateMovementSpeedBonus(BsonDocument doc) {
         int currentLevel = WeaponBsonSchema.readLevel(doc);
         WeaponStatCurves curves = resolveCurves(doc);
-        float raw = curves.movementSpeedBonusBase() + (curves.movementSpeedBonusPerLevel() * currentLevel);
-        return curves.movementSpeedBonusCap() > 0 ? Math.min(raw, curves.movementSpeedBonusCap()) : raw;
+        float raw = (float) StatMath.additive(curves.movementSpeedBonusBase(), curves.movementSpeedBonusPerLevel(), currentLevel);
+        return (float) StatMath.cappedValue(raw, curves.movementSpeedBonusCap());
     }
 
     /**
@@ -54,22 +51,7 @@ public final class WeaponStatCalculator {
         double healthBonus = linearGrowth(curves.healthBonusBase(), curves.healthBonusPerLevel(), forLevel);
         double movementSpeed = linearGrowth(curves.movementSpeedBonusBase(), curves.movementSpeedBonusPerLevel(), forLevel);
 
-        for (EnchantmentSlot slot : WeaponBsonSchema.readEnchantmentSlots(doc)) {
-            if (!slot.isUnlocked()) continue;
-            EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(slot.chosen());
-            if (def == null) continue;
-            int enchantLevel = slot.currentLevel();
-        }
-
         return new PassiveStats(damageMultiplier, healthBonus, movementSpeed);
-    }
-
-
-    private static double enchantStatContribution(EnchantmentDefinition def, String statKey,
-                                                  int level, double baseForCurve) {
-        EnchantmentStatDefinition stat = def.getEnchantmentStatById(statKey);
-        if (stat == null) return 0.0;
-        return stat.computeEffectiveValue(level, baseForCurve);
     }
 
     private static double linearGrowth(double base, double perLevel, int level) {

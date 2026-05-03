@@ -1,0 +1,27 @@
+$C = "../Common.ui";
+
+$C.@Container #EnchantmentPanel {
+  Anchor: (Height: 470);
+
+  #Title {
+    LayoutMode: Left;
+
+    $C.@Title #UpgradeTitleLabel {
+      @Text = %inventory.enchantment.title.melee;
+      @Alignment = Start;
+
+      FlexWeight: 1;
+    }
+  }
+
+  #Content {
+    LayoutMode: Top;
+    Padding: (Full: 0);
+
+    Group #EnchantSlotCards {
+      LayoutMode: Left;
+      FlexWeight: 1;
+      Anchor: (Vertical: 0);
+    }
+  }
+}

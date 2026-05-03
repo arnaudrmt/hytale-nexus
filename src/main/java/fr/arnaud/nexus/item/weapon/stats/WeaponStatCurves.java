@@ -5,8 +5,8 @@ package fr.arnaud.nexus.item.weapon.stats;
  * Cap fields of 0 mean uncapped.
  */
 public record WeaponStatCurves(
-    float upgradeCostBase,
-    float upgradeCostMultiplierPerLevel,
+    float levelCostBase,
+    float levelCostRate,
     float damageMultiplierBase,
     float damageMultiplierPerLevel,
     float healthBonusBase,

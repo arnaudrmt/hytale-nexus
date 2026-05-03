@@ -26,10 +26,11 @@ public final class EnchantLifeDrain implements EnchantEffectHandler {
         EnchantmentStatDefinition stat = def.getEnchantmentStatById(STAT_HEALTH_STOLEN_AMOUNT);
         if (stat == null) return;
 
-        float healAmount = (float) stat.getStatValueForLevel(enchantLevel);
         PlayerStatsManager psm = Nexus.getInstance().getPlayerStatsManager();
         if (!psm.isReady()) return;
 
+        float maxHealth = psm.getMaxHealth(event.attacker(), event.store());
+        float healAmount = (float) stat.computeValue(enchantLevel, maxHealth);
         psm.addHealth(event.attacker(), event.store(), healAmount);
     }
 }

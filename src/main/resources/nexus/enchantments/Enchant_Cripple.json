@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_Cripple",
-    "Name": "Cripple",
-    "Description": "Slows enemies on hit.",
+    "Name": "enchantment.cripple.name",
+    "Description": "enchantment.cripple.description",
     "Icon": "CharacterPanelStatIconStamina.png",
     "CompatibleTag": "ANY",
     "BaseCost": 50,
@@ -9,15 +9,15 @@
     "Stats": [
         {
             "Id": "CrippleDuration",
-            "DisplayName": "Slow Duration (s)",
-            "Type": "Flat",
-            "Values": { "1": 0.8, "2": 1.2, "3": 1.8, "4": 2.5, "5": 3.5 }
-        },
-        {
-            "Id": "CrippleSlowPercent",
-            "DisplayName": "Slow Strength",
-            "Type": "Flat",
-            "Values": { "1": 0.15, "2": 0.20, "3": 0.28, "4": 0.36, "5": 0.45 }
+            "DisplayName": "enchantment.cripple.duration",
+            "Type": "Additive",
+            "Values": {
+                "1": 0.8,
+                "2": 1.2,
+                "3": 1.8,
+                "4": 2.5,
+                "5": 3.5
+            }
         }
     ]
 }

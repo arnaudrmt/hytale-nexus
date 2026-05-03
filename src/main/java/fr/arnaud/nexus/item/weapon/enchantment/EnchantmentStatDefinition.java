@@ -1,5 +1,7 @@
 package fr.arnaud.nexus.item.weapon.enchantment;
 
+import fr.arnaud.nexus.math.StatMath;
+
 import java.util.Collections;
 import java.util.Map;
 
@@ -9,19 +11,14 @@ import java.util.Map;
  */
 public final class EnchantmentStatDefinition {
 
-    public enum StatType {
-        FLAT,
-        CURVE
-    }
-
     private final String id;
     private final String displayName;
-    private final StatType type;
+    private final StatMath.GrowthType type;
 
     private final Map<Integer, Double> valuesByLevel;
 
     public EnchantmentStatDefinition(String id, String displayName,
-                                     StatType type, Map<Integer, Double> valuesByLevel) {
+                                     StatMath.GrowthType type, Map<Integer, Double> valuesByLevel) {
         this.id = id;
         this.displayName = displayName;
         this.type = type;
@@ -36,7 +33,7 @@ public final class EnchantmentStatDefinition {
         return displayName;
     }
 
-    public StatType getType() {
+    public StatMath.GrowthType getType() {
         return type;
     }
 
@@ -44,12 +41,8 @@ public final class EnchantmentStatDefinition {
         return valuesByLevel.getOrDefault(level, 0.0);
     }
 
-    /**
-     * Returns the effective contribution of this stat at the given level.
-     * FLAT stats return their raw value, CURVE stats scale the provided base.
-     */
-    public double computeEffectiveValue(int level, double base) {
+    public double computeValue(int level, double base) {
         double raw = getStatValueForLevel(level);
-        return type == StatType.CURVE ? base * raw : raw;
+        return type == StatMath.GrowthType.SCALAR ? base * raw : raw;
     }
 }

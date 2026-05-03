@@ -9,62 +9,62 @@
         },
         {
             "id": "WEAPON_SWAP",
-            "titleKey": "tutorial.weapon_swap.title",
-            "bodyKey": "tutorial.weapon_swap.body",
+            "titleKey": "tutorial.weaponSwap.title",
+            "bodyKey": "tutorial.weaponSwap.body",
             "triggerType": "WEAPON_SWAP"
         },
         {
             "id": "OPEN_INVENTORY",
-            "titleKey": "tutorial.open_inventory.title",
-            "bodyKey": "tutorial.open_inventory.body",
+            "titleKey": "tutorial.openInventory.title",
+            "bodyKey": "tutorial.openInventory.body",
             "triggerType": "INVENTORY_OPEN"
         },
         {
             "id": "INVENTORY_OVERVIEW",
-            "titleKey": "tutorial.inventory_overview.title",
-            "bodyKey": "tutorial.inventory_overview.body",
+            "titleKey": "tutorial.inventoryOverview.title",
+            "bodyKey": "tutorial.inventoryOverview.body",
             "triggerType": "MANUAL"
         },
         {
             "id": "CHARACTER_SLOTS",
-            "titleKey": "tutorial.character_slots.title",
-            "bodyKey": "tutorial.character_slots.body",
+            "titleKey": "tutorial.characterSlots.title",
+            "bodyKey": "tutorial.characterSlots.body",
             "triggerType": "MANUAL"
         },
         {
             "id": "CORE_SLOT",
-            "titleKey": "tutorial.core_slot.title",
-            "bodyKey": "tutorial.core_slot.body",
+            "titleKey": "tutorial.coreSlot.title",
+            "bodyKey": "tutorial.coreSlot.body",
             "triggerType": "MANUAL"
         },
         {
             "id": "CHARACTER_BUTTONS",
-            "titleKey": "tutorial.character_buttons.title",
-            "bodyKey": "tutorial.character_buttons.body",
+            "titleKey": "tutorial.characterButtons.title",
+            "bodyKey": "tutorial.characterButtons.body",
             "triggerType": "MANUAL"
         },
         {
             "id": "CHARACTER_STATS",
-            "titleKey": "tutorial.character_stats.title",
-            "bodyKey": "tutorial.character_stats.body",
+            "titleKey": "tutorial.characterStats.title",
+            "bodyKey": "tutorial.characterStats.body",
             "triggerType": "MANUAL"
         },
         {
             "id": "ENCHANTMENT_STATION",
-            "titleKey": "tutorial.enchantment_station.title",
-            "bodyKey": "tutorial.enchantment_station.body",
+            "titleKey": "tutorial.enchantmentStation.title",
+            "bodyKey": "tutorial.enchantmentStation.body",
             "triggerType": "MANUAL"
         },
         {
             "id": "WEAPON_PANEL",
-            "titleKey": "tutorial.weapon_panel.title",
-            "bodyKey": "tutorial.weapon_panel.body",
+            "titleKey": "tutorial.weaponPanel.title",
+            "bodyKey": "tutorial.weaponPanel.body",
             "triggerType": "MANUAL"
         },
         {
             "id": "INVENTORY_PANEL",
-            "titleKey": "tutorial.inventory_panel.title",
-            "bodyKey": "tutorial.inventory_panel.body",
+            "titleKey": "tutorial.inventoryPanel.title",
+            "bodyKey": "tutorial.inventoryPanel.body",
             "triggerType": "MANUAL"
         },
         {

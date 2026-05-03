@@ -1,37 +1,37 @@
-welcome.title=Welcome to Nexus
-welcome.body=Let's walk you through the basics. Follow each instruction to proceed.
+welcome.title = Welcome to Nexus
+welcome.body = Let's walk you through the basics. Follow each instruction to proceed.
 
-weapon_swap.title=Weapon Switch
-weapon_swap.body=Press [E] (Ability 2 Key) to switch between your melee and ranged weapon. Try it now!\nIf it does not work, press [1] (First slot keybind) on your keyboard.
+weaponSwap.title = Weapon Switch
+weaponSwap.body = Press [E] (Ability 2 Key) to switch between your melee and ranged weapon. Try it now!\nIf it does not work, press [1] (First slot keybind) on your keyboard.
 
-open_inventory.title=Inventory
-open_inventory.body=Press [TAB] to open your inventory. Let's explore it together!
+openInventory.title = Inventory
+openInventory.body = Press [TAB] to open your inventory. Let's explore it together!
 
-inventory_overview.title=Inventory Overview
-inventory_overview.body=The inventory has four panels. We'll go through them left to right, ending with the item inventory at the bottom. Use /tutorial anytime to replay this guide.
+inventoryOverview.title = Inventory Overview
+inventoryOverview.body = The inventory has four panels. We'll go through them left to right, ending with the item inventory at the bottom. Use /tutorial anytime to replay this guide.
 
-character_slots.title=Character — Weapon Slots
-character_slots.body=On your character panel you have three slots. The left slot is for your melee weapon, the right for your ranged weapon. To equip a weapon, click it in your inventory then click the matching slot.
+characterSlots.title = Character — Weapon Slots
+characterSlots.body = On your character panel you have three slots. The left slot is for your melee weapon, the right for your ranged weapon. To equip a weapon, click it in your inventory then click the matching slot.
 
-core_slot.title=Character — Core Slot
-core_slot.body=The gold slot in the center is your Core slot. Cores are abilities, only one can be active at a time. Hover the slot to browse and equip your available cores.
+coreSlot.title = Character — Core Slot
+coreSlot.body = The gold slot in the center is your Core slot. Cores are abilities, only one can be active at a time. Hover the slot to browse and equip your available cores.
 
-character_buttons.title=Character — Enchantment Tabs
-character_buttons.body=The two buttons on the right of your character panel switch the center panel between your Melee and Ranged enchantment stations.
+characterButtons.title = Character — Enchantment Tabs
+characterButtons.body = The two buttons on the right of your character panel switch the center panel between your Melee and Ranged enchantment stations.
 
-character_stats.title=Character — Stats
-character_stats.body=At the bottom you can see your stats. Essence is a new resource earned exclusively by killing enemies. It is used to upgrade weapons and unlock enchantments.
+characterStats.title = Character — Stats
+characterStats.body = At the bottom you can see your stats. Essence is a new resource earned exclusively by killing enemies. It is used to upgrade weapons and unlock enchantments.
 
-enchantment_station.title=Enchantment Station
-enchantment_station.body=The center panel is your Enchantment Station. Each weapon has 1 to 3 enchantment slots depending on its quality. Every slot offers two random enchants to choose from, unlock and level them up with Essence.
+enchantmentStation.title = Enchantment Station
+enchantmentStation.body = The center panel is your Enchantment Station. Each weapon has 1 to 3 enchantment slots depending on its quality. Every slot offers two random enchants to choose from, unlock and level them up with Essence.
 
-weapon_panel.title=Weapon Panel
-weapon_panel.body=The right panel shows the weapon currently in your hand with its stats. Spend Essence to upgrade it, upgrading improves stats only, not the weapon's quality tier.
+weaponPanel.title = Weapon Panel
+weaponPanel.body = The right panel shows the weapon currently in your hand with its stats. Spend Essence to upgrade it, upgrading improves stats only, not the weapon's quality tier.
 
-inventory_panel.title=Item Inventory
-inventory_panel.body=The bottom panel is your item inventory. Left-click an item then click another slot to move it. Note: there is no drag animation, nothing will appear until the move is complete. Right-click any item to drop it on the ground.
+inventoryPanel.title = Item Inventory
+inventoryPanel.body = The bottom panel is your item inventory. Left-click an item then click another slot to move it. Note: there is no drag animation, nothing will appear until the move is complete. Right-click any item to drop it on the ground.
 
-closing.title=You're Ready!
-closing.body=Your goal is to complete both levels as fast as possible or with the highest score. Good luck! Use /tutorial anytime to replay this guide.
+closing.title = You're Ready!
+closing.body = Your goal is to complete both levels as fast as possible or with the highest score. Good luck! Use /tutorial anytime to replay this guide.
 
-click.to.continue.button=Click anywhere to continue.
+clickToContinue.button.text = Click anywhere to continue.

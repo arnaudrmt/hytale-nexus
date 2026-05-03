@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_FireAspect",
-    "Name": "Fire Aspect",
-    "Description": "Sets enemies on fire on hit.",
+    "Name": "enchantment.fireAspect.name",
+    "Description": "enchantment.fireAspect.description",
     "Icon": "CharacterPanelStatIconDamage.png",
     "CompatibleTag": "ANY",
     "BaseCost": 55,
@@ -9,26 +9,14 @@
     "Stats": [
         {
             "Id": "FireDuration",
-            "DisplayName": "Burn Duration (s)",
-            "Type": "Flat",
+            "DisplayName": "enchantment.fireAspect.duration",
+            "Type": "Additive",
             "Values": {
                 "1": 1.5,
                 "2": 2.5,
                 "3": 3.5,
                 "4": 5.0,
                 "5": 7.0
-            }
-        },
-        {
-            "Id": "FireDamagePerSecond",
-            "DisplayName": "Damage per Second",
-            "Type": "Flat",
-            "Values": {
-                "1": 3.0,
-                "2": 5.0,
-                "3": 8.0,
-                "4": 12.0,
-                "5": 17.0
             }
         }
     ]

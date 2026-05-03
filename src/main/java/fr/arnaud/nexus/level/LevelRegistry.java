@@ -136,7 +136,7 @@ public final class LevelRegistry {
 
     private LevelConfig parseRoot(JsonObject root) {
         String id = root.get("id").getAsString();
-        String name_key = root.get("name_key").getAsString();
+        String key_name = root.get("key_name").getAsString();
         String worldTemplate = root.get("instanceTemplate").getAsString();
 
         WorldPosition spawnPoint = parsePosition(root.getAsJsonObject("spawnPoint"));
@@ -155,7 +155,7 @@ public final class LevelRegistry {
             }
         }
 
-        return new LevelConfig(id, name_key, spawnPoint, finishPoint, spawners, standaloneChests, worldTemplate);
+        return new LevelConfig(id, key_name, spawnPoint, finishPoint, spawners, standaloneChests, worldTemplate);
     }
 
     private static WorldPosition parsePosition(JsonObject obj) {

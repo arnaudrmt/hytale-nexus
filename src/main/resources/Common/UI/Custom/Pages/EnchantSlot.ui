@@ -1,0 +1,178 @@
+$C = "../Common.ui";
+
+@ButtonTextTooltipStyle = TextTooltipStyle(
+  Background: (TexturePath: "Assets/Backgrounds/ItemTooltipDefault.png", Border: 24),
+  MaxWidth: 400,
+  LabelStyle: (Wrap: true, FontSize: 16),
+  Padding: 24
+);
+
+Group {
+  Anchor: (Vertical: 0);
+  FlexWeight: 1;
+  Padding: (Horizontal: 5);
+
+  // STATE 1: LOCKED
+  Group #LockedState {
+    Visible: false;
+    LayoutMode: Center;
+    Background: #000000(0.4);
+
+    Group {
+      Anchor: (Height: 90, Width: 90);
+      Background: (TexturePath: "Assets/Backgrounds/CharacterPanelButton.png");
+
+      Group {
+        Anchor: (Height: 32, Width: 32);
+        Background: "Assets/Icons/IconLock.png";
+      }
+    }
+  }
+
+  // STATE 2: CHOICE
+  Group #ChoiceState {
+    Visible: false;
+    LayoutMode: Top;
+    Padding: (Full: 20);
+
+    Group #ChoiceA {
+      LayoutMode: Top;
+
+      Label #ChoiceATitle {
+        Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+      }
+
+      Label #ChoiceADesc {
+        Anchor: (Top: 15);
+        Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+      }
+
+      $C.@TextButton #ChoiceAButton {
+        @Anchor = (Width: 180, Height: 15, Top: 15);
+        @Text = "";
+      }
+    }
+
+    Group { FlexWeight: 1; }
+
+    Group #ChoiceB {
+      LayoutMode: Top;
+
+      Label #ChoiceBTitle {
+        Style: (FontSize: 16, RenderBold: true, TextColor: #ffffff);
+      }
+
+      Label #ChoiceBDesc {
+        Anchor: (Top: 15);
+        Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+      }
+
+      $C.@TextButton #ChoiceBButton {
+        @Anchor = (Width: 180, Height: 15, Top: 15);
+        @Text = "";
+      }
+    }
+  }
+
+  // STATE 3: ACTIVE
+  Group #ActiveState {
+    Visible: false;
+    LayoutMode: Top;
+    Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+    Padding: (Full: 20);
+
+    Group {
+      LayoutMode: Top;
+      Anchor: (Height: 125);
+
+      Group {
+        LayoutMode: Left;
+        Anchor: (Height: 50);
+
+        Group #EnchantIcon {
+          Anchor: (Width: 48, Height: 48);
+          Background: "Assets/Slots/SlotCommon.png";
+
+          Group #IconEnchantBloodlust { Visible: false; Background: "Assets/Enchants/EnchantBloodlustIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantCripple { Visible: false; Background: "Assets/Enchants/EnchantCrippleIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantCriticalStrike { Visible: false; Background: "Assets/Enchants/EnchantCriticalStrikeIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantFireAspect { Visible: false; Background: "Assets/Enchants/EnchantFireAspectIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantFortitude { Visible: false; Background: "Assets/Enchants/EnchantFortitudeIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantFreezeAspect { Visible: false; Background: "Assets/Enchants/EnchantFreezeAspectIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantGambler { Visible: false; Background: "Assets/Enchants/EnchantGamblerIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantHealthBoost { Visible: false; Background: "Assets/Enchants/EnchantHealthBoostIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantKnockback { Visible: false; Background: "Assets/Enchants/EnchantKnockbackIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantLifeDrain { Visible: false; Background: "Assets/Enchants/EnchantLifeDrainIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantPoison { Visible: false; Background: "Assets/Enchants/EnchantPoisonIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantResilience { Visible: false; Background: "Assets/Enchants/EnchantResilienceIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantSharpness { Visible: false; Background: "Assets/Enchants/EnchantSharpnessIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantSoulHarvest { Visible: false; Background: "Assets/Enchants/EnchantSoulHarvestIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantStaminaBoost { Visible: false; Background: "Assets/Enchants/EnchantStaminaBoostIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantSwiftness { Visible: false; Background: "Assets/Enchants/EnchantSwiftnessIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantPredator { Visible: false; Background: "Assets/Enchants/EnchantPredatorIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantThorns { Visible: false; Background: "Assets/Enchants/EnchantThornsIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantVampirism { Visible: false; Background: "Assets/Enchants/EnchantVampirismIcon.png"; Anchor: (Full: 8); }
+          Group #IconEnchantWarding { Visible: false; Background: "Assets/Enchants/EnchantWardingIcon.png"; Anchor: (Full: 8); }
+        }
+
+        Group {
+          LayoutMode: Middle;
+          Anchor: (Left: 10);
+
+          Label #EnchantName {
+            Style: (FontSize: 14, RenderBold: true, TextColor: #ffffff);
+          }
+
+          Label #EnchantLevel {
+            Style: (FontSize: 12, TextColor: #878e9c);
+          }
+        }
+      }
+
+      Label #EnchantDesc {
+        Anchor: (Top: 10);
+        Style: (FontSize: 16, TextColor: #B8C3D5FF, Wrap: true);
+      }
+    }
+
+    Group #EnchantStatsBlock {
+      LayoutMode: Top;
+      Anchor: (Top: 15);
+
+      Label {
+        Text: %inventory.enchantment.stats.title;
+        Anchor: (Top: 8);
+        Style: (TextColor: #878e9c, FontSize: 16, RenderBold: true, RenderUppercase: true);
+      }
+
+      Group #EnchantStatRows {
+        LayoutMode: Top;
+        Anchor: (Top: 5);
+      }
+    }
+
+    Group {
+      FlexWeight: 1;
+      LayoutMode: Bottom;
+
+      Group {
+        LayoutMode: CenterMiddle;
+        Anchor: (Bottom: 5);
+
+        Group {
+          Anchor: (Height: 38, Width: 38);
+          Background: "Assets/Icons/CharacterPanelEssenceIcon.png";
+        }
+
+        Label #EnchantCost {
+          Style: (FontSize: 18, RenderBold: true, TextColor: #ffffff);
+        }
+      }
+
+      $C.@TextButton #UpgradeEnchantButton {
+        @Anchor = (Width: 180, Height: 15, Bottom: 0);
+        @Text = %inventory.enchantment.upgradeButton.title;
+      }
+    }
+  }
+}

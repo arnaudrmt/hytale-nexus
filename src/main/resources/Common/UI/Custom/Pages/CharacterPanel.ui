@@ -1,0 +1,491 @@
+$C = "../Common.ui";
+
+@DefaultItemSlotSpacing = 2;
+@DefaultItemSlotSize = 74;
+@DefaultItemGridPadding = 2;
+
+@InnerPaddingValue = 8;
+
+@SidePanelWidth = 410;
+
+@DefaultTooltipBackground = (TexturePath: "Assets/Backgrounds/ItemTooltipDefault.png", Border: 24);
+@ButtonTextTooltipStyle = TextTooltipStyle(
+  Background: @DefaultTooltipBackground,
+  MaxWidth: 400,
+  LabelStyle: (Wrap: true, FontSize: 16),
+  Padding: 24
+);
+
+@RightSideButtonSize = 70;
+
+@RightSideButtonDefaultStyle = ButtonStyle(
+  Default: (Background: "Assets/Backgrounds/CharacterPanelButton.png"),
+  Sounds: $C.@ButtonSounds
+);
+
+$C.@DecoratedContainer #PlayerPanel {
+  Anchor: (Width: @SidePanelWidth, Height: 720, Top: 180);
+
+  #Title {
+    $C.@Title #PlayerName {
+      @Text = "";
+    }
+  }
+
+  #Content {
+
+  @ItemGridSpecialSlotLeftPos = 152;
+
+    Group {
+
+      @ItemGridY = 50;
+      @ItemGridHeight = @DefaultItemSlotSize * 4 + @DefaultItemSlotSpacing * 3 + (3 * @DefaultItemGridPadding);
+      @DecorationOffset = 5;
+      @ItemGridSpecialSlotHeight = @DefaultItemSlotSize + @DefaultItemSlotSpacing + (@DefaultItemGridPadding);
+      @ItemGridSpecialSlotWidth = @DefaultItemSlotSize + @DefaultItemGridPadding;
+
+      Anchor: (Height: 490, Top: 0 - @InnerPaddingValue);
+
+      Group {
+        Anchor: (Width: 420, Height: 396, Bottom: 0 - @ItemGridY);
+        Background: "Assets/Backgrounds/CharacterBackground.png";
+      }
+
+      Group #PlayerAvatar {
+        Anchor: (Height: 365, Top: 0, Left: -8, Right: -8);
+        Background: (TexturePath: "Assets/Avatar/Flamingo.png");
+      }
+
+      Group {
+
+        Group #SpecialSlotBackdrop {
+          Visible: false;
+          Background: #000000(0.5);
+          Anchor: (
+            Width: @DefaultItemSlotSize + 60,
+            Height: @DefaultItemSlotSize + 60,
+          );
+        }
+
+        Group #AbilitySlotWheelButton {
+          Anchor: (Width: 79, Height: 136, Bottom: -1, Left: @ItemGridSpecialSlotLeftPos - 1);
+          Background: "Assets/Slots/SpecialSlotPointer.png";
+          HitTestVisible: false;
+        }
+
+        Group #MeleeWeaponSlot {
+          Anchor: (
+            Width: @DefaultItemSlotSize,
+            Height: @DefaultItemSlotSize,
+            Bottom: 2,
+            Left: @ItemGridSpecialSlotLeftPos - @DefaultItemSlotSize - 5
+          );
+          Background: "Assets/Slots/SpecialSlotTemporary.png";
+
+          Button #MeleeEquipButton {
+            Style: @RightSideButtonDefaultStyle;
+          }
+
+          ItemIcon #MeleeEquippedIcon {
+            Anchor: (Width: 48, Height: 48);
+            ShowItemTooltip: false;
+            HitTestVisible: false;
+          }
+        }
+
+        Group #RangedWeaponSlot {
+          Anchor: (
+            Width: @DefaultItemSlotSize,
+            Height: @DefaultItemSlotSize,
+            Bottom: 2,
+            Left: @ItemGridSpecialSlotLeftPos + @DefaultItemSlotSize + 9
+          );
+          Background: "Assets/Slots/SpecialSlotTemporary.png";
+
+          Button #RangedEquipButton {
+            Style: @RightSideButtonDefaultStyle;
+          }
+
+          ItemIcon #RangedEquippedIcon {
+            Anchor: (Width: 48, Height: 48);
+            ShowItemTooltip: false;
+            HitTestVisible: false;
+          }
+        }
+
+        // Right side buttons
+        Group {
+          Anchor: (Top: 98, Right: -302);
+
+          Group #SubMenuBackground {
+            Anchor: (Top: 0, Width: 72, Height: 141);
+            Background: "Assets/Backgrounds/SubMenuBackground.png";
+          }
+
+          Group #MeleeTabButton {
+            Anchor: (Width: @RightSideButtonSize, Height: @RightSideButtonSize, Top: 4);
+
+            Button #MeleeButton {
+              Style: @RightSideButtonDefaultStyle;
+              TooltipText: %inventory.character.melee.button.tooltip;
+              TextTooltipStyle: @ButtonTextTooltipStyle;
+
+              Group #MeleeButtonBgDefault {
+                Background: "Assets/Backgrounds/CharacterPanelButton.png";
+                Anchor: (Width: @RightSideButtonSize, Height: @RightSideButtonSize);
+                Visible: false;
+              }
+
+              Group #MeleeButtonBgActive {
+                Background: "Assets/Backgrounds/CharacterPanelButtonActive.png";
+                Anchor: (Width: @RightSideButtonSize, Height: @RightSideButtonSize);
+                Visible: true;
+              }
+
+              Group #MeleeInactive {
+                Background: "Assets/Icons/CharacterPanelStatIconMelee.png";
+                Anchor: (Width: 48, Height: 48);
+                Visible: false;
+              }
+
+              Group #MeleeActive {
+                Background: "Assets/Icons/CharacterPanelStatIconMeleeActive.png";
+                Anchor: (Width: 48, Height: 48);
+
+                Group {
+                  Anchor: (Width: 24, Height: 24, Top: 12, Right: -35);
+                  Background: "Assets/Icons/RightMenuSelectedArrow.png";
+                }
+              }
+            }
+
+            Button #MeleeDisabledButton {
+              Style: @RightSideButtonDefaultStyle;
+              TooltipText: %inventory.character.melee.buttont.tooltip;
+              TextTooltipStyle: @ButtonTextTooltipStyle;
+
+              Group {
+                Background: "Assets/Icons/CharacterPanelStatIconMelee.png";
+                Anchor: (Width: 48, Height: 48, Top: 10);
+              }
+            }
+          }
+
+          Group #RangedTabButton {
+            Anchor: (Width: @RightSideButtonSize, Height: @RightSideButtonSize, Top: 71);
+
+            Button #RangedButton {
+              Style: @RightSideButtonDefaultStyle;
+              TooltipText: %inventory.character.ranged.button.tooltip;
+              TextTooltipStyle: @ButtonTextTooltipStyle;
+
+              Group #RangedButtonBgDefault {
+                Background: "Assets/Backgrounds/CharacterPanelButton.png";
+                Anchor: (Width: @RightSideButtonSize, Height: @RightSideButtonSize);
+                Visible: false;
+              }
+
+              Group #RangedButtonBgActive {
+                Background: "Assets/Backgrounds/CharacterPanelButtonActive.png";
+                Anchor: (Width: @RightSideButtonSize, Height: @RightSideButtonSize);
+                Visible: true;
+              }
+
+              Group #RangedInactive {
+                Background: "Assets/Icons/CharacterPanelStatIconRanged.png";
+                Anchor: (Width: 48, Height: 48, Top: 12);
+                Visible: false;
+              }
+
+              Group #RangedActive {
+                Background: "Assets/Icons/CharacterPanelStatIconRangedActive.png";
+                Anchor: (Width: 48, Height: 48, Top: 12);
+
+                Group {
+                  Anchor: (Width: 24, Height: 24, Top: 12, Right: -35);
+                  Background: "Assets/Icons/RightMenuSelectedArrow.png";
+                }
+              }
+            }
+
+            Button #RangedDisabledButton {
+              Style: @RightSideButtonDefaultStyle;
+              TooltipText: %inventory.character.ranged.button.tooltip;
+              TextTooltipStyle: @ButtonTextTooltipStyle;
+
+              Group {
+                Background: "Assets/Icons/CharacterPanelStatIconRanged.png";
+                Anchor: (Width: 48, Height: 48, Top: 12);
+              }
+            }
+          }
+        }
+
+        Group #CoreWheelContainer {
+          Anchor: (Width: 310, Height: 310, Bottom: -100, Left: @ItemGridSpecialSlotLeftPos - 116);
+          HitTestVisible: false;
+
+          Button #CoreWheelSlot {
+            Anchor: (Width: 64, Height: 64, Bottom: 110);
+
+            Group #CoreWheelSlotEmpty {
+              HitTestVisible: false;
+              Anchor: (Width: 64, Height: 64);
+            }
+
+            Group #CoreWheelEquippedIcon {
+              HitTestVisible: false;
+              Anchor: (Width: 64, Height: 64);
+
+              Group #IconCoreDash { Visible: false; Background: "Assets/Ability/Icons/DashAbility.png"; Anchor: (Full: 0); }
+              Group #IconCoreSwitchstrike { Visible: false; Background: "Assets/Ability/Icons/SwitchStrikeAbility.png"; Anchor: (Full: 0); }
+            }
+          }
+
+          Group #CoreWheel {
+            HitTestVisible: false;
+
+            Group #CoreWheelContent {
+              Visible: false;
+              HitTestVisible: false;
+
+              Group {
+                HitTestVisible: false;
+                Background: (TexturePath: "Assets/Ability/ItemSlotSelectorBackground.png");
+                Anchor: (Width: 310, Height: 310);
+              }
+
+              Group #CoreSlot0BgEquipped {
+                Visible: false;
+                HitTestVisible: false;
+                Background: (TexturePath: "Assets/Ability/ItemSlotSelectorSelected144.png");
+                Anchor: (Width: 211, Height: 194, Top: -30, Left: -15);
+              }
+
+              Group #CoreSlot1BgEquipped {
+                Visible: false;
+                HitTestVisible: false;
+                Background: (TexturePath: "Assets/Ability/ItemSlotSelectorSelected216.png");
+                Anchor: (Width: 211, Height: 194, Top: -30, Left: 112);
+              }
+
+              Group #CoreSlot2BgEquipped {
+                Visible: false;
+                HitTestVisible: false;
+                Background: (TexturePath: "Assets/Ability/ItemSlotSelectorSelected288.png");
+                Anchor: (Width: 156, Height: 208, Top: 85, Left: 178);
+              }
+
+              Group #CoreSlot3BgEquipped {
+                Visible: false;
+                HitTestVisible: false;
+                Background: (TexturePath: "Assets/Ability/ItemSlotSelectorSelected72.png");
+                Anchor: (Width: 156, Height: 208, Top: 85, Left: -25);
+              }
+
+              Button #CoreSlot0 {
+                Anchor: (Width: 64, Height: 64, Top: 40, Left: 50);
+                TooltipText: "Dash";
+                TextTooltipStyle: @ButtonTextTooltipStyle;
+
+                Group #CoreSlot0Icon {
+                  HitTestVisible: false;
+                  Anchor: (Width: 64, Height: 64);
+
+                  Group #IconCoreDash { Visible: false; Background: "Assets/Ability/Icons/DashAbility.png"; Anchor: (Full: 0); }
+                  Group #IconCoreSwitchstrike { Visible: false; Background: "Assets/Ability/Icons/SwitchStrikeAbility.png"; Anchor: (Full: 0); }
+                }
+
+                Group #CoreSlot0Lock {
+                  HitTestVisible: false;
+                  Background: (TexturePath: "Assets/Icons/IconLock.png");
+                  Anchor: (Width: 40, Height: 40);
+                }
+              }
+
+              Button #CoreSlot1 {
+                Anchor: (Width: 64, Height: 64, Top: 40, Left: 190);
+                TooltipText: "Switch Strike";
+                TextTooltipStyle: @ButtonTextTooltipStyle;
+
+                Group #CoreSlot1Icon {
+                  HitTestVisible: false;
+                  Anchor: (Width: 64, Height: 64);
+
+                  Group #IconCoreDash { Visible: false; Background: "Assets/Ability/Icons/DashAbility.png"; Anchor: (Full: 0); }
+                  Group #IconCoreSwitchstrike { Visible: false; Background: "Assets/Ability/Icons/SwitchStrikeAbility.png"; Anchor: (Full: 0); }
+                }
+
+                Group #CoreSlot1Lock {
+                  HitTestVisible: false;
+                  Background: (TexturePath: "Assets/Icons/IconLock.png");
+                  Anchor: (Width: 40, Height: 40);
+                }
+              }
+
+              Button #CoreSlot2 {
+                Anchor: (Width: 64, Height: 64, Top: 160, Left: 230);
+                TextTooltipStyle: @ButtonTextTooltipStyle;
+
+                Group #CoreSlot2Icon {
+                  HitTestVisible: false;
+                  Anchor: (Width: 64, Height: 64);
+
+                  Group #IconCoreDash { Visible: false; Background: "Assets/Ability/Icons/DashAbility.png"; Anchor: (Full: 0); }
+                  Group #IconCoreSwitchstrike { Visible: false; Background: "Assets/Ability/Icons/SwitchStrikeAbility.png"; Anchor: (Full: 0); }
+                }
+
+                Group #CoreSlot2Lock {
+                  HitTestVisible: false;
+                  Background: (TexturePath: "Assets/Icons/IconLock.png");
+                  Anchor: (Width: 40, Height: 40);
+                }
+              }
+
+              Button #CoreSlot3 {
+                Anchor: (Width: 64, Height: 64, Top: 160, Left: 20);
+                TextTooltipStyle: @ButtonTextTooltipStyle;
+
+                Group #CoreSlot3Icon {
+                  HitTestVisible: false;
+                  Anchor: (Width: 64, Height: 64);
+
+                  Group #IconCoreDash { Visible: false; Background: "Assets/Ability/Icons/DashAbility.png"; Anchor: (Full: 0); }
+                  Group #IconCoreSwitchstrike { Visible: false; Background: "Assets/Ability/Icons/SwitchStrikeAbility.png"; Anchor: (Full: 0); }
+                }
+
+                Group #CoreSlot3Lock {
+                  HitTestVisible: false;
+                  Background: (TexturePath: "Assets/Icons/IconLock.png");
+                  Anchor: (Width: 40, Height: 40);
+                }
+              }
+
+              Button #CoreUnequipSlot {
+                Anchor: (Width: 33, Height: 33, Top: 250, Left: 140);
+                TooltipText: %inventory.character.core.unequip.tooltip;
+                TextTooltipStyle: @ButtonTextTooltipStyle;
+
+                Group {
+                  HitTestVisible: false;
+                  Background: (TexturePath: "Assets/Ability/ItemSlotSelectorEmptyIcon.png");
+                  Anchor: (Width: 33, Height: 33);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Stats Tab
+
+    Group #Stats {
+      @Sep = Group { Anchor: (Height: 2); Background: #c1c9d3(0.07); };
+
+      @Icon = Group {
+        Anchor: (Width: 35, Height: 35);
+        Background: "Assets/Backgrounds/CharacterPanelStatIconBackground.png";
+        TextTooltipStyle: @ButtonTextTooltipStyle;
+
+        Group {
+          Background: @IconPatch;
+        }
+      };
+
+      @IconLabelSeparator = Group {
+        Anchor: (Width: 6, Height: 6, Right: 6, Left: 6);
+        Background: "Assets/Decorations/CharacterPanelDecoration2.png";
+      };
+
+      @StatNameLabel = Label {
+        Anchor: (Top: 1);
+        Style: (TextColor: #878e9c, FontSize: 11, RenderBold: false);
+      };
+
+      @StatNameValueLabel = Label {
+        Anchor: (Top: -1);
+        Style: (TextColor:  #b4c8c9, FontSize: 14, RenderBold: true);
+      };
+
+      Background: (TexturePath: "../Common/ContainerPanelPatch.png", Border: 4);
+      Anchor: (Height: 135, Top: 35);
+      Padding: (Horizontal: 10);
+      LayoutMode: Top;
+
+      Label {
+        Text: %client.inventory.character.stats.stats;
+        Anchor: (Top: 8);
+        Style: (TextColor:  #878e9c, FontSize: 14, RenderBold: true, RenderUppercase: true);
+      }
+
+      Group {
+        LayoutMode: Top;
+        FlexWeight: 1;
+
+        Group {
+          LayoutMode: Left;
+          Anchor: (Height: 50);
+
+          @Icon {
+            @IconPatch = "Assets/Icons/CharacterPanelStatIconHealth.png"; TooltipText: %client.inventory.character.stats.health;
+          }
+
+          Group {
+            Anchor: (Left: 10);
+            LayoutMode: Middle;
+            FlexWeight: 1;
+            @StatNameLabel {
+              Text: %client.inventory.character.stats.health;
+            }
+            @StatNameValueLabel #StatsHealth {}
+          }
+
+          @Icon { @IconPatch = "Assets/Icons/CharacterPanelStatIconStamina.png"; TooltipText: %client.inventory.character.stats.stamina; }
+
+          Group {
+            Anchor: (Left: 10);
+            LayoutMode: Middle;
+            FlexWeight: 1;
+            @StatNameLabel {
+              Text: %client.inventory.character.stats.stamina;
+            }
+            @StatNameValueLabel #StatsStamina {}
+          }
+        }
+
+        @Sep {}
+
+        Group {
+          LayoutMode: Left;
+          Anchor: (Height: 50);
+
+          @Icon { @IconPatch = "Assets/Icons/CharacterPanelEssenceIcon.png"; TooltipText: %client.inventory.character.stats.mana; }
+
+          Group {
+            Anchor: (Left: 10);
+            LayoutMode: Middle;
+            FlexWeight: 1;
+            @StatNameLabel {
+              Text: %inventory.character.stats.essence;
+            }
+            @StatNameValueLabel #StatsEssence {}
+          }
+
+          @Icon { @IconPatch = "Assets/Icons/CharacterPanelMovementSpeedIcon.png"; TooltipText: %client.inventory.character.stats.mana; }
+
+          Group {
+            Anchor: (Left: 10);
+            LayoutMode: Middle;
+            FlexWeight: 1;
+            @StatNameLabel {
+              Text: %inventory.character.stats.movementSpeed;
+            }
+
+            @StatNameValueLabel #StatsMovementSpeed {}
+          }
+        }
+      }
+    }
+  }
+}

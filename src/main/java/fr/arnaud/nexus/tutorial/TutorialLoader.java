@@ -13,12 +13,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
-public final class TutorialConfigLoader {
+public final class TutorialLoader {
 
     private static final String PATH = "/nexus/tutorial/tutorial.json";
     private static final Gson GSON = new Gson();
 
-    private TutorialConfigLoader() {
+    private TutorialLoader() {
     }
 
     public static List<TutorialStepConfig> load() {

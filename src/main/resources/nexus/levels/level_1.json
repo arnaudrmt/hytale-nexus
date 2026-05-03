@@ -1,6 +1,6 @@
 {
     "id": "level_1",
-    "name_key": "level.shattered.forest",
+    "key_name": "level.shatteredForest.title",
     "instanceTemplate": "Nexus_Level_1",
     "spawnPoint": {
         "x": 0.5,

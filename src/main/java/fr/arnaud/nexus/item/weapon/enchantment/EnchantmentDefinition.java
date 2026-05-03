@@ -5,14 +5,15 @@ import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 import java.util.Collections;
 import java.util.List;
 
-public record EnchantmentDefinition(String id, String name, String description, String icon, WeaponTag compatibleTag,
+public record EnchantmentDefinition(String id, String key_name, String key_description, String icon,
+                                    WeaponTag compatibleTag,
                                     int baseCost, double costMultiplierPerLevel, int maxLevel,
                                     List<EnchantmentStatDefinition> stats) {
 
     public EnchantmentDefinition(
         String id,
-        String name,
-        String description,
+        String key_name,
+        String key_description,
         String icon,
         WeaponTag compatibleTag,
         int baseCost,
@@ -21,8 +22,8 @@ public record EnchantmentDefinition(String id, String name, String description, 
         List<EnchantmentStatDefinition> stats
     ) {
         this.id = id;
-        this.name = name;
-        this.description = description;
+        this.key_name = key_name;
+        this.key_description = key_description;
         this.icon = icon;
         this.compatibleTag = compatibleTag;
         this.baseCost = baseCost;

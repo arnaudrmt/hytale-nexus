@@ -73,7 +73,7 @@ public final class LevelWorldService {
         Nexus.getInstance().getSpawnerRegistry().onLevelLoaded(world, config);
 
         world.execute(() -> {
-            Message primary = Message.translation(config.name_key());
+            Message primary = Message.translation(config.key_name());
             Message secondary = Message.translation("nexus.level.subtitle");
             java.util.concurrent.Executors.newSingleThreadScheduledExecutor()
                                           .schedule(() -> world.execute(() ->

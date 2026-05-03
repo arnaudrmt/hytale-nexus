@@ -12,8 +12,8 @@ public final class WeaponBsonSchema {
     private static final String KEY_WEAPON_TAG = "nexus_weapon_tag";
     private static final String KEY_QUALITY_VALUE = "nexus_quality_value";
 
-    private static final String KEY_NAME = "nexus_name_key";
-    private static final String KEY_DESCRIPTION = "nexus_description_key";
+    private static final String KEY_NAME = "nexus_key_name";
+    private static final String KEY_DESCRIPTION = "nexus_key_description";
 
     private static final String KEY_ENCHANT_SLOTS = "nexus_enchant_slots";
     private static final String KEY_SLOT_INDEX = "slot";

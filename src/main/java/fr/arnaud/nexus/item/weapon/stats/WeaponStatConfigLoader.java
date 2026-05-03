@@ -45,14 +45,14 @@ public final class WeaponStatConfigLoader {
     private static WeaponStatCurves parseCurves(BsonDocument qDoc) {
         return new WeaponStatCurves(
             (float) qDoc.getNumber("LevelCostBase").doubleValue(),
-            (float) qDoc.getNumber("LevelCostCurve").doubleValue(),
+            (float) qDoc.getNumber("LevelCostRate").doubleValue(),
             (float) qDoc.getNumber("DamageMultiplierBase").doubleValue(),
-            (float) qDoc.getNumber("DamageMultiplierCurve").doubleValue(),
-            (float) qDoc.getNumber("HealthBoostBase").doubleValue(),
-            (float) qDoc.getNumber("HealthBoostCurve").doubleValue(),
-            (float) qDoc.getNumber("HealthBoostCap").doubleValue(),
+            (float) qDoc.getNumber("DamageMultiplierPerLevel").doubleValue(),
+            (float) qDoc.getNumber("HealthBonusBase").doubleValue(),
+            (float) qDoc.getNumber("HealthBonusPerLevel").doubleValue(),
+            (float) qDoc.getNumber("HealthBonusCap").doubleValue(),
             (float) qDoc.getNumber("MovementSpeedBase").doubleValue(),
-            (float) qDoc.getNumber("MovementSpeedCurve").doubleValue(),
+            (float) qDoc.getNumber("MovementSpeedPerLevel").doubleValue(),
             (float) qDoc.getNumber("MovementSpeedCap").doubleValue()
         );
     }

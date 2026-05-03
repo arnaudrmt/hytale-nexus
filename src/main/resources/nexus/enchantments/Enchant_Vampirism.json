@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_Vampirism",
-    "Name": "Vampirism",
-    "Description": "Steal life when an enemy dies.",
+    "Name": "enchantment.vampirism.name",
+    "Description": "enchantment.vampirism.description",
     "Icon": "CharacterPanelStatIconDamage.png",
     "CompatibleTag": "MELEE",
     "BaseCost": 85,
@@ -9,14 +9,14 @@
     "Stats": [
         {
             "Id": "HealthRegen",
-            "DisplayName": "% Max Health Healed",
-            "Type": "Curve",
+            "DisplayName": "enchantment.vampirism.regen",
+            "Type": "Scalar",
             "Values": {
-                "1": 0.015,
-                "2": 0.025,
-                "3": 0.040,
-                "4": 0.060,
-                "5": 0.085
+                "1": 0.01,
+                "2": 0.03,
+                "3": 0.05,
+                "4": 0.07,
+                "5": 0.10
             }
         }
     ]

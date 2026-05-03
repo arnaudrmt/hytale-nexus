@@ -1,16 +1,16 @@
 {
     "Id": "Enchant_HealthBoost",
-    "Name": "Health Boost",
-    "Description": "Increases your maximum health.",
+    "Name": "enchantment.healthBoost.name",
+    "Description": "enchantment.healthBoost.description",
     "Icon": "CharacterPanelStatIconHealth.png",
     "CompatibleTag": "ANY",
     "BaseCost": 45,
     "CostCurve": 1.35,
     "Stats": [
         {
-            "Id": "HealthBoost",
-            "DisplayName": "Health Boost",
-            "Type": "Flat",
+            "Id": "HealthBonus",
+            "DisplayName": "enchantment.healthBoost.bonus",
+            "Type": "Additive",
             "Values": {
                 "1": 8.0,
                 "2": 15.0,

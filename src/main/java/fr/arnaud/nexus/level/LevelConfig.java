@@ -5,13 +5,13 @@ import fr.arnaud.nexus.math.WorldPosition;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public record LevelConfig(String id, String name_key, WorldPosition spawnPoint, WorldPosition finishPoint,
+public record LevelConfig(String id, String key_name, WorldPosition spawnPoint, WorldPosition finishPoint,
                           List<Spawner> spawners, List<StandaloneChest> standaloneChests, String instanceTemplate) {
 
-    public LevelConfig(String id, String name_key, WorldPosition spawnPoint, WorldPosition finishPoint,
+    public LevelConfig(String id, String key_name, WorldPosition spawnPoint, WorldPosition finishPoint,
                        List<Spawner> spawners, List<StandaloneChest> standaloneChests, String instanceTemplate) {
         this.id = id;
-        this.name_key = name_key;
+        this.key_name = key_name;
         this.spawnPoint = spawnPoint;
         this.finishPoint = finishPoint;
         this.spawners = List.copyOf(spawners);

@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_SoulHarvest",
-    "Name": "Soul Harvest",
-    "Description": "Gain bonus essence when killing enemies.",
+    "Name": "enchantment.soulHarvest.name",
+    "Description": "enchantment.soulHarvest.description",
     "Icon": "CharacterPanelEssenceIcon.png",
     "CompatibleTag": "ANY",
     "BaseCost": 45,
@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "SoulHarvestMultiplier",
-            "DisplayName": "Essence Bonus",
-            "Type": "Curve",
+            "DisplayName": "enchantment.soulHarvest.multiplier",
+            "Type": "Scalar",
             "Values": {
                 "1": 0.10,
                 "2": 0.18,

@@ -7,7 +7,7 @@ public final class EnchantSwiftness implements EnchantEffectHandler {
     public static final EnchantSwiftness INSTANCE = new EnchantSwiftness();
     public static final String ENCHANT_ID = "Enchant_Swiftness";
 
-    public static final String STAT_SWIFTNESS_BOOST = "Swiftness";
+    public static final String STAT_SWIFTNESS_BOOST = "SpeedBonus";
 
     private EnchantSwiftness() {
     }

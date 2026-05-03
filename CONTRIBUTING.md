@@ -23,7 +23,7 @@ All branches must follow this pattern:
 
 ## Commit Messages
 
-Follow this format: `type(scope): short description`
+Follow this format: `type(scope): short key_description`
 
 **Scopes:**
 
@@ -42,7 +42,7 @@ Follow this format: `type(scope): short description`
 - [ ] **Branch Name:** Branch is named correctly (`feat/`, `fix/`, or `refactor/`).
 - [ ] **Commits:** Follow the format above.
 - [ ] **Quality:** Code compiles with no errors.
-- [ ] **Metadata:** PR title matches your commit format and description explains *what* and *why*.
+- [ ] **Metadata:** PR title matches your commit format and key_description explains *what* and *why*.
 
 ## What Goes Where
 

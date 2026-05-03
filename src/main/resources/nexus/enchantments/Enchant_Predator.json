@@ -1,7 +1,7 @@
 {
-    "Id": "Enchant_SwiftnessOnKill",
-    "Name": "Predator",
-    "Description": "Gain a speed burst after killing an enemy.",
+    "Id": "Enchant_Predator",
+    "Name": "enchantment.predator.name",
+    "Description": "enchantment.predator.description",
     "Icon": "CharacterPanelStatIconStamina.png",
     "CompatibleTag": "ANY",
     "BaseCost": 55,
@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "PredatorSpeedBonus",
-            "DisplayName": "Speed Bonus",
-            "Type": "Flat",
+            "DisplayName": "enchantment.predator.speedBonus",
+            "Type": "Additive",
             "Values": {
                 "1": 1.2,
                 "2": 1.8,
@@ -21,8 +21,8 @@
         },
         {
             "Id": "PredatorDuration",
-            "DisplayName": "Duration (s)",
-            "Type": "Flat",
+            "DisplayName": "enchantment.predator.duration",
+            "Type": "Additive",
             "Values": {
                 "1": 1.5,
                 "2": 2.0,

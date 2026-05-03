@@ -1,30 +1,32 @@
 # Core Abilities
-ability.dash.name=Dash
-ability.dash.description=Hold Ctrl and click to dash towards your cursor.\nCosts 1 Stamina point.
-ability.dash.tooltip=Dash\nHold Ctrl and click to dash towards your cursor.\nCosts 1 Stamina point.
+ability.dash.name = Dash
+ability.dash.description = Hold Ctrl and click to dash towards your cursor.\nCosts 1 Stamina point.
+ability.dash.tooltip = Dash\nHold Ctrl and click to dash towards your cursor.\nCosts 1 Stamina point.
 
-ability.switch_strike.name=Switch Strike
-ability.switch_strike.description=When your ability damages an enemy, switch your weapon at the moment of impact to trigger a powerful combo.\nCosts 50% of your Stamina.
-ability.switch_strike.tooltip=Switch Strike\nWhen your ability damages an enemy, switch your weapon at the moment of impact to trigger a powerful combo.\nCosts 50% of your Stamina.
+ability.switchStrike.name = Switch Strike
+ability.switchStrike.description = When your ability damages an enemy, switch your weapon at the moment of impact to trigger a powerful combo.\nCosts 50% of your Stamina.
+ability.switchStrike.tooltip = Switch Strike\nWhen your ability damages an enemy, switch your weapon at the moment of impact to trigger a powerful combo.\nCosts 50% of your Stamina.
 
-core.unlocked.title=Core Unlocked: {ability}
-core.unlocked.subtitle=A new ability is now available.
+core.unlocked.title = Core Unlocked: {ability}
+core.unlocked.subtitle = A new ability is now available.
 
 # Stats
-insufficient.essence=Insufficient Essence Dust
+insufficient.essence = Insufficient Essence Dust
 
-# Items
-max.item.level.display=MAX
-maximum.item.level.reached=Maximum level reached.
+# Enchants
+enchant.level = Level {level}
+enchant.maxLevel = MAX
+enchant.MaxLevelReached = Maximum level reached.
+enchant.cost = {amount} ESSENCES
 
 # Levels
-level.subtitle=Welcome, adventurer.
-level.loading=Level loading...
+level.subtitle = Welcome, adventurer.
+level.loading = Level loading...
 
 # Spawners
-spawner.wave=WAVE
-spawner.wave.complete=WAVE COMPLETE
+spawner.wave = WAVE
+spawner.waveComplete = WAVE COMPLETE
 
 # Misc
 
-unknown="Unknown"
+unknown = "Unknown"

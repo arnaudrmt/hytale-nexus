@@ -14,10 +14,10 @@ import fr.arnaud.nexus.item.weapon.enchantment.event.NexusEnchantEvent;
 import java.util.Map;
 import java.util.concurrent.*;
 
-public final class EnchantSwiftnessOnKill implements EnchantEffectHandler {
+public final class EnchantPredator implements EnchantEffectHandler {
 
-    public static final EnchantSwiftnessOnKill INSTANCE = new EnchantSwiftnessOnKill();
-    public static final String ENCHANT_ID = "Enchant_SwiftnessOnKill";
+    public static final EnchantPredator INSTANCE = new EnchantPredator();
+    public static final String ENCHANT_ID = "Enchant_Predator";
 
     public static final String STAT_SPEED_BONUS = "PredatorSpeedBonus";
     public static final String STAT_DURATION = "PredatorDuration";
@@ -26,7 +26,7 @@ public final class EnchantSwiftnessOnKill implements EnchantEffectHandler {
     private final Map<Ref<EntityStore>, Float> activeBonuses = new ConcurrentHashMap<>();
     private static final ScheduledExecutorService SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 
-    private EnchantSwiftnessOnKill() {
+    private EnchantPredator() {
     }
 
     @Override

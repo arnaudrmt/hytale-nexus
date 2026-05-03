@@ -2,6 +2,7 @@ package fr.arnaud.nexus.item.weapon.enchantment;
 
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
+import fr.arnaud.nexus.math.StatMath;
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
 
@@ -103,10 +104,10 @@ public final class EnchantmentRegistry {
             String statId = statDoc.getString("Id").getValue();
             String displayName = statDoc.getString("DisplayName").getValue();
             String typeRaw = statDoc.getString("Type").getValue();
-            EnchantmentStatDefinition.StatType statType =
-                "Curve".equalsIgnoreCase(typeRaw)
-                    ? EnchantmentStatDefinition.StatType.CURVE
-                    : EnchantmentStatDefinition.StatType.FLAT;
+            StatMath.GrowthType statType =
+                "Scalar".equalsIgnoreCase(typeRaw)
+                    ? StatMath.GrowthType.SCALAR
+                    : StatMath.GrowthType.ADDITIVE;
 
             Map<Integer, Double> values = new LinkedHashMap<>();
             BsonDocument valuesDoc = statDoc.getDocument("Values");

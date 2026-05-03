@@ -61,7 +61,7 @@ public final class EnchantmentDamageInterceptor {
 
                 var dmgStat = def.getEnchantmentStatById(EnchantSharpness.STAT_DAMAGE_MULTIPLIER);
                 if (dmgStat != null) {
-                    totalMultiplier += dmgStat.getStatValueForLevel(level) - 1.0;
+                    totalMultiplier += dmgStat.computeValue(level, 1.0);
                 }
 
                 if (EnchantGambler.ENCHANT_ID.equals(slot.chosen())) {

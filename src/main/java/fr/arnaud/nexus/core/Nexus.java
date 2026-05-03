@@ -17,7 +17,7 @@ import fr.arnaud.nexus.item.weapon.system.WeaponUsageGuard;
 import fr.arnaud.nexus.level.LevelTransitionService;
 import fr.arnaud.nexus.level.LevelWorldService;
 import fr.arnaud.nexus.level.RunStartService;
-import fr.arnaud.nexus.spawner.SpawnerRegistry;
+import fr.arnaud.nexus.spawner.SpawnerManager;
 import fr.arnaud.nexus.spawner.WaveBarStateProvider;
 import fr.arnaud.nexus.tutorial.TutorialInterceptor;
 import fr.arnaud.nexus.tutorial.TutorialManager;
@@ -62,7 +62,7 @@ public final class Nexus extends JavaPlugin {
 
     // Spawner
     private final WaveBarStateProvider waveBarStateProvider = new WaveBarStateProvider();
-    private final SpawnerRegistry spawnerRegistry = new SpawnerRegistry(levelTransitionService, waveBarStateProvider);
+    private final SpawnerManager spawnerManager = new SpawnerManager(levelTransitionService, waveBarStateProvider);
 
     // Weapon
     private final WeaponGenerator weaponGenerator = new WeaponGenerator();
@@ -148,8 +148,8 @@ public final class Nexus extends JavaPlugin {
         return runStartService;
     }
 
-    public SpawnerRegistry getSpawnerRegistry() {
-        return spawnerRegistry;
+    public SpawnerManager getSpawnerRegistry() {
+        return spawnerManager;
     }
 
     public WaveBarStateProvider getWaveBarStateProvider() {

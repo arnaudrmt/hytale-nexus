@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_FreezeAspect",
-    "Name": "Freeze Aspect",
-    "Description": "Freezes enemies on hit.",
+    "Name": "enchantment.freezeAspect.name",
+    "Description": "enchantment.freezeAspect.description",
     "Icon": "CharacterPanelStatIconStamina.png",
     "CompatibleTag": "ANY",
     "BaseCost": 75,
@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "FreezeDuration",
-            "DisplayName": "Freeze Duration (s)",
-            "Type": "Flat",
+            "DisplayName": "enchantment.freezeAspect.duration",
+            "Type": "Additive",
             "Values": {
                 "1": 0.4,
                 "2": 0.65,

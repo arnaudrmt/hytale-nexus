@@ -1,0 +1,52 @@
+$C = "../Common.ui";
+
+@VerticalPanelSpacing = 8;
+
+@Offset = 0;
+
+Group #InventoryPanel {
+  LayoutMode: Bottom;
+  Anchor: (Bottom: @Offset, Top: @VerticalPanelSpacing);
+
+  $C.@Container #InventoryPanel {
+    @ContentPadding = 15;
+
+    #Title {
+      LayoutMode: Left;
+
+      $C.@Title #TitleLabel {
+        @Text = %client.inventory.inventory.title;
+        @Alignment = Start;
+
+        FlexWeight: 1;
+      }
+    }
+
+    #Content {
+      LayoutMode: Center;
+
+      Group #InventorySlotSection {
+        Anchor: (Bottom: 2);
+        LayoutMode: Top;
+        Visible: false;
+
+        Group #InventorySlotCards {
+          LayoutMode: Top;
+        }
+
+        Group { Anchor: (Height: 6); }
+
+        Group #HotbarDivider {
+          Anchor: (Height: 2);
+          Background: #c1c9d3(0.12);
+        }
+
+        Group { Anchor: (Height: 6); }
+
+        Group #HotbarSlotCards {
+          LayoutMode: Top;
+        }
+      }
+    }
+  }
+}

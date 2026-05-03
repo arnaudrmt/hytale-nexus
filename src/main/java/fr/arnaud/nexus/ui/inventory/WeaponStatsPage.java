@@ -13,6 +13,7 @@ import fr.arnaud.nexus.item.weapon.data.WeaponTag;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatCalculator;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatRegistry;
 import fr.arnaud.nexus.util.FormatUtil;
+import fr.arnaud.nexus.util.QualityMapper;
 import org.bson.BsonDocument;
 
 import javax.annotation.Nonnull;
@@ -22,14 +23,14 @@ public final class WeaponStatsPage {
     private WeaponStatsPage() {
     }
 
-    static void populate(@Nonnull UICommandBuilder cmd, @Nonnull Ref<EntityStore> ref,
-                         @Nonnull Store<EntityStore> store, @Nonnull WeaponTag activeTab) {
+    static void populateWeaponStats(@Nonnull UICommandBuilder cmd, @Nonnull Ref<EntityStore> ref,
+                                    @Nonnull Store<EntityStore> store, @Nonnull WeaponTag activeTab) {
 
         PlayerWeaponStateComponent state = store.getComponent(
             ref, PlayerWeaponStateComponent.getComponentType());
 
         if (state == null) {
-            renderEmpty(cmd);
+            clearWeaponStatsDisplay(cmd);
             return;
         }
 
@@ -37,7 +38,7 @@ public final class WeaponStatsPage {
             ? state.rangedDocument : state.meleeDocument;
 
         if (doc == null || !doc.containsKey("archetype_id")) {
-            renderEmpty(cmd);
+            clearWeaponStatsDisplay(cmd);
             return;
         }
 
@@ -57,7 +58,7 @@ public final class WeaponStatsPage {
         cmd.set("#WeaponRarity.Style.TextColor", qualityColor);
 
         if (!WeaponStatRegistry.getInstance().isReady()) {
-            renderEmpty(cmd);
+            clearWeaponStatsDisplay(cmd);
             return;
         }
 
@@ -74,10 +75,10 @@ public final class WeaponStatsPage {
 
         cmd.set("#UpgradeCost.Text", FormatUtil.formatGroupedInteger(cost));
         cmd.set("#UpgradeButton.Disabled", !canAfford);
-        cmd.set("#UpgradeButton.TooltipText", buildWeaponUpgradeTooltip(doc, level));
+        cmd.set("#UpgradeButton.TooltipText", buildWeaponLevelUpTooltip(doc, level));
     }
 
-    private static String buildWeaponUpgradeTooltip(@Nonnull BsonDocument doc,
+    private static String buildWeaponLevelUpTooltip(@Nonnull BsonDocument doc,
                                                     int currentLevel) {
         int nextLevel = currentLevel + 1;
         WeaponStatCalculator.PassiveStats current = WeaponStatCalculator.calculatePassiveStats(doc, currentLevel);
@@ -92,7 +93,7 @@ public final class WeaponStatsPage {
             + "Movement Speed" + ": " + FormatUtil.formatChange(speedDelta, false);
     }
 
-    private static void renderEmpty(@Nonnull UICommandBuilder cmd) {
+    private static void clearWeaponStatsDisplay(@Nonnull UICommandBuilder cmd) {
         cmd.setNull("#WeaponIcon.ItemId");
         cmd.set("#WeaponLevel.Text", "");
         cmd.set("#WeaponName.Text", "—");

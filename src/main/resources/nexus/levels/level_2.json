@@ -1,6 +1,6 @@
 {
     "id": "level_2",
-    "name_key": "level.weird.mesa",
+    "key_name": "level.weirdMesa.title",
     "instanceTemplate": "Nexus_Level_2",
     "spawnPoint": {
         "x": 0.5,

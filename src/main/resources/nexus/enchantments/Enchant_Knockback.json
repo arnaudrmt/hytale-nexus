@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_Knockback",
-    "Name": "Knockback",
-    "Description": "Pushes enemies away on hit.",
+    "Name": "enchantment.knockback.name",
+    "Description": "enchantment.knockback.description",
     "Icon": "CharacterPanelStatIconDamage.png",
     "CompatibleTag": "ANY",
     "BaseCost": 40,
@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "KnockbackForce",
-            "DisplayName": "Knockback Force",
-            "Type": "Flat",
+            "DisplayName": "enchantment.knockback.force",
+            "Type": "Additive",
             "Values": {
                 "1": 0.4,
                 "2": 0.65,

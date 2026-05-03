@@ -10,9 +10,9 @@ public enum CoreAbility {
     ),
     SWITCH_STRIKE(
         "switch_strike",
-        "nexus.ability.switch_strike.name",
-        "nexus.ability.switch_strike.description",
-        "nexus.ability.switch_strike.tooltip"
+        "nexus.ability.switchStrike.name",
+        "nexus.ability.switchStrike.description",
+        "nexus.ability.switchStrike.tooltip"
     );
 
     private final String id;

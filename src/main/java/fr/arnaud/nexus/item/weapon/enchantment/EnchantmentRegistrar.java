@@ -31,7 +31,7 @@ public final class EnchantmentRegistrar {
         bus.register(EnchantFireAspect.ENCHANT_ID, EnchantFireAspect.INSTANCE);
         bus.register(EnchantFreezeAspect.ENCHANT_ID, EnchantFreezeAspect.INSTANCE);
         bus.register(EnchantPoison.ENCHANT_ID, EnchantPoison.INSTANCE);
-        bus.register(EnchantSwiftnessOnKill.ENCHANT_ID, EnchantSwiftnessOnKill.INSTANCE);
+        bus.register(EnchantPredator.ENCHANT_ID, EnchantPredator.INSTANCE);
         bus.register(EnchantKnockback.ENCHANT_ID, EnchantKnockback.INSTANCE);
         bus.register(EnchantLifeDrain.ENCHANT_ID, EnchantLifeDrain.INSTANCE);
         bus.register(EnchantCripple.ENCHANT_ID, EnchantCripple.INSTANCE);

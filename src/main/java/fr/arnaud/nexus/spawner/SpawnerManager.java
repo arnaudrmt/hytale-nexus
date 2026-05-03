@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class SpawnerRegistry {
+public final class SpawnerManager {
 
     private final ChestManager chestManager;
     private final MobSpawnExecutor mobSpawnExecutor;
@@ -31,8 +31,8 @@ public final class SpawnerRegistry {
     private final List<SpawnerState> spawnerStates = new ArrayList<>();
     private World activeWorld;
 
-    public SpawnerRegistry(LevelTransitionService levelTransitionService,
-                           WaveBarStateProvider waveBarStateProvider) {
+    public SpawnerManager(LevelTransitionService levelTransitionService,
+                          WaveBarStateProvider waveBarStateProvider) {
         this.waveBarStateProvider = waveBarStateProvider;
         this.mobSpawnExecutor = new MobSpawnExecutor(() -> activeWorld);
         this.chestManager = new ChestManager(() -> activeWorld, p -> {
