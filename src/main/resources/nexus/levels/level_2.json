@@ -1,7 +1,6 @@
 {
     "id": "level_2",
-    "name": "The Weird Mesa",
-    "difficulty": 1.0,
+    "key_name": "level.weirdMesa.title",
     "instanceTemplate": "Nexus_Level_2",
     "spawnPoint": {
         "x": 0.5,
@@ -21,7 +20,7 @@
                 "y": 79.0,
                 "z": -8.0
             },
-            "triggerRadius": 5.0,
+            "activationRadius": 5.0,
             "spawnRadius": 3.0,
             "waves": [
                 {
@@ -85,7 +84,7 @@
                 "y": 80.0,
                 "z": -51.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -152,7 +151,7 @@
                 "y": 80.0,
                 "z": -46.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -220,7 +219,7 @@
                 "y": 80.0,
                 "z": -18.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -291,7 +290,7 @@
                 "y": 80.0,
                 "z": -2.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -358,7 +357,7 @@
                 "y": 80.0,
                 "z": -64.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -430,7 +429,7 @@
                 "y": 79.0,
                 "z": -94.0
             },
-            "triggerRadius": 15.0,
+            "activationRadius": 15.0,
             "spawnRadius": 10.0,
             "waves": [
                 {
@@ -511,7 +510,7 @@
                 "y": 80.0,
                 "z": -120.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 5.0,
             "waves": [
                 {
@@ -578,7 +577,7 @@
                 "y": 83.0,
                 "z": -69.0
             },
-            "triggerRadius": 15.0,
+            "activationRadius": 15.0,
             "spawnRadius": 8.0,
             "waves": [
                 {
@@ -660,7 +659,7 @@
                 "y": 70.0,
                 "z": -69.0
             },
-            "triggerRadius": 20.0,
+            "activationRadius": 20.0,
             "spawnRadius": 10.0,
             "waves": [
                 {
@@ -756,7 +755,7 @@
                 "y": 70.0,
                 "z": -82.0
             },
-            "triggerRadius": 20.0,
+            "activationRadius": 20.0,
             "spawnRadius": 10.0,
             "waves": [
                 {
@@ -838,7 +837,7 @@
                 "y": 70.0,
                 "z": -80.0
             },
-            "triggerRadius": 20.0,
+            "activationRadius": 20.0,
             "spawnRadius": 10.0,
             "waves": [
                 {
@@ -921,7 +920,7 @@
                     "maxEssence": 110
                 },
                 {
-                    "mobId": "Skeleton_Sand",
+                    "mobId": "Dungeon_Skeleton_Sand_Assassin",
                     "minCount": 5,
                     "maxCount": 6,
                     "spawnRate": 0.8,
@@ -966,7 +965,7 @@
                 "y": 70.0,
                 "z": -44.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 3.0,
             "waves": [
                 {
@@ -1048,7 +1047,7 @@
                 "y": 67.0,
                 "z": -59.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 3.0,
             "waves": [
                 {
@@ -1139,7 +1138,7 @@
                 "y": 67.0,
                 "z": -51.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 3.0,
             "waves": [
                 {
@@ -1189,7 +1188,7 @@
                     "maxEssence": 105
                 },
                 {
-                    "mobId": "Skeleton_Sand",
+                    "mobId": "Dungeon_Skeleton_Sand_Assassin",
                     "minCount": 5,
                     "maxCount": 6,
                     "spawnRate": 0.8,
@@ -1230,7 +1229,7 @@
                 "y": 67.0,
                 "z": -110.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 8.0,
             "waves": [
                 {
@@ -1313,7 +1312,7 @@
                 "y": 70.0,
                 "z": -83.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 8.0,
             "waves": [
                 {
@@ -1395,7 +1394,7 @@
                 "y": 70.0,
                 "z": -26.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 10.0,
             "waves": [
                 {
@@ -1491,7 +1490,7 @@
                 "y": 69.0,
                 "z": -81.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 8.0,
             "waves": [
                 {
@@ -1542,7 +1541,7 @@
                     "maxEssence": 110
                 },
                 {
-                    "mobId": "Skeleton_Sand",
+                    "mobId": "Dungeon_Skeleton_Sand_Assassin",
                     "minCount": 5,
                     "maxCount": 6,
                     "spawnRate": 0.7,
@@ -1592,7 +1591,7 @@
                 "y": 60.0,
                 "z": -82.0
             },
-            "triggerRadius": 10.0,
+            "activationRadius": 10.0,
             "spawnRadius": 8.0,
             "waves": [
                 {
@@ -1701,7 +1700,7 @@
             }
         }
     ],
-    "independentChests": [
+    "standaloneChests": [
         {
             "_comment": "IC 1 - Opening, strong consumables carryover from L1 endgame",
             "position": {
@@ -1709,7 +1708,7 @@
                 "y": 80.0,
                 "z": -16.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Potion_Health_Greater",
@@ -1736,7 +1735,7 @@
                 "y": 80.0,
                 "z": -10.0
             },
-            "triggerRadius": 2.0,
+            "activationRadius": 2.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Apple",
@@ -1763,7 +1762,7 @@
                 "y": 80.0,
                 "z": -67.0
             },
-            "triggerRadius": 2.0,
+            "activationRadius": 2.0,
             "items": [
                 {
                     "itemId": "Potion_Health_Greater",
@@ -1790,7 +1789,7 @@
                 "y": 80.0,
                 "z": -40.0
             },
-            "triggerRadius": 2.0,
+            "activationRadius": 2.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1817,7 +1816,7 @@
                 "y": 80.0,
                 "z": 13.0
             },
-            "triggerRadius": 2.0,
+            "activationRadius": 2.0,
             "items": [
                 {
                     "itemId": "Food_Salad_Caesar",
@@ -1844,7 +1843,7 @@
                 "y": 83.0,
                 "z": -81.0
             },
-            "triggerRadius": 2.0,
+            "activationRadius": 2.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1871,7 +1870,7 @@
                 "y": 81.0,
                 "z": -76.0
             },
-            "triggerRadius": 5.0,
+            "activationRadius": 5.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1898,7 +1897,7 @@
                 "y": 84.0,
                 "z": -29.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Apple",
@@ -1925,7 +1924,7 @@
                 "y": 80.0,
                 "z": -72.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1952,7 +1951,7 @@
                 "y": 75.0,
                 "z": -83.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -1979,7 +1978,7 @@
                 "y": 71.0,
                 "z": -108.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2006,7 +2005,7 @@
                 "y": 70.0,
                 "z": -76.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2033,7 +2032,7 @@
                 "y": 70.0,
                 "z": -113.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2060,7 +2059,7 @@
                 "y": 70.0,
                 "z": -75.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2087,7 +2086,7 @@
                 "y": 68.0,
                 "z": -38.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2114,7 +2113,7 @@
                 "y": 68.0,
                 "z": -110.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2141,7 +2140,7 @@
                 "y": 79.0,
                 "z": -94.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2168,7 +2167,7 @@
                 "y": 70.0,
                 "z": -108.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2195,7 +2194,7 @@
                 "y": 70.0,
                 "z": -55.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",
@@ -2222,7 +2221,7 @@
                 "y": 71.0,
                 "z": -57.0
             },
-            "triggerRadius": 3.0,
+            "activationRadius": 3.0,
             "items": [
                 {
                     "itemId": "Food_Pie_Meat",

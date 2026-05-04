@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "WardingPercent",
-            "DisplayName": "Damage Reduction %",
-            "Type": "Flat",
+            "DisplayName": "enchantment.warding.damageReduction",
+            "Type": "Scalar",
             "Values": {
                 "1": 0.05,
                 "2": 0.09,
@@ -21,8 +21,8 @@
         },
         {
             "Id": "WardingCap",
-            "DisplayName": "Reduction Cap",
-            "Type": "Flat",
+            "DisplayName": "enchantment.warding.reductionCap",
+            "Type": "Additive",
             "Values": {
                 "1": 4.0,
                 "2": 6.0,

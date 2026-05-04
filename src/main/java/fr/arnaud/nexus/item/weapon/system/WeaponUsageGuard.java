@@ -9,7 +9,8 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 /**
- * Prevents the use of an un-equipped weapon.
+ * Prevents the use of a weapon that is not currently equipped in hotbar slot 0.
+ * TODO: Add guard once weapon retrieval is available on SyncInteractionChain.
  */
 public final class WeaponUsageGuard {
 
@@ -17,10 +18,7 @@ public final class WeaponUsageGuard {
         PacketAdapters.registerInbound(this::interceptAbilityUse);
     }
 
-    private boolean interceptAbilityUse(
-        @NonNullDecl PlayerRef playerRef,
-        @NonNullDecl Packet packet
-    ) {
+    private boolean interceptAbilityUse(@NonNullDecl PlayerRef playerRef, @NonNullDecl Packet packet) {
         if (!(packet instanceof SyncInteractionChains syncPacket)) return false;
 
         for (SyncInteractionChain chain : syncPacket.updates) {
@@ -28,10 +26,8 @@ public final class WeaponUsageGuard {
             if (chain.interactionType != InteractionType.Primary
                 && chain.interactionType != InteractionType.Secondary) continue;
 
-            //TODO: Prevent player from using non-equipped weapons
             //if (chain.activeHotbarSlot != 0) return true;
         }
-
         return false;
     }
 }

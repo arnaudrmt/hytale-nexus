@@ -1,41 +1,38 @@
 # Nexus Inventory - Character
+character.melee.button.tooltip = Melee Enchantment Station
+character.ranged.button.tooltip = Ranged Enchantment Station
 
-character.melee.button.tooltip=Melee Enchantment Station
-character.ranged.button.tooltip=Ranged Enchantment Station
+character.core.unequip.tooltip = Unequip Core
+character.core.slotLocked = Not unlocked yet
 
-character.core.unequip.tooltip=Unequip Core
-character.core.slot.locked=Not unlocked yet
-
-character.stats.essence=Essence
-character.stats.movement.speed=Movement Speed
+character.stats.essence = Essence
+character.stats.movementSpeed = Movement Speed
 
 # Nexus Inventory - Enchantment
+enchantment.title.melee = ENCHANTMENT STATION > MELEE
+enchantment.title.ranged = ENCHANTMENT STATION > RANGED
 
-enchantment.title=ENCHANTMENT STATION
-
-enchantment.stats.title=Stats
-enchantment.upgrade.button.title=UPGRADE
+enchantment.stats.title = Stats
+enchantment.upgradeButton.title = UPGRADE
 
 # Nexus Inventory - Upgrade Weapon
+weapon.title = WEAPON UPGRADE
 
-weapon.title=WEAPON UPGRADE
+weapon.stats.title = Stats
+weapon.stats.damageMultiplier = Damage Multiplier
+weapon.stats.healthBonus = Health Bonus
+weapon.stats.movementSpeed = Movement Speed
 
-weapon.stats.title=Stats
-weapon.stats.damage.multiplier=Damage Multiplier
-weapon.stats.health.boost=Health Boost
-weapon.stats.movement.speed=Movement Speed
-
-weapon.upgrade.button.title=UPGRADE
+weapon.upgradeButton.title = UPGRADE
 
 # Session Dashboard Inventory
+session.dashboard.title = Run Complete
 
-session.dashboard.title=Run Complete
+session.dashboard.stats.runTime = Run Time
+session.dashboard.stats.score = Score
+session.dashboard.stats.kills = Kills
+session.dashboard.stats.deaths = Deaths
+session.dashboard.stats.damageDealt = Damage
 
-session.dashboard.stats.total.time=Total Time
-session.dashboard.stats.score=Score
-session.dashboard.stats.kills=Kills
-session.dashboard.stats.deaths=Deaths
-session.dashboard.stats.damage.dealt=Damage
-
-session.dashboard.start.new.run.button=START NEW RUN
+session.dashboard.startNewRunButton = START NEW RUN
 

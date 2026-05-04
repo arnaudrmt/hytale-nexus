@@ -10,11 +10,10 @@ import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponBsonSchema;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
-import fr.arnaud.nexus.item.weapon.stats.WeaponStatBag;
-import fr.arnaud.nexus.item.weapon.stats.WeaponStatBagBuilder;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatCalculator;
 import fr.arnaud.nexus.item.weapon.stats.WeaponStatRegistry;
 import fr.arnaud.nexus.util.FormatUtil;
+import fr.arnaud.nexus.util.QualityMapper;
 import org.bson.BsonDocument;
 
 import javax.annotation.Nonnull;
@@ -24,14 +23,14 @@ public final class WeaponStatsPage {
     private WeaponStatsPage() {
     }
 
-    static void populate(@Nonnull UICommandBuilder cmd, @Nonnull Ref<EntityStore> ref,
-                         @Nonnull Store<EntityStore> store, @Nonnull WeaponTag activeTab) {
+    static void populateWeaponStats(@Nonnull UICommandBuilder cmd, @Nonnull Ref<EntityStore> ref,
+                                    @Nonnull Store<EntityStore> store, @Nonnull WeaponTag activeTab) {
 
         PlayerWeaponStateComponent state = store.getComponent(
             ref, PlayerWeaponStateComponent.getComponentType());
 
         if (state == null) {
-            renderEmpty(cmd);
+            clearWeaponStatsDisplay(cmd);
             return;
         }
 
@@ -39,13 +38,13 @@ public final class WeaponStatsPage {
             ? state.rangedDocument : state.meleeDocument;
 
         if (doc == null || !doc.containsKey("archetype_id")) {
-            renderEmpty(cmd);
+            clearWeaponStatsDisplay(cmd);
             return;
         }
 
         String archetypeId = doc.getString("archetype_id").getValue();
         int level = WeaponBsonSchema.readLevel(doc);
-        int quality = WeaponBsonSchema.readQuality(doc);
+        int quality = WeaponBsonSchema.readQualityValue(doc);
         String name = WeaponBsonSchema.readName(doc);
 
         cmd.set("#WeaponIcon.ItemId", archetypeId);
@@ -53,19 +52,20 @@ public final class WeaponStatsPage {
         cmd.set("#WeaponName.Text", Message.translation(name));
 
         String qualityColor = QualityMapper.toColor(quality);
-        String qualityName = QualityMapper.toName(quality);
+        Message qualityName = Message.translation(QualityMapper.toNameKey(quality));
+
         cmd.set("#WeaponRarity.Text", qualityName);
         cmd.set("#WeaponRarity.Style.TextColor", qualityColor);
 
-        if (!WeaponStatRegistry.get().isReady()) {
-            renderEmpty(cmd);
+        if (!WeaponStatRegistry.getInstance().isReady()) {
+            clearWeaponStatsDisplay(cmd);
             return;
         }
 
-        WeaponStatBag current = WeaponStatBagBuilder.buildWeaponStatsFromBson(doc, level);
-        cmd.set("#WeaponDamageMultiplier.Text", FormatUtil.formatPercentModifier(current.damageMultiplier));
-        cmd.set("#WeaponHealthAdder.Text", FormatUtil.formatSignedSmart(current.healthBoost));
-        cmd.set("#WeaponMovementSpeedAdder.Text", FormatUtil.formatSignedSmart(current.movementSpeedBoost));
+        WeaponStatCalculator.PassiveStats current = WeaponStatCalculator.calculatePassiveStats(doc, level);
+        cmd.set("#WeaponDamageMultiplier.Text", FormatUtil.formatPercentModifier(current.damageMultiplier()));
+        cmd.set("#WeaponHealthAdder.Text", FormatUtil.formatSignedSmart(current.healthBonus()));
+        cmd.set("#WeaponMovementSpeedAdder.Text", FormatUtil.formatSignedSmart(current.movementSpeedBonus()));
 
         PlayerStatsManager statsManager = Nexus.getInstance().getPlayerStatsManager();
         float balance = statsManager.isReady()
@@ -75,25 +75,25 @@ public final class WeaponStatsPage {
 
         cmd.set("#UpgradeCost.Text", FormatUtil.formatGroupedInteger(cost));
         cmd.set("#UpgradeButton.Disabled", !canAfford);
-        cmd.set("#UpgradeButton.TooltipText", buildWeaponUpgradeTooltip(doc, level));
+        cmd.set("#UpgradeButton.TooltipText", buildWeaponLevelUpTooltip(doc, level));
     }
 
-    private static String buildWeaponUpgradeTooltip(@Nonnull BsonDocument doc,
+    private static String buildWeaponLevelUpTooltip(@Nonnull BsonDocument doc,
                                                     int currentLevel) {
         int nextLevel = currentLevel + 1;
-        WeaponStatBag current = WeaponStatBagBuilder.buildWeaponStatsFromBson(doc, currentLevel);
-        WeaponStatBag next = WeaponStatBagBuilder.buildWeaponStatsFromBson(doc, nextLevel);
+        WeaponStatCalculator.PassiveStats current = WeaponStatCalculator.calculatePassiveStats(doc, currentLevel);
+        WeaponStatCalculator.PassiveStats next = WeaponStatCalculator.calculatePassiveStats(doc, nextLevel);
 
-        double dmgDelta = next.damageMultiplier - current.damageMultiplier;
-        double healthDelta = next.healthBoost - current.healthBoost;
-        double speedDelta = next.movementSpeedBoost - current.movementSpeedBoost;
+        double dmgDelta = next.damageMultiplier() - current.damageMultiplier();
+        double healthDelta = next.healthBonus() - current.healthBonus();
+        double speedDelta = next.movementSpeedBonus() - current.movementSpeedBonus();
 
         return "Damage Multiplier" + ": " + FormatUtil.formatChange(dmgDelta, true) + "\n"
             + "Health Boost" + " :" + FormatUtil.formatChange(healthDelta, false) + "\n"
             + "Movement Speed" + ": " + FormatUtil.formatChange(speedDelta, false);
     }
 
-    private static void renderEmpty(@Nonnull UICommandBuilder cmd) {
+    private static void clearWeaponStatsDisplay(@Nonnull UICommandBuilder cmd) {
         cmd.setNull("#WeaponIcon.ItemId");
         cmd.set("#WeaponLevel.Text", "");
         cmd.set("#WeaponName.Text", "—");

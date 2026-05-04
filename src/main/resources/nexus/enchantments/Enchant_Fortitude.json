@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_Fortitude",
-    "Name": "Fortitude",
-    "Description": "Chance to completely block an incoming hit.",
+    "Name": "enchantment.fortitude.name",
+    "Description": "enchantment.fortitude.description",
     "Icon": "CharacterPanelStatIconHealth.png",
     "CompatibleTag": "ANY",
     "BaseCost": 80,
@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "FortitudeChance",
-            "DisplayName": "Block Chance",
-            "Type": "Flat",
+            "DisplayName": "enchantment.fortitude.chance",
+            "Type": "Scalar",
             "Values": {
                 "1": 0.04,
                 "2": 0.07,

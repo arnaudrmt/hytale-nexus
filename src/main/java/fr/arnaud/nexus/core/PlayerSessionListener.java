@@ -25,7 +25,7 @@ import fr.arnaud.nexus.input.PlayerCursorTargetComponent;
 import fr.arnaud.nexus.input.hover.PlayerHoverStateComponent;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.level.LevelProgressComponent;
-import fr.arnaud.nexus.level.NexusWorldLoadSystem;
+import fr.arnaud.nexus.level.LevelWorldService;
 import fr.arnaud.nexus.session.RunSessionComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
@@ -42,7 +42,7 @@ public final class PlayerSessionListener {
         var store = ref.getStore();
         World currentWorld = store.getExternalData().getWorld();
 
-        if (currentWorld.getName().startsWith(NexusWorldLoadSystem.LEVEL_WORLD_KEY_PREFIX)) {
+        if (currentWorld.getName().startsWith(LevelWorldService.LEVEL_WORLD_KEY_PREFIX)) {
             if (store.getComponent(ref, PlayerCameraComponent.getComponentType()) == null) {
                 attachPlayerComponents(ref, store);
             }
@@ -50,8 +50,8 @@ public final class PlayerSessionListener {
             return;
         }
 
-        NexusWorldLoadSystem levelSystem = Nexus.getInstance().getNexusWorldLoadSystem();
-        CompletableFuture<World> pending = levelSystem.getPendingActiveWorld();
+        LevelWorldService levelSystem = Nexus.getInstance().getLevelWorldService();
+        CompletableFuture<World> pending = levelSystem.getPendingLevelWorldFuture();
 
         if (pending == null) return;
         if (pending.isDone() && pending.join() == null) return;
@@ -98,6 +98,8 @@ public final class PlayerSessionListener {
                 ItemStack stack = new ItemStack(archetypeId, 1, weaponState.getActiveDocument());
                 Nexus.getInstance().getWeaponEquipSystem().onWeaponEquipped(ref, stack, store);
             }
+
+            Nexus.getInstance().getSpawnerManager().onPlayerReady(ref, store);
         });
     }
 

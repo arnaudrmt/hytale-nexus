@@ -8,6 +8,7 @@ import com.hypixel.hytale.component.Store;
 import com.hypixel.hytale.logger.HytaleLogger;
 import com.hypixel.hytale.protocol.packets.interface_.CustomPageLifetime;
 import com.hypixel.hytale.protocol.packets.interface_.CustomUIEventBindingType;
+import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.entity.entities.Player;
 import com.hypixel.hytale.server.core.entity.entities.player.pages.InteractiveCustomUIPage;
 import com.hypixel.hytale.server.core.inventory.InventoryComponent;
@@ -27,16 +28,19 @@ import org.bson.BsonDocument;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.logging.Level;
 
 public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPage.EventData> {
 
-    private volatile String selectedSlot = null;
-    private volatile WeaponTag activeTab;
+    private volatile String pendingInventorySlotKey = null;
+    private volatile String hoveredSlotPath = null;
+    private volatile WeaponTag activeWeaponTab;
 
-    private volatile java.util.concurrent.ScheduledFuture<?> coreWheelCloseTask = null;
-    private static final java.util.concurrent.ScheduledExecutorService WHEEL_SCHEDULER =
-        java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
+    private volatile ScheduledFuture<?> pendingCoreWheelCloseTask = null;
+    private static final ScheduledExecutorService CORE_WHEEL_CLOSE_SCHEDULER = Executors.newSingleThreadScheduledExecutor();
 
     public NexusInventoryPage(@Nonnull PlayerRef playerRef) {
         super(playerRef, CustomPageLifetime.CanDismiss, EventData.CODEC);
@@ -50,10 +54,15 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         PlayerWeaponStateComponent weaponState = store.getComponent(
             ref, PlayerWeaponStateComponent.getComponentType());
 
-        activeTab = weaponState != null ? weaponState.activeTag : WeaponTag.MELEE;
+        activeWeaponTab = weaponState != null ? weaponState.activeTag : WeaponTag.MELEE;
 
-        cmd.append("Pages/NexusInventory.ui");
+        cmd.append("Pages/Inventory.ui");
+        cmd.append("#CharacterPanel", "Pages/CharacterPanel.ui");
+        cmd.append("#EnchantmentPanel", "Pages/EnchantmentPanel.ui");
+        cmd.append("#InventoryPanel", "Pages/InventoryPanel.ui");
+        cmd.append("#WeaponPanel", "Pages/WeaponPanel.ui");
         cmd.set("#InventorySlotSection.Visible", true);
+
         if (player != null) {
             cmd.set("#PlayerName.Text", player.getDisplayName());
         }
@@ -74,24 +83,24 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             com.hypixel.hytale.server.core.ui.builder.EventData.of("WeaponUpgrade", ""), false);
 
         // Inventory grid bindings
-        InventoryGridPage.appendSlotBindings(cmd, event, "#InventorySlotCards",
+        InventoryGridPage.appendInventorySlotBindings(cmd, event, "#InventorySlotCards",
             InventoryGridPage.STORAGE_CAPACITY, 0);
-        InventoryGridPage.appendSlotBindings(cmd, event, "#HotbarSlotCards",
+        InventoryGridPage.appendInventorySlotBindings(cmd, event, "#HotbarSlotCards",
             InventoryGridPage.HOTBAR_CAPACITY, InventoryGridPage.STORAGE_CAPACITY);
 
         // Enchantment slot bindings (also registers choose/upgrade event bindings)
-        EnchantmentGridPage.appendSlotBindings(cmd, event);
+        EnchantmentGridPage.appendEnchantmentSlotBindings(cmd, event);
 
         // Core wheel bindings
-        CoreWheelPage.appendBindings(event);
+        CoreWheelPage.appendCoreWheelEventBindings(event);
 
-        applyTabVisuals(cmd, activeTab);
-        EnchantmentGridPage.populateSlots(cmd, ref, store, activeTab);
-        InventoryGridPage.populateSlotItems(cmd, ref, store);
-        InventoryGridPage.populateEquipSlots(cmd, ref, store);
+        applyWeaponTabVisuals(cmd, activeWeaponTab);
+        EnchantmentGridPage.populateEnchantmentSlots(cmd, ref, store, activeWeaponTab);
+        InventoryGridPage.populateInventorySlotItems(cmd, ref, store);
+        InventoryGridPage.populateWeaponEquipSlotIcons(cmd, ref, store);
         CharacterStatsPage.populate(cmd, ref, store);
-        WeaponStatsPage.populate(cmd, ref, store, activeTab);
-        CoreWheelPage.populate(cmd, ref, store);
+        WeaponStatsPage.populateWeaponStats(cmd, ref, store, activeWeaponTab);
+        CoreWheelPage.populateCoreWheelSlots(cmd, ref, store);
         cmd.set("#CoreWheelContent.Visible", false);
     }
 
@@ -101,203 +110,214 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
                                 @Nonnull EventData data) {
         World world = store.getExternalData().getWorld();
 
-        if (data.tabClick != null) {
-            activeTab = data.tabClick.equals("Ranged") ? WeaponTag.RANGED : WeaponTag.MELEE;
-            selectedSlot = null;
+        if (data.weaponTabClick != null) {
+            activeWeaponTab = data.weaponTabClick.equals("Ranged") ? WeaponTag.RANGED : WeaponTag.MELEE;
+            pendingInventorySlotKey = null;
             world.execute(() -> {
                 UICommandBuilder update = new UICommandBuilder();
-                applyTabVisuals(update, activeTab);
-                EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
-                WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
+                applyWeaponTabVisuals(update, activeWeaponTab);
+                EnchantmentGridPage.populateEnchantmentSlots(update, ref, ref.getStore(), activeWeaponTab);
+                WeaponStatsPage.populateWeaponStats(update, ref, ref.getStore(), activeWeaponTab);
                 sendUpdate(update, null, false);
             });
             return;
         }
 
-        if (data.action != null && data.action.startsWith("Drop:")) {
-            int globalIndex = Integer.parseInt(data.action.split(":")[1]);
+        if (data.inventoryAction != null && data.inventoryAction.startsWith("Drop:")) {
+            int globalIndex = Integer.parseInt(data.inventoryAction.split(":")[1]);
             boolean isHotbar = globalIndex >= InventoryGridPage.STORAGE_CAPACITY;
             short slotIndex = (short) (isHotbar
                 ? globalIndex - InventoryGridPage.STORAGE_CAPACITY
                 : globalIndex);
 
-            ItemContainer container = InventoryGridPage.getContainer(ref, store,
+            ItemContainer container = InventoryGridPage.getInventoryContainerByType(ref, store,
                 isHotbar ? "Hotbar" : "Storage");
             if (container == null) return;
 
             world.execute(() -> {
                 InventoryUtils.dropItemFromInventory(ref, ref.getStore(), container, slotIndex);
                 UICommandBuilder update = new UICommandBuilder();
-                InventoryGridPage.populateSlotItems(update, ref, ref.getStore());
+                InventoryGridPage.populateInventorySlotItems(update, ref, ref.getStore());
                 sendUpdate(update, null, false);
             });
             return;
         }
 
-        if (data.coreWheelHover != null) {
-            if ("Enter".equals(data.coreWheelHover)) {
-                if (coreWheelCloseTask != null) {
-                    coreWheelCloseTask.cancel(false);
-                    coreWheelCloseTask = null;
+        if (data.coreWheelHoverDirection != null) {
+            if ("Enter".equals(data.coreWheelHoverDirection)) {
+                if (pendingCoreWheelCloseTask != null) {
+                    pendingCoreWheelCloseTask.cancel(false);
+                    pendingCoreWheelCloseTask = null;
                 }
                 UICommandBuilder update = new UICommandBuilder();
-                CoreWheelPage.handleHover(update, "Enter");
+                CoreWheelPage.applyCoreWheelHoverVisibility(update, "Enter");
                 sendUpdate(update, null, false);
             } else {
-                coreWheelCloseTask = WHEEL_SCHEDULER.schedule(() -> {
+                pendingCoreWheelCloseTask = CORE_WHEEL_CLOSE_SCHEDULER.schedule(() -> {
                     UICommandBuilder update = new UICommandBuilder();
-                    CoreWheelPage.handleHover(update, "Leave");
+                    CoreWheelPage.applyCoreWheelHoverVisibility(update, "Leave");
                     sendUpdate(update, null, false);
                 }, 200, java.util.concurrent.TimeUnit.MILLISECONDS);
             }
             return;
         }
 
-        if (data.coreSelect != null) {
-            String captured = data.coreSelect;
+        if (data.coreAbilitySelection != null) {
+            String captured = data.coreAbilitySelection;
             world.execute(() -> {
-                boolean changed = CoreWheelPage.handleSelect(ref, ref.getStore(), captured);
+                boolean changed = CoreWheelPage.selectCoreAbility(ref, ref.getStore(), captured);
                 if (changed) {
                     UICommandBuilder update = new UICommandBuilder();
-                    CoreWheelPage.populate(update, ref, ref.getStore());
+                    CoreWheelPage.populateCoreWheelSlots(update, ref, ref.getStore());
                     sendUpdate(update, null, false);
                 }
             });
             return;
         }
 
-        if (data.enchantChoose != null) {
-            String capturedPayload = data.enchantChoose;
+        if (data.enchantmentChoiceSelection != null) {
+            String capturedPayload = data.enchantmentChoiceSelection;
             world.execute(() -> {
-                boolean changed = EnchantmentGridPage.handleChoose(
-                    ref, ref.getStore(), capturedPayload, activeTab);
+                boolean changed = EnchantmentGridPage.commitEnchantmentChoice(
+                    ref, ref.getStore(), capturedPayload, activeWeaponTab);
                 if (changed) {
                     UICommandBuilder update = new UICommandBuilder();
-                    EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
+                    EnchantmentGridPage.populateEnchantmentSlots(update, ref, ref.getStore(), activeWeaponTab);
                     sendUpdate(update, null, false);
-                    pushFullStatsUpdate(ref);
+                    refreshAllStatsDisplays(ref);
                 }
             });
             return;
         }
 
-        if (data.enchantUpgrade != null) {
-            String capturedPayload = data.enchantUpgrade;
+        if (data.enchantmentUpgradeRequest != null) {
+            String capturedPayload = data.enchantmentUpgradeRequest;
             world.execute(() -> {
-                boolean changed = EnchantmentGridPage.handleUpgrade(
-                    ref, ref.getStore(), capturedPayload, activeTab);
+                boolean changed = EnchantmentGridPage.upgradeEnchantment(
+                    ref, ref.getStore(), capturedPayload, activeWeaponTab);
                 if (changed) {
                     UICommandBuilder update = new UICommandBuilder();
-                    EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
+                    EnchantmentGridPage.populateEnchantmentSlots(update, ref, ref.getStore(), activeWeaponTab);
                     sendUpdate(update, null, false);
-                    pushFullStatsUpdate(ref);
+                    refreshAllStatsDisplays(ref);
                 }
             });
             return;
         }
 
-        if (data.equipSlotClick != null) {
+        if (data.weaponEquipSlotClick != null) {
 
-            WeaponTag targetTag = data.equipSlotClick.equals("Ranged")
+            WeaponTag targetTag = data.weaponEquipSlotClick.equals("Ranged")
                 ? WeaponTag.RANGED : WeaponTag.MELEE;
 
-            if (!isValidWeaponSelectionForEquip(ref, store, selectedSlot, targetTag)) {
-                selectedSlot = null;
+            if (!isSelectedSlotEquippableToWeaponTag(ref, store, pendingInventorySlotKey, targetTag)) {
+                pendingInventorySlotKey = null;
                 return;
             }
 
-            String capturedFrom = selectedSlot;
-            selectedSlot = null;
+            String capturedFrom = pendingInventorySlotKey;
+            pendingInventorySlotKey = null;
 
             world.execute(() -> {
                 try {
-                    handleEquip(ref, ref.getStore(), capturedFrom, targetTag);
+                    equipWeaponFromInventorySlot(ref, ref.getStore(), capturedFrom, targetTag);
                 } catch (Exception e) {
                     HytaleLogger.getLogger().at(Level.WARNING).log("Error handling equipment slot", e);
                 }
                 UICommandBuilder update = new UICommandBuilder();
-                InventoryGridPage.populateSlotItems(update, ref, ref.getStore());
-                InventoryGridPage.populateEquipSlots(update, ref, ref.getStore());
-                EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
-                WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
+                InventoryGridPage.populateInventorySlotItems(update, ref, ref.getStore());
+                InventoryGridPage.populateWeaponEquipSlotIcons(update, ref, ref.getStore());
+                EnchantmentGridPage.populateEnchantmentSlots(update, ref, ref.getStore(), activeWeaponTab);
+                WeaponStatsPage.populateWeaponStats(update, ref, ref.getStore(), activeWeaponTab);
                 sendUpdate(update, null, false);
-                pushFullStatsUpdate(ref);
+                refreshAllStatsDisplays(ref);
             });
             return;
         }
 
-        if (data.weaponUpgrade != null) {
+        if (data.weaponUpgradeRequest != null) {
             world.execute(() -> {
                 PlayerWeaponStateComponent state = ref.getStore().getComponent(
                     ref, PlayerWeaponStateComponent.getComponentType());
                 if (state == null) return;
-                BsonDocument doc = activeTab == WeaponTag.RANGED
+                BsonDocument doc = activeWeaponTab == WeaponTag.RANGED
                     ? state.rangedDocument : state.meleeDocument;
                 if (doc == null) return;
                 Nexus.getInstance().getWeaponUpgradeService().attemptUpgrade(ref, doc, ref.getStore());
                 UICommandBuilder update = new UICommandBuilder();
-                WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
+                WeaponStatsPage.populateWeaponStats(update, ref, ref.getStore(), activeWeaponTab);
                 sendUpdate(update, null, false);
-                pushFullStatsUpdate(ref);
+                refreshAllStatsDisplays(ref);
             });
             return;
         }
 
-        if (data.slotClick == null) {
+        if (data.slotHover != null) {
+            String incomingSlotPath = InventoryGridPage.resolveSlotPath(Integer.parseInt(data.slotHover));
+
+            UICommandBuilder update = new UICommandBuilder();
+            if (hoveredSlotPath != null) {
+                update.set(hoveredSlotPath + " #SlotHoverOverlay.Visible", false);
+            }
+            hoveredSlotPath = incomingSlotPath;
+            update.set(incomingSlotPath + " #SlotHoverOverlay.Visible", true);
+            sendUpdate(update, null, false);
             return;
         }
 
-        int clickedGlobal = Integer.parseInt(data.slotClick.split(":")[1]);
+        if (data.inventorySlotClick == null) return;
+
+        int clickedGlobal = Integer.parseInt(data.inventorySlotClick.split(":")[1]);
         int lockedGlobal = InventoryGridPage.STORAGE_CAPACITY + InventoryGridPage.LOCKED_HOTBAR_SLOT;
 
         if (clickedGlobal == lockedGlobal) {
-            selectedSlot = null;
+            pendingInventorySlotKey = null;
             return;
         }
 
-        if (selectedSlot == null) {
-            if (!hasItem(ref, store, data.slotClick)) return;
-            selectedSlot = data.slotClick;
+        if (pendingInventorySlotKey == null) {
+            if (!inventorySlotHasItem(ref, store, data.inventorySlotClick)) return;
+            pendingInventorySlotKey = data.inventorySlotClick;
             return;
         }
 
-        String capturedFrom = selectedSlot;
-        String capturedTo = data.slotClick;
-        selectedSlot = null;
+        String capturedFrom = pendingInventorySlotKey;
+        String capturedTo = data.inventorySlotClick;
+        pendingInventorySlotKey = null;
 
         world.execute(() -> {
             try {
                 if (!capturedFrom.equals(capturedTo)) {
-                    InventoryGridPage.swapSlots(ref, ref.getStore(), capturedFrom, capturedTo);
+                    InventoryGridPage.swapInventorySlots(ref, ref.getStore(), capturedFrom, capturedTo);
                 }
             } catch (Exception e) {
                 HytaleLogger.getLogger().at(Level.WARNING).log("Could not swap equipment slot item", e);
             }
             UICommandBuilder update = new UICommandBuilder();
-            InventoryGridPage.populateSlotItems(update, ref, ref.getStore());
+            InventoryGridPage.populateInventorySlotItems(update, ref, ref.getStore());
             sendUpdate(update, null, false);
         });
     }
 
-    private boolean hasItem(@Nonnull Ref<EntityStore> ref,
-                            @Nonnull Store<EntityStore> store,
-                            @Nonnull String slotKey) {
+    private boolean inventorySlotHasItem(@Nonnull Ref<EntityStore> ref,
+                                         @Nonnull Store<EntityStore> store,
+                                         @Nonnull String slotKey) {
         int globalIndex = Integer.parseInt(slotKey.split(":")[1]);
         boolean isHotbar = globalIndex >= InventoryGridPage.STORAGE_CAPACITY;
         short slotIndex = (short) (isHotbar
             ? globalIndex - InventoryGridPage.STORAGE_CAPACITY
             : globalIndex);
-        ItemContainer container = InventoryGridPage.getContainer(ref, store,
+        ItemContainer container = InventoryGridPage.getInventoryContainerByType(ref, store,
             isHotbar ? "Hotbar" : "Storage");
         if (container == null) return false;
         ItemStack stack = container.getItemStack(slotIndex);
         return stack != null && !stack.isEmpty();
     }
 
-    private void handleEquip(@Nonnull Ref<EntityStore> ref,
-                             @Nonnull Store<EntityStore> store,
-                             @Nonnull String fromSlotKey,
-                             @Nonnull WeaponTag targetTag) {
+    private void equipWeaponFromInventorySlot(@Nonnull Ref<EntityStore> ref,
+                                              @Nonnull Store<EntityStore> store,
+                                              @Nonnull String fromSlotKey,
+                                              @Nonnull WeaponTag targetTag) {
 
         int globalIndex = Integer.parseInt(fromSlotKey.split(":")[1]);
         boolean isHotbar = globalIndex >= InventoryGridPage.STORAGE_CAPACITY;
@@ -305,7 +325,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             ? globalIndex - InventoryGridPage.STORAGE_CAPACITY
             : globalIndex);
 
-        ItemContainer container = InventoryGridPage.getContainer(ref, store,
+        ItemContainer container = InventoryGridPage.getInventoryContainerByType(ref, store,
             isHotbar ? "Hotbar" : "Storage");
         if (container == null) return;
 
@@ -350,10 +370,10 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         }
     }
 
-    private boolean isValidWeaponSelectionForEquip(@Nonnull Ref<EntityStore> ref,
-                                                   @Nonnull Store<EntityStore> store,
-                                                   @Nullable String pendingSlot,
-                                                   @Nonnull WeaponTag targetTag) {
+    private boolean isSelectedSlotEquippableToWeaponTag(@Nonnull Ref<EntityStore> ref,
+                                                        @Nonnull Store<EntityStore> store,
+                                                        @Nullable String pendingSlot,
+                                                        @Nonnull WeaponTag targetTag) {
         if (pendingSlot == null) return false;
 
         int globalIndex = Integer.parseInt(pendingSlot.split(":")[1]);
@@ -362,7 +382,7 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
             ? globalIndex - InventoryGridPage.STORAGE_CAPACITY
             : globalIndex);
 
-        ItemContainer container = InventoryGridPage.getContainer(ref, store,
+        ItemContainer container = InventoryGridPage.getInventoryContainerByType(ref, store,
             isHotbar ? "Hotbar" : "Storage");
         if (container == null) return false;
 
@@ -376,11 +396,12 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         return itemTag.isCompatibleWith(targetTag);
     }
 
-    private void applyTabVisuals(@Nonnull UICommandBuilder cmd, @Nonnull WeaponTag tab) {
+    private void applyWeaponTabVisuals(@Nonnull UICommandBuilder cmd, @Nonnull WeaponTag tab) {
         boolean isMelee = tab == WeaponTag.MELEE;
 
         cmd.set("#UpgradeTitleLabel.Text",
-            isMelee ? "ENCHANTMENT STATION > MELEE" : "ENCHANTMENT STATION > RANGED");
+            isMelee ? Message.translation("inventory.enchantment.title.melee") :
+                Message.translation("inventory.enchantment.title.ranged"));
 
         cmd.set("#MeleeActive.Visible", isMelee);
         cmd.set("#MeleeDisabledButton.Visible", !isMelee);
@@ -397,67 +418,68 @@ public class NexusInventoryPage extends InteractiveCustomUIPage<NexusInventoryPa
         public static final BuilderCodec<EventData> CODEC = BuilderCodec
             .builder(EventData.class, EventData::new)
             .append(new KeyedCodec<>("SlotClick", Codec.STRING),
-                (d, v) -> d.slotClick = v, d -> d.slotClick)
+                (d, v) -> d.inventorySlotClick = v, d -> d.inventorySlotClick)
             .add()
             .append(new KeyedCodec<>("TabClick", Codec.STRING),
-                (d, v) -> d.tabClick = v, d -> d.tabClick)
+                (d, v) -> d.weaponTabClick = v, d -> d.weaponTabClick)
             .add()
             .append(new KeyedCodec<>("Action", Codec.STRING),
-                (d, v) -> d.action = v, d -> d.action)
+                (d, v) -> d.inventoryAction = v, d -> d.inventoryAction)
             .add()
             .append(new KeyedCodec<>("EquipSlotClick", Codec.STRING),
-                (d, v) -> d.equipSlotClick = v, d -> d.equipSlotClick)
+                (d, v) -> d.weaponEquipSlotClick = v, d -> d.weaponEquipSlotClick)
             .add()
             .append(new KeyedCodec<>("EnchantChoose", Codec.STRING),
-                (d, v) -> d.enchantChoose = v, d -> d.enchantChoose)
+                (d, v) -> d.enchantmentChoiceSelection = v, d -> d.enchantmentChoiceSelection)
             .add()
             .append(new KeyedCodec<>("EnchantUpgrade", Codec.STRING),
-                (d, v) -> d.enchantUpgrade = v, d -> d.enchantUpgrade)
+                (d, v) -> d.enchantmentUpgradeRequest = v, d -> d.enchantmentUpgradeRequest)
             .add()
             .append(new KeyedCodec<>("WeaponUpgrade", Codec.STRING),
-                (d, v) -> d.weaponUpgrade = v, d -> d.weaponUpgrade)
+                (d, v) -> d.weaponUpgradeRequest = v, d -> d.weaponUpgradeRequest)
             .add()
             .append(new KeyedCodec<>("CoreWheelHover", Codec.STRING),
-                (d, v) -> d.coreWheelHover = v, d -> d.coreWheelHover)
+                (d, v) -> d.coreWheelHoverDirection = v, d -> d.coreWheelHoverDirection)
             .add()
             .append(new KeyedCodec<>("CoreSelect", Codec.STRING),
-                (d, v) -> d.coreSelect = v, d -> d.coreSelect)
+                (d, v) -> d.coreAbilitySelection = v, d -> d.coreAbilitySelection)
             .add()
             .build();
 
-        public String slotClick;
-        public String tabClick;
-        public String action;
-        public String equipSlotClick;
-        public String enchantChoose;
-        public String enchantUpgrade;
-        public String weaponUpgrade;
-        public String coreWheelHover;
-        public String coreSelect;
+        public String inventorySlotClick;
+        public String weaponTabClick;
+        public String inventoryAction;
+        public String weaponEquipSlotClick;
+        public String enchantmentChoiceSelection;
+        public String enchantmentUpgradeRequest;
+        public String weaponUpgradeRequest;
+        public String coreWheelHoverDirection;
+        public String coreAbilitySelection;
+        public String slotHover;
 
         public EventData() {
         }
     }
 
-    private void pushFullStatsUpdate(@Nonnull Ref<EntityStore> ref) {
-        reequipActiveWeapon(ref, ref.getStore());
+    private void refreshAllStatsDisplays(@Nonnull Ref<EntityStore> ref) {
+        reapplyActiveWeaponEquipEffects(ref, ref.getStore());
         ref.getStore().getExternalData().getWorld().execute(() -> {
             if (!ref.isValid()) return;
             UICommandBuilder update = new UICommandBuilder();
-            WeaponStatsPage.populate(update, ref, ref.getStore(), activeTab);
-            EnchantmentGridPage.populateSlots(update, ref, ref.getStore(), activeTab);
+            WeaponStatsPage.populateWeaponStats(update, ref, ref.getStore(), activeWeaponTab);
+            EnchantmentGridPage.populateEnchantmentSlots(update, ref, ref.getStore(), activeWeaponTab);
             CharacterStatsPage.populate(update, ref, ref.getStore());
             sendUpdate(update, null, false);
         });
     }
 
-    private void reequipActiveWeapon(@Nonnull Ref<EntityStore> ref,
-                                     @Nonnull Store<EntityStore> store) {
+    private void reapplyActiveWeaponEquipEffects(@Nonnull Ref<EntityStore> ref,
+                                                 @Nonnull Store<EntityStore> store) {
         PlayerWeaponStateComponent state = store.getComponent(
             ref, PlayerWeaponStateComponent.getComponentType());
         if (state == null) return;
 
-        BsonDocument doc = activeTab == WeaponTag.RANGED
+        BsonDocument doc = activeWeaponTab == WeaponTag.RANGED
             ? state.rangedDocument : state.meleeDocument;
         if (doc == null || !doc.containsKey("archetype_id")) return;
 

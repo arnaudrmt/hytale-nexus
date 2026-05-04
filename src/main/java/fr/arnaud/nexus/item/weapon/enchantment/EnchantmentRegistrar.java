@@ -9,32 +9,32 @@ public final class EnchantmentRegistrar {
     }
 
     public static void registerAll() {
-        NexusEnchantBus bus = NexusEnchantBus.get();
+        NexusEnchantBus bus = NexusEnchantBus.getInstance();
 
         // Passive-only
-        bus.register("Enchant_HealthBoost", EnchantHealthBoost.INSTANCE);
-        bus.register("Enchant_StaminaBoost", EnchantStaminaBoost.INSTANCE);
-        bus.register("Enchant_Sharpness", EnchantSharpness.INSTANCE);
-        bus.register("Enchant_Swiftness", EnchantSwiftness.INSTANCE);
+        bus.register(EnchantHealthBoost.ENCHANT_ID, EnchantHealthBoost.INSTANCE);
+        bus.register(EnchantStaminaBoost.ENCHANT_ID, EnchantStaminaBoost.INSTANCE);
+        bus.register(EnchantSharpness.ENCHANT_ID, EnchantSharpness.INSTANCE);
+        bus.register(EnchantSwiftness.ENCHANT_ID, EnchantSwiftness.INSTANCE);
 
         // Handled in interceptor (no bus logic needed, registered for completeness)
-        bus.register("Enchant_Resilience", EnchantResilience.INSTANCE);
-        bus.register("Enchant_Warding", EnchantWarding.INSTANCE);
-        bus.register("Enchant_Fortitude", EnchantFortitude.INSTANCE);
-        bus.register("Enchant_Thorns", EnchantThorns.INSTANCE);
-        bus.register("Enchant_Gambler", EnchantGambler.INSTANCE);
-        bus.register("Enchant_CriticalStrike", EnchantCriticalStrike.INSTANCE);
-        bus.register("Enchant_Bloodlust", EnchantBloodlust.INSTANCE);
+        bus.register(EnchantResilience.ENCHANT_ID, EnchantResilience.INSTANCE);
+        bus.register(EnchantWarding.ENCHANT_ID, EnchantWarding.INSTANCE);
+        bus.register(EnchantFortitude.ENCHANT_ID, EnchantFortitude.INSTANCE);
+        bus.register(EnchantThorns.ENCHANT_ID, EnchantThorns.INSTANCE);
+        bus.register(EnchantGambler.ENCHANT_ID, EnchantGambler.INSTANCE);
+        bus.register(EnchantCriticalStrike.ENCHANT_ID, EnchantCriticalStrike.INSTANCE);
+        bus.register(EnchantBloodlust.ENCHANT_ID, EnchantBloodlust.INSTANCE);
 
         // Runtime trigger enchants
-        bus.register("Enchant_Vampirism", EnchantVampirism.INSTANCE);
-        bus.register("Enchant_FireAspect", EnchantFireAspect.INSTANCE);
-        bus.register("Enchant_FreezeAspect", EnchantFreezeAspect.INSTANCE);
-        bus.register("Enchant_Poison", EnchantPoison.INSTANCE);
-        bus.register("Enchant_SwiftnessOnKill", EnchantSwiftnessOnKill.INSTANCE);
-        bus.register("Enchant_Knockback", EnchantKnockback.INSTANCE);
-        bus.register("Enchant_LifeDrain", EnchantLifeDrain.INSTANCE);
-        bus.register("Enchant_Cripple", EnchantCripple.INSTANCE);
-        bus.register("Enchant_SoulHarvest", EnchantSoulHarvest.INSTANCE);
+        bus.register(EnchantVampirism.ENCHANT_ID, EnchantVampirism.INSTANCE);
+        bus.register(EnchantFireAspect.ENCHANT_ID, EnchantFireAspect.INSTANCE);
+        bus.register(EnchantFreezeAspect.ENCHANT_ID, EnchantFreezeAspect.INSTANCE);
+        bus.register(EnchantPoison.ENCHANT_ID, EnchantPoison.INSTANCE);
+        bus.register(EnchantPredator.ENCHANT_ID, EnchantPredator.INSTANCE);
+        bus.register(EnchantKnockback.ENCHANT_ID, EnchantKnockback.INSTANCE);
+        bus.register(EnchantLifeDrain.ENCHANT_ID, EnchantLifeDrain.INSTANCE);
+        bus.register(EnchantCripple.ENCHANT_ID, EnchantCripple.INSTANCE);
+        bus.register(EnchantSoulHarvest.ENCHANT_ID, EnchantSoulHarvest.INSTANCE);
     }
 }

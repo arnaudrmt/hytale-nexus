@@ -23,7 +23,7 @@ public final class TutorialManager {
     private final Set<Ref<EntityStore>> pendingAdvances = ConcurrentHashMap.newKeySet();
 
     public void loadSteps() {
-        steps = TutorialConfigLoader.load();
+        steps = TutorialLoader.load();
     }
 
     public void onPlayerReady(Player player) {

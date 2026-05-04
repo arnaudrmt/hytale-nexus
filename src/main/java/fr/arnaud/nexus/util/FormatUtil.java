@@ -16,6 +16,11 @@ public class FormatUtil {
         return String.format(Locale.ROOT, "%.1f", value);
     }
 
+    // Formats a multiplier value with the multiplication sign and 2 decimals. 1.5 -> "×1.50"
+    public static String formatMultiplier(double value) {
+        return String.format(Locale.ROOT, "×%.2f", value);
+    }
+
     // Converts a multiplier into a signed percentage relative to 1.0. 1.2 -> "+20%", 0.8 -> "-20%"
     public static String formatPercentModifier(double multiplier) {
         long pct = Math.round((multiplier - 1.0) * 100.0);
@@ -47,5 +52,17 @@ public class FormatUtil {
             return String.valueOf(rounded);
         }
         return String.format(Locale.ROOT, "%,d", rounded).replace(',', ' ');
+    }
+
+    // Converts numbers 1-5 to roman numerals. "1" -> "I"
+    public static String toRoman(int level) {
+        return switch (level) {
+            case 1 -> "I";
+            case 2 -> "II";
+            case 3 -> "III";
+            case 4 -> "IV";
+            case 5 -> "V";
+            default -> String.valueOf(level);
+        };
     }
 }

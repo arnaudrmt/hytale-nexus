@@ -11,27 +11,27 @@ import org.bson.BsonDocument;
 
 public final class WeaponUpgradeService {
 
-    private final PlayerStatsManager statsManager;
+    private final PlayerStatsManager playerStatsManager;
 
     public WeaponUpgradeService(PlayerStatsManager playerStatsManager) {
-        this.statsManager = playerStatsManager;
+        this.playerStatsManager = playerStatsManager;
     }
 
     public UpgradeResult attemptUpgrade(Ref<EntityStore> playerRef, BsonDocument weaponDoc, Store<EntityStore> store) {
-        if (!statsManager.isReady()) {
+        if (!playerStatsManager.isReady()) {
             return UpgradeResult.failure("Essence system not initialized");
         }
 
         float upgradeCost = WeaponStatCalculator.calculateUpgradeCost(weaponDoc);
-        float playerBalance = statsManager.getEssenceDust(playerRef, store);
+        float playerBalance = playerStatsManager.getEssenceDust(playerRef, store);
 
         if (playerBalance < upgradeCost) {
-            return UpgradeResult.failure(Message.translation("nexus.insufficient.essence").getRawText(), upgradeCost, playerBalance);
+            return UpgradeResult.insufficientFunds(upgradeCost, playerBalance);
         }
 
         int currentLevel = WeaponBsonSchema.readLevel(weaponDoc);
         WeaponBsonSchema.writeLevel(weaponDoc, currentLevel + 1);
-        statsManager.removeEssenceDust(playerRef, store, upgradeCost);
+        playerStatsManager.removeEssenceDust(playerRef, store, upgradeCost);
 
         return UpgradeResult.success(currentLevel + 1, upgradeCost);
     }
@@ -52,8 +52,10 @@ public final class WeaponUpgradeService {
             return new UpgradeResult(false, 0, 0f, reason, 0f, 0f);
         }
 
-        public static UpgradeResult failure(String reason, float required, float balance) {
-            return new UpgradeResult(false, 0, 0f, reason, required, balance);
+        public static UpgradeResult insufficientFunds(float required, float balance) {
+            return new UpgradeResult(false, 0, 0f,
+                Message.translation("nexus.insufficient.essence").getRawText(),
+                required, balance);
         }
     }
 }

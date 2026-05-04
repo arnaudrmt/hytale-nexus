@@ -1,0 +1,50 @@
+$C = "../Common.ui";
+
+@CenterPanelWidth = 715;
+@SidePanelWidth = 410;
+
+@HorizontalPanelSpacing = 38;
+
+@TotalPageContentWidth = @CenterPanelWidth + (@SidePanelWidth * 2) + (@HorizontalPanelSpacing * 2);
+
+@OpenSound = (
+  SoundPath: "Assets/Sounds/InventoryOpen.ogg",
+  Volume: -3
+);
+@CloseSound = (
+  SoundPath: "Assets/Sounds/InventoryClose.ogg",
+  Volume: 2
+);
+
+$C.@PageOverlay {}
+
+Group #Root {
+  Anchor: (Width: @TotalPageContentWidth, Bottom: 20);
+  LayoutMode: Center;
+
+  // Window 1: Character Panel
+  Group #CharacterPanel {}
+
+  // Center column
+  Group #CenterColumn {
+    Anchor: (Horizontal: @HorizontalPanelSpacing, Width: @CenterPanelWidth);
+    LayoutMode: Bottom;
+
+    Group {
+      LayoutMode: Top;
+
+      // Window 2: Enchantment Panel
+      Group #EnchantmentPanel {}
+    }
+
+    Group { Anchor: (Height: 16); }
+
+    Group #InventoryPanel {}
+    // Window 3: Inventory Panel
+  }
+
+  // Window 4: Weapon Panel
+  Group #WeaponPanel {}
+}
+
+$C.@BackButton {}

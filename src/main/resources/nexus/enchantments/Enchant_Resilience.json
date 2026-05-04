@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_Resilience",
-    "Name": "Resilience",
-    "Description": "Reduces all incoming damage by a flat percentage.",
+    "Name": "enchantment.resilience.name",
+    "Description": "enchantment.resilience.description",
     "Icon": "CharacterPanelStatIconHealth.png",
     "CompatibleTag": "ANY",
     "BaseCost": 65,
@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "DamageReduction",
-            "DisplayName": "Damage Reduction",
-            "Type": "Flat",
+            "DisplayName": "enchantment.resilience.damageReduction",
+            "Type": "Scalar",
             "Values": {
                 "1": 0.04,
                 "2": 0.07,

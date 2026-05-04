@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
@@ -18,6 +19,9 @@ import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 public final class WeaponSwapSystem {
 
+    private static final String DEFAULT_MELEE_ARCHETYPE = "Nexus_Melee_Sword_Default";
+    private static final String DEFAULT_RANGED_ARCHETYPE = "Nexus_Ranged_Staff_Default";
+
     private final WeaponEquipSystem equipSystem;
 
     public WeaponSwapSystem(WeaponEquipSystem equipSystem) {
@@ -25,10 +29,7 @@ public final class WeaponSwapSystem {
         PacketAdapters.registerInbound(this::interceptAbility2);
     }
 
-    private boolean interceptAbility2(
-        @NonNullDecl PlayerRef playerRef,
-        @NonNullDecl Packet packet
-    ) {
+    private boolean interceptAbility2(@NonNullDecl PlayerRef playerRef, @NonNullDecl Packet packet) {
         if (!(packet instanceof SyncInteractionChains syncPacket)) return false;
 
         for (SyncInteractionChain chain : syncPacket.updates) {
@@ -36,21 +37,22 @@ public final class WeaponSwapSystem {
             if (chain.interactionType != InteractionType.Ability2) continue;
 
             Ref<EntityStore> ref = playerRef.getReference();
-            if (ref == null || !ref.isValid()) return false;
+            if (ref == null) return false;
 
             Store<EntityStore> store = ref.getStore();
-            store.getExternalData().getWorld().execute(() -> performWeaponSwap(ref, store));
+            World world = store.getExternalData().getWorld();
+            world.execute(() -> {
+                if (!ref.isValid()) return;
+                performWeaponSwap(ref, store);
+            });
 
             return false;
         }
-
         return false;
     }
 
     private void performWeaponSwap(Ref<EntityStore> ref, Store<EntityStore> store) {
-        PlayerWeaponStateComponent state = store.getComponent(
-            ref, PlayerWeaponStateComponent.getComponentType()
-        );
+        PlayerWeaponStateComponent state = store.getComponent(ref, PlayerWeaponStateComponent.getComponentType());
         if (state == null) return;
 
         BsonDocument incomingDoc = state.getInactiveDocument();
@@ -58,28 +60,28 @@ public final class WeaponSwapSystem {
 
         state.activeTag = state.getInactiveTag();
 
-        InventoryComponent.Hotbar hotbar = store.getComponent(
-            ref, InventoryComponent.Hotbar.getComponentType()
-        );
+        InventoryComponent.Hotbar hotbar = store.getComponent(ref, InventoryComponent.Hotbar.getComponentType());
         if (hotbar == null) return;
 
-        hotbar.getInventory().setItemStackForSlot((short) 0,
-            buildWeaponItemStack(state.activeTag, incomingDoc));
+        ItemStack incomingStack = buildItemStackForWeapon(state.activeTag, incomingDoc);
+        hotbar.getInventory().setItemStackForSlot((short) 0, incomingStack);
         hotbar.markDirty();
 
         store.getExternalData().getWorld().execute(() ->
             store.putComponent(ref, PlayerWeaponStateComponent.getComponentType(), state)
         );
 
-        equipSystem.onWeaponEquipped(ref, buildWeaponItemStack(state.activeTag, incomingDoc), store);
+        equipSystem.onWeaponEquipped(ref, incomingStack, store);
     }
 
-    private ItemStack buildWeaponItemStack(WeaponTag tag, BsonDocument doc) {
+    static ItemStack buildItemStackForWeapon(WeaponTag tag, BsonDocument doc) {
         String archetypeId = doc.containsKey("archetype_id")
             ? doc.getString("archetype_id").getValue()
-            : (tag == WeaponTag.MELEE
-               ? "Nexus_Melee_Sword_Default"
-               : "Nexus_Ranged_Staff_Default");
+            : defaultArchetypeFor(tag);
         return new ItemStack(archetypeId, 1, doc);
+    }
+
+    private static String defaultArchetypeFor(WeaponTag tag) {
+        return tag == WeaponTag.MELEE ? DEFAULT_MELEE_ARCHETYPE : DEFAULT_RANGED_ARCHETYPE;
     }
 }

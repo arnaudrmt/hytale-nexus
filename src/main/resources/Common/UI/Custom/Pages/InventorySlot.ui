@@ -1,0 +1,99 @@
+Group {
+  Anchor: (Width: 74, Height: 74, Bottom: 2, Right: 2);
+
+  ItemSlotButton #NoItemButton {
+    Anchor: (Width: 74, Height: 74);
+    Visible: true;
+    Style: (
+      Default: (Background: PatchStyle(TexturePath: "Assets/Slots/Slot.png", Border: 4)),
+      Hovered: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotHighlight.png", Border: 4))
+    );
+    ItemIcon #SlotItemIcon {
+      Anchor: (Width: 58, Height: 58, Left: 8, Top: 8);
+      HitTestVisible: false;
+    }
+    Group #SlotToolOverlay {
+      Background: "Assets/Slots/SlotTool.png";
+      Anchor: (Width: 74, Height: 74);
+      HitTestVisible: false;
+      Visible: false;
+    }
+  }
+
+  ItemSlotButton #SlotCommonButton {
+    Anchor: (Width: 74, Height: 74);
+    Visible: false;
+    Style: (
+      Default: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotCommon.png", Border: 4)),
+      Hovered: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotCommonHighlight.png", Border: 4))
+    );
+    ItemIcon #SlotItemIcon {
+      Anchor: (Width: 58, Height: 58, Left: 8, Top: 8);
+      HitTestVisible: false;
+    }
+  }
+
+  ItemSlotButton #SlotUncommonButton {
+    Anchor: (Width: 74, Height: 74);
+    Visible: false;
+    Style: (
+      Default: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotUncommon.png", Border: 4)),
+      Hovered: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotUncommonHighlight.png", Border: 4))
+    );
+    ItemIcon #SlotItemIcon {
+      Anchor: (Width: 58, Height: 58, Left: 8, Top: 8);
+      HitTestVisible: false;
+    }
+  }
+
+  ItemSlotButton #SlotRareButton {
+    Anchor: (Width: 74, Height: 74);
+    Visible: false;
+    Style: (
+      Default: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotRare.png", Border: 4)),
+      Hovered: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotRareHighlight.png", Border: 4))
+    );
+    ItemIcon #SlotItemIcon {
+      Anchor: (Width: 58, Height: 58, Left: 8, Top: 8);
+      HitTestVisible: false;
+    }
+  }
+
+  ItemSlotButton #SlotEpicButton {
+    Anchor: (Width: 74, Height: 74);
+    Visible: false;
+    Style: (
+      Default: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotEpic.png", Border: 4)),
+      Hovered: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotEpicHighlight.png", Border: 4))
+    );
+    ItemIcon #SlotItemIcon {
+      Anchor: (Width: 58, Height: 58, Left: 8, Top: 8);
+      HitTestVisible: false;
+    }
+  }
+
+  ItemSlotButton #SlotLegendaryButton {
+    Anchor: (Width: 74, Height: 74);
+    Visible: false;
+    Style: (
+      Default: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotLegendary.png", Border: 4)),
+      Hovered: (Background: PatchStyle(TexturePath: "Assets/Slots/SlotLegendaryHighlight.png", Border: 4))
+    );
+    ItemIcon #SlotItemIcon {
+      Anchor: (Width: 58, Height: 58, Left: 8, Top: 8);
+      HitTestVisible: false;
+    }
+  }
+
+  Label #SlotNumber {
+    Anchor: (Left: 4, Top: 4);
+    HitTestVisible: false;
+    Style: (FontSize: 14, RenderBold: true, TextColor: #919191);
+  }
+
+  Label #SlotAmount {
+    Anchor: (Right: 4, Top: 50);
+    HitTestVisible: false;
+    Style: (FontSize: 14, RenderBold: true, TextColor: #ffffff, HorizontalAlignment: End);
+  }
+}

@@ -1,0 +1,125 @@
+# Bloodlust -
+bloodlust.name = Bloodlust {level}
+bloodlust.description = Stack damage bonus on kills, resets if no kill in time.
+
+bloodlust.bonusPerStack = Bonus per Stack (%){amount}
+bloodlust.MaxStacks = Max Stacks{amount}
+bloodlust.resetTime = Reset Time (s){amount}
+
+# Cripple -
+cripple.name = Cripple {level}
+cripple.description = Slows enemies on hit.
+
+cripple.duration = Slow Duration (s){amount}
+cripple.slowPercent = Slow Strength{amount}
+
+# Critical Strike -
+criticalStrike.name = Critical Strike {level}
+criticalStrike.description = Chance to deal double damage on hit.
+
+criticalStrike.critChance = Crit Chance (%){amount}
+
+# Fire Aspect -
+fireAspect.name = Fire Aspect {level}
+fireAspect.description = Sets enemies on fire on hit.
+
+fireAspect.duration = Burn Duration (s){amount}
+
+# Fortitude -
+fortitude.name = Fortitude {level}
+fortitude.description = Chance to completely block an incoming hit.
+
+fortitude.chance = Block Chance (%){amount}
+
+# Freeze Aspect -
+freezeAspect.name = Freeze Aspect {level}
+freezeAspect.description = Freezes enemies on hit.
+
+freezeAspect.duration = Freeze Duration (s){amount}
+
+# Gambler -
+gambler.name = Gambler {level}
+gambler.description = Randomly doubles or halves your damage.
+
+gambler.doubleChance = Double Chance (%){amount}
+gambler.halveChance = Halve Chance (%){amount}
+
+# Health Boost -
+healthBoost.name = Health Boost
+healthBoost.description = Increases your maximum health.
+
+healthBoost.bonus = Health Bonus{amount}
+
+# Knockback -
+knockback.name = Knockback {level}
+knockback.description = Pushes enemies away on hit.
+
+knockback.force = Knockback Force{amount}
+
+# Life Drain -
+lifeDrain.name = Life Drain {level}
+lifeDrain.description = Steal health on every hit.
+
+lifeDrain.lifeDrainAmount = Health Stolen (%){amount}
+
+# Poison -
+poison.name = Poison {level}
+poison.description = Poisons enemies on hit.
+
+poison.duration = Poison Duration (s){amount}
+
+# Resilience -
+resilience.name = Resilience {level}
+resilience.description = Reduces all incoming damage by a flat percentage.
+
+resilience.damageReduction = Damage Reduction{amount}
+
+# Sharpness -
+sharpness.name = Sharpness {level}
+sharpness.description = Multiplies your weapon damage.
+
+sharpness.multiplier = Damage Multiplier (x){amount}
+
+# Soul Harvest -
+soulHarvest.name = Soul Harvest {level}
+soulHarvest.description = Gain bonus essence when killing enemies.
+
+soulHarvest.multiplier = Essence Bonus{amount}
+
+# Stamina Boost -
+staminaBoost.name = Stamina Boost {level}
+staminaBoost.description = Increases your maximum stamina.
+
+staminaBoost.bonus = Stamina Bonus{amount}
+
+# Swiftness -
+swiftness.name = Swiftness {level}
+swiftness.description = Increases your movement speed.
+
+swiftness.bonus = Speed Bonus{amount}
+
+# Predator -
+predator.name = Predator {level}
+predator.description = Gain a speed burst after killing an enemy.
+
+predator.speedBonus = Speed Bonus{amount}
+predator.duration = Duration (s){amount}
+
+# Thorns -
+thorns.name = Thorns {level}
+thorns.description = Reflects damage back at attackers.
+
+thorns.reflect = Reflect (%){amount}
+
+# Vampirism -
+vampirism.name = Vampirism {level}
+vampirism.description = Steal life when an enemy dies.
+
+vampirism.regen = Max Health Healed (%){amount}
+
+# Warding -
+warding.name = Warding {level}
+warding.description = Reduces incoming damage up to a cap.
+
+warding.damageReduction = Damage Reduction (%){amount}
+warding.reductionCap = Reduction Cap{amount}

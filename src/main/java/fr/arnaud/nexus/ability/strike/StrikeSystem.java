@@ -22,7 +22,7 @@ import fr.arnaud.nexus.ability.core.CoreAbility;
 import fr.arnaud.nexus.camera.PlayerCameraSystem;
 import fr.arnaud.nexus.core.Nexus;
 import fr.arnaud.nexus.feature.resource.PlayerStatsManager;
-import fr.arnaud.nexus.item.weapon.enchantment.impl.EnchantEffectUtil;
+import fr.arnaud.nexus.item.weapon.enchantment.EnchantEffectUtil;
 import fr.arnaud.nexus.session.RunSessionComponent;
 import fr.arnaud.nexus.util.EntityUtil;
 import fr.arnaud.nexus.util.KnockbackUtil;

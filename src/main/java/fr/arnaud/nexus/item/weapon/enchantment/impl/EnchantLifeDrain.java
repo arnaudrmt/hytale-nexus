@@ -11,23 +11,26 @@ import fr.arnaud.nexus.item.weapon.enchantment.event.NexusEnchantEvent;
 public final class EnchantLifeDrain implements EnchantEffectHandler {
 
     public static final EnchantLifeDrain INSTANCE = new EnchantLifeDrain();
-    private static final String ENCHANT_ID = "Enchant_LifeDrain";
+    public static final String ENCHANT_ID = "Enchant_LifeDrain";
+
+    public static final String STAT_HEALTH_STOLEN_AMOUNT = "LifeDrainAmount";
 
     private EnchantLifeDrain() {
     }
 
     @Override
     public void onHit(NexusEnchantEvent event, int enchantLevel) {
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition stat = def.getEnchantmentStatById("LifeDrainAmount");
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById(STAT_HEALTH_STOLEN_AMOUNT);
         if (stat == null) return;
 
-        float healAmount = (float) stat.getStatValueForLevel(enchantLevel);
         PlayerStatsManager psm = Nexus.getInstance().getPlayerStatsManager();
         if (!psm.isReady()) return;
 
+        float maxHealth = psm.getMaxHealth(event.attacker(), event.store());
+        float healAmount = (float) stat.computeValue(enchantLevel, maxHealth);
         psm.addHealth(event.attacker(), event.store(), healAmount);
     }
 }

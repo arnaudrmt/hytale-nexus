@@ -7,7 +7,7 @@ plugins {
 
 group = "fr.arnaud"
 version = "1.0-SNAPSHOT"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     mavenCentral()
@@ -40,7 +40,7 @@ tasks.withType<ProcessResources> {
 
 tasks.named<Jar>("jar") {
     archiveBaseName.set("ProjectNexus")
-    archiveVersion.set("1.0.2")
+    archiveVersion.set("1.0.3")
     from(sourceSets["main"].output)
 }
 

@@ -1,0 +1,35 @@
+{
+    "Id": "Enchant_Predator",
+    "Name": "enchantment.predator.name",
+    "Description": "enchantment.predator.description",
+    "Icon": "CharacterPanelStatIconStamina.png",
+    "CompatibleTag": "ANY",
+    "BaseCost": 55,
+    "CostCurve": 1.38,
+    "Stats": [
+        {
+            "Id": "PredatorSpeedBonus",
+            "DisplayName": "enchantment.predator.speedBonus",
+            "Type": "Additive",
+            "Values": {
+                "1": 1.2,
+                "2": 1.8,
+                "3": 2.4,
+                "4": 3.0,
+                "5": 3.8
+            }
+        },
+        {
+            "Id": "PredatorDuration",
+            "DisplayName": "enchantment.predator.duration",
+            "Type": "Additive",
+            "Values": {
+                "1": 1.5,
+                "2": 2.0,
+                "3": 2.5,
+                "4": 3.0,
+                "5": 4.0
+            }
+        }
+    ]
+}

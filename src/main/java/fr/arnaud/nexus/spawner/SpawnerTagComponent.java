@@ -12,20 +12,26 @@ public class SpawnerTagComponent implements Component<EntityStore> {
     private static ComponentType<EntityStore, SpawnerTagComponent> componentType;
 
     private int spawnerId;
+    private int waveIndex;
     private int minEssence;
     private int maxEssence;
 
     public SpawnerTagComponent() {
     }
 
-    public SpawnerTagComponent(int spawnerId, int minEssence, int maxEssence) {
+    public SpawnerTagComponent(int spawnerId, int waveIndex, int minEssence, int maxEssence) {
         this.spawnerId = spawnerId;
+        this.waveIndex = waveIndex;
         this.minEssence = minEssence;
         this.maxEssence = maxEssence;
     }
 
     public int getSpawnerId() {
         return spawnerId;
+    }
+
+    public int getWaveIndex() {
+        return waveIndex;
     }
 
     public int getMinEssence() {
@@ -42,6 +48,12 @@ public class SpawnerTagComponent implements Component<EntityStore> {
             new KeyedCodec<>("SpawnerId", Codec.INTEGER),
             (c, v) -> c.spawnerId = v,
             c -> c.spawnerId
+        )
+        .add()
+        .append(
+            new KeyedCodec<>("WaveIndex", Codec.INTEGER),
+            (c, v) -> c.waveIndex = v,
+            c -> c.waveIndex
         )
         .add()
         .append(
@@ -68,6 +80,6 @@ public class SpawnerTagComponent implements Component<EntityStore> {
 
     @Override
     public SpawnerTagComponent clone() {
-        return new SpawnerTagComponent(spawnerId, minEssence, maxEssence);
+        return new SpawnerTagComponent(spawnerId, waveIndex, minEssence, maxEssence);
     }
 }

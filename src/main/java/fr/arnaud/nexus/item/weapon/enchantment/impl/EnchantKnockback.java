@@ -10,17 +10,19 @@ import fr.arnaud.nexus.util.KnockbackUtil;
 public final class EnchantKnockback implements EnchantEffectHandler {
 
     public static final EnchantKnockback INSTANCE = new EnchantKnockback();
-    private static final String ENCHANT_ID = "Enchant_Knockback";
+    public static final String ENCHANT_ID = "Enchant_Knockback";
+
+    public static final String STAT_KNOCKBACK_FORCE = "KnockbackForce";
 
     private EnchantKnockback() {
     }
 
     @Override
     public void onHit(NexusEnchantEvent event, int enchantLevel) {
-        EnchantmentDefinition def = EnchantmentRegistry.get().getDefinition(ENCHANT_ID);
+        EnchantmentDefinition def = EnchantmentRegistry.getInstance().getDefinition(ENCHANT_ID);
         if (def == null) return;
 
-        EnchantmentStatDefinition stat = def.getEnchantmentStatById("KnockbackForce");
+        EnchantmentStatDefinition stat = def.getEnchantmentStatById(STAT_KNOCKBACK_FORCE);
         if (stat == null) return;
 
         float force = (float) stat.getStatValueForLevel(enchantLevel);

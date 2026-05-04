@@ -13,6 +13,7 @@ import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.ability.core.CoreAbilityRouter;
 import fr.arnaud.nexus.core.Nexus;
+import fr.arnaud.nexus.level.LevelProgressComponent;
 import org.checkerframework.checker.nullness.compatqual.NonNullDecl;
 
 public final class PlayerInputListener {
@@ -66,7 +67,10 @@ public final class PlayerInputListener {
             targetBlock.getY() + 0.5,
             targetBlock.getZ() + 0.5
         );
-        return Nexus.getInstance().getMobSpawnerManager().tryOpenChest(blockCenter, ref, store);
+        LevelProgressComponent progress = store.getComponent(ref, LevelProgressComponent.getComponentType());
+
+        if (progress == null) return false;
+        return Nexus.getInstance().getSpawnerManager().tryOpenChest(blockCenter, ref, store, progress);
     }
 
     private static void resolveTarget(Ref<EntityStore> ref, Store<EntityStore> store,

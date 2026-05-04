@@ -1,7 +1,7 @@
 {
     "Id": "Enchant_Bloodlust",
-    "Name": "Bloodlust",
-    "Description": "Stack damage bonus on kills, resets if no kill in time.",
+    "Name": "enchantment.bloodlust.name",
+    "Description": "enchantment.bloodlust.description",
     "Icon": "CharacterPanelStatIconDamage.png",
     "CompatibleTag": "ANY",
     "BaseCost": 70,
@@ -9,8 +9,8 @@
     "Stats": [
         {
             "Id": "BloodlustBonusPerStack",
-            "DisplayName": "Bonus per Stack",
-            "Type": "Flat",
+            "DisplayName": "enchantment.bloodlust.bonusPerStack",
+            "Type": "Scalar",
             "Values": {
                 "1": 0.06,
                 "2": 0.08,
@@ -21,8 +21,8 @@
         },
         {
             "Id": "BloodlustMaxStacks",
-            "DisplayName": "Max Stacks",
-            "Type": "Flat",
+            "DisplayName": "enchantment.bloodlust.MaxStacks",
+            "Type": "Additive",
             "Values": {
                 "1": 3.0,
                 "2": 4.0,
@@ -33,8 +33,8 @@
         },
         {
             "Id": "BloodlustResetTime",
-            "DisplayName": "Reset Time (s)",
-            "Type": "Flat",
+            "DisplayName": "enchantment.bloodlust.resetTime",
+            "Type": "Additive",
             "Values": {
                 "1": 4.0,
                 "2": 4.5,

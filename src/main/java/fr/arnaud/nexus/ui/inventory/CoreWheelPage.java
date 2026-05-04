@@ -23,7 +23,7 @@ public final class CoreWheelPage {
     private CoreWheelPage() {
     }
 
-    static void appendBindings(@Nonnull UIEventBuilder event) {
+    static void appendCoreWheelEventBindings(@Nonnull UIEventBuilder event) {
 
         event.addEventBinding(CustomUIEventBindingType.MouseEntered, "#CoreWheelSlot",
             EventData.of("CoreWheelHover", "Enter"), false);
@@ -54,9 +54,9 @@ public final class CoreWheelPage {
             EventData.of("CoreSelect", "unequip"), false);
     }
 
-    static void populate(@Nonnull UICommandBuilder cmd,
-                         @Nonnull Ref<EntityStore> ref,
-                         @Nonnull Store<EntityStore> store) {
+    static void populateCoreWheelSlots(@Nonnull UICommandBuilder cmd,
+                                       @Nonnull Ref<EntityStore> ref,
+                                       @Nonnull Store<EntityStore> store) {
         ActiveCoreComponent core = store.getComponent(ref, ActiveCoreComponent.getComponentType());
 
         List<CoreAbility> unlocked = new ArrayList<>();
@@ -66,38 +66,43 @@ public final class CoreWheelPage {
             }
         }
 
+        for (CoreAbility ability : CoreAbility.values()) {
+            String iconSelector = coreIconElementSelector(ability);
+            for (int i = 0; i < WHEEL_SLOT_COUNT; i++) {
+                cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Icon " + iconSelector + ".Visible", false);
+            }
+            cmd.set("#CoreWheelEquippedIcon " + iconSelector + ".Visible", false);
+        }
+
         for (int i = 0; i < WHEEL_SLOT_COUNT; i++) {
-            if (i < unlocked.size()) {
+            boolean hasAbility = i < unlocked.size();
+            cmd.set("#CoreSlot" + i + "BgEquipped.Visible", hasAbility && core.hasEquipped(unlocked.get(i)));
+            cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Icon.Visible", hasAbility);
+            cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Lock.Visible", !hasAbility);
+
+            if (hasAbility) {
                 CoreAbility ability = unlocked.get(i);
-                boolean isEquipped = core.hasEquipped(ability);
-                cmd.set("#CoreSlot" + i + ".Visible", true);
-                cmd.set("#CoreSlot" + i + "BgEquipped.Visible", isEquipped);
-                cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Icon.Visible", true);
-                cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Lock.Visible", false);
+                cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Icon " + coreIconElementSelector(ability) + ".Visible", true);
                 cmd.set("#CoreSlot" + i + ".TooltipText", Message.translation(ability.getTooltipKey()));
             } else {
-                cmd.set("#CoreSlot" + i + ".Visible", true);
-                cmd.set("#CoreSlot" + i + "BgEquipped.Visible", false);
-                cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Icon.Visible", false);
-                cmd.set("#CoreSlot" + i + " #CoreSlot" + i + "Lock.Visible", true);
-                cmd.set("#CoreSlot" + i + ".TooltipText", Message.translation("inventory.character.core.slot.locked"));
-                cmd.setNull("#CoreSlot" + i + " #CoreSlot" + i + "Icon.Background");
+                cmd.set("#CoreSlot" + i + ".TooltipText", Message.translation("inventory.character.core.slotLocked"));
             }
         }
 
         CoreAbility equipped = core != null ? core.getEquippedCore() : null;
         cmd.set("#CoreWheelSlotEmpty.Visible", equipped == null);
-        cmd.set("#CoreWheelSlotDash.Visible", equipped == CoreAbility.DASH);
-        cmd.set("#CoreWheelSlotSwitchStrike.Visible", equipped == CoreAbility.SWITCH_STRIKE);
+        if (equipped != null) {
+            cmd.set("#CoreWheelEquippedIcon " + coreIconElementSelector(equipped) + ".Visible", true);
+        }
     }
 
-    static void handleHover(@Nonnull UICommandBuilder cmd, @Nonnull String direction) {
+    static void applyCoreWheelHoverVisibility(@Nonnull UICommandBuilder cmd, @Nonnull String direction) {
         cmd.set("#CoreWheelContent.Visible", "Enter".equals(direction));
     }
 
-    static boolean handleSelect(@Nonnull Ref<EntityStore> ref,
-                                @Nonnull Store<EntityStore> store,
-                                @Nonnull String payload) {
+    static boolean selectCoreAbility(@Nonnull Ref<EntityStore> ref,
+                                     @Nonnull Store<EntityStore> store,
+                                     @Nonnull String payload) {
         ActiveCoreComponent core = store.getComponent(ref, ActiveCoreComponent.getComponentType());
         if (core == null) return false;
 
@@ -128,5 +133,10 @@ public final class CoreWheelPage {
             store.putComponent(ref, ActiveCoreComponent.getComponentType(), core);
         }
         return changed;
+    }
+
+    private static String coreIconElementSelector(CoreAbility ability) {
+        return "#IconCore" + ability.name().charAt(0) + ability.name().substring(1).toLowerCase()
+                                                               .replace("_", "");
     }
 }

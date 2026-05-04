@@ -13,7 +13,7 @@ import com.hypixel.hytale.server.core.universe.PlayerRef;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.core.Nexus;
-import fr.arnaud.nexus.level.LevelConfig;
+import fr.arnaud.nexus.math.WorldPosition;
 import fr.arnaud.nexus.spawner.SpawnerState;
 import fr.arnaud.nexus.spawner.WaveBarStateProvider;
 import org.jetbrains.annotations.NotNull;
@@ -113,11 +113,11 @@ public final class WaveBarSystem extends EntityTickingSystem<EntityStore> {
         SpawnerState nearest = null;
         double bestDistSq = TRIGGER_RADIUS_SQ;
 
-        for (SpawnerState state : Nexus.getInstance().getMobSpawnerManager().getSpawnerStates()) {
+        for (SpawnerState state : Nexus.getInstance().getSpawnerManager().getSpawnerStates()) {
             if (!state.isTriggered()) continue;
             if (state.isComplete() && state.getId() != completingSpawnerId) continue;
 
-            LevelConfig.Position p = state.getConfig().position();
+            WorldPosition p = state.getConfig().position();
             double dx = pos.getX() - p.x();
             double dy = pos.getY() - p.y();
             double dz = pos.getZ() - p.z();
