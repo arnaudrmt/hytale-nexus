@@ -19,6 +19,7 @@ import fr.arnaud.nexus.spawner.wave.WaveEventSink;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 public final class SpawnerManager {
 
@@ -31,15 +32,22 @@ public final class SpawnerManager {
     private final List<SpawnerState> spawnerStates = new ArrayList<>();
     private World activeWorld;
 
+    private LevelProgressComponent activeProgress;
+    private Consumer<LevelProgressComponent> progressWriter = p -> {
+    };
+
     public SpawnerManager(LevelTransitionService levelTransitionService,
                           WaveBarStateProvider waveBarStateProvider) {
         this.waveBarStateProvider = waveBarStateProvider;
         this.mobSpawnExecutor = new MobSpawnExecutor(() -> activeWorld);
-        this.chestManager = new ChestManager(() -> activeWorld, p -> {
-        });
+        this.chestManager = new ChestManager(() -> activeWorld, p -> progressWriter.accept(p));
         this.portalController = new FinishPortalController(levelTransitionService, () -> activeWorld);
         this.waveController = new WaveController(buildWaveEventSink(), waveBarStateProvider);
         chestManager.setStandaloneChestLootPersister((id, items) -> {
+            if (activeProgress != null) {
+                activeProgress.recordStandaloneChestLoot(id, items);
+                progressWriter.accept(activeProgress);
+            }
         });
     }
 
@@ -52,7 +60,9 @@ public final class SpawnerManager {
 
             @Override
             public void onChestRequested(SpawnerState state) {
-                chestManager.spawnLootChest(state, new LevelProgressComponent());
+                if (activeProgress != null) {
+                    chestManager.spawnLootChest(state, activeProgress);
+                }
             }
         };
     }
@@ -66,14 +76,54 @@ public final class SpawnerManager {
             spawnerStates.add(new SpawnerState(idSequence++, spawner));
         }
 
-        chestManager.onLevelLoaded(config, new LevelProgressComponent());
+        chestManager.onLevelLoaded(config);
         portalController.onLevelLoaded(config);
         mobSpawnExecutor.reset();
+    }
+
+    public void onPlayerReady(Ref<EntityStore> playerRef, Store<EntityStore> store) {
+        LevelProgressComponent progress =
+            store.getComponent(playerRef, LevelProgressComponent.getComponentType());
+        if (progress == null) return;
+
+        this.activeProgress = progress;
+        restoreSpawnerStatesFromProgress(progress);
+        chestManager.restoreFromProgress(progress);
+    }
+
+    private void restoreSpawnerStatesFromProgress(LevelProgressComponent progress) {
+        for (SpawnerState state : spawnerStates) {
+            int id = state.getId();
+
+            if (progress.clearedSpawnerIndices.contains(id)) {
+                state.markComplete();
+                continue;
+            }
+
+            if (progress.activatedSpawnerIndices.contains(id)) {
+                state.markTriggered();
+                waveController.activateSpawner(state);
+            }
+
+            List<String> savedLoot = progress.pendingSpawnerChestLoot.get(id);
+            if (savedLoot == null || savedLoot.isEmpty()) continue;
+
+            WorldPosition pos = state.getConfig().position();
+            Vector3d chestPos = new Vector3d(pos.x(), pos.y(), pos.z());
+
+            state.markChestSpawned();
+            state.setPendingChestLoot(new ArrayList<>(savedLoot));
+            state.setChestPosition(chestPos);
+            chestManager.placeRestoredSpawnerChest(chestPos);
+        }
     }
 
     public void reset() {
         spawnerStates.clear();
         activeWorld = null;
+        activeProgress = null;
+        progressWriter = p -> {
+        };
         chestManager.reset();
         mobSpawnExecutor.reset();
         waveBarStateProvider.onLevelReset();
@@ -85,11 +135,13 @@ public final class SpawnerManager {
                      Ref<EntityStore> playerRef) {
         if (activeWorld == null) return;
 
-        WaveController.ProgressWriter progressWriter =
-            p -> commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), p);
+        this.activeProgress = progress;
+        this.progressWriter = p -> commandBuffer.putComponent(
+            playerRef, LevelProgressComponent.getComponentType(), p);
+
+        WaveController.ProgressWriter waveProgressWriter = p -> progressWriter.accept(p);
 
         mobSpawnExecutor.drainRetryQueue();
-
         chestManager.tick(playerPosition);
 
         if (!portalController.isPortalSpawned() && areAllSpawnersComplete()) {
@@ -104,11 +156,18 @@ public final class SpawnerManager {
             if (state.isComplete()) continue;
 
             if (!state.isTriggered()) {
-                checkProximityTrigger(state, playerPosition);
+                checkProximityTrigger(state, playerPosition, progress);
             } else {
-                waveController.tick(state, dt, progress, progressWriter);
+                waveController.tick(state, dt, progress, waveProgressWriter);
+                maybeRecordSpawnerCleared(state, progress);
             }
         }
+    }
+
+    public void onChestOpened(int spawnerIndex) {
+        if (activeProgress == null) return;
+        activeProgress.recordSpawnerCleared(spawnerIndex);
+        progressWriter.accept(activeProgress);
     }
 
     public void onMobDied(int spawnerId, int waveIndex) {
@@ -131,7 +190,8 @@ public final class SpawnerManager {
         return Collections.unmodifiableList(spawnerStates);
     }
 
-    private void checkProximityTrigger(SpawnerState state, Vector3d playerPosition) {
+    private void checkProximityTrigger(SpawnerState state, Vector3d playerPosition,
+                                       LevelProgressComponent progress) {
         WorldPosition pos = state.getConfig().position();
         double dx = playerPosition.getX() - pos.x();
         double dy = playerPosition.getY() - pos.y();
@@ -141,7 +201,18 @@ public final class SpawnerManager {
         if (dx * dx + dy * dy + dz * dz > radius * radius) return;
 
         state.markTriggered();
+        progress.recordSpawnerActivated(state.getId());
+        progressWriter.accept(progress);
         waveController.activateSpawner(state);
+    }
+
+    private void maybeRecordSpawnerCleared(SpawnerState state, LevelProgressComponent progress) {
+        if (state.getConfig().hasLootChest()) return;
+        if (!state.isComplete()) return;
+        if (progress.clearedSpawnerIndices.contains(state.getId())) return;
+
+        progress.recordSpawnerCleared(state.getId());
+        progressWriter.accept(progress);
     }
 
     private boolean areAllSpawnersComplete() {

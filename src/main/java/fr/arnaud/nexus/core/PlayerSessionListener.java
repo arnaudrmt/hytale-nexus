@@ -98,6 +98,8 @@ public final class PlayerSessionListener {
                 ItemStack stack = new ItemStack(archetypeId, 1, weaponState.getActiveDocument());
                 Nexus.getInstance().getWeaponEquipSystem().onWeaponEquipped(ref, stack, store);
             }
+
+            Nexus.getInstance().getSpawnerManager().onPlayerReady(ref, store);
         });
     }
 
