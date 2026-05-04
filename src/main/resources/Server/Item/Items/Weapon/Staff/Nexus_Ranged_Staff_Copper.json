@@ -14,7 +14,16 @@
     "Interactions": {
         "Primary": "Staff_Primary",
         "Secondary": "Staff_Primary",
-        "Ability2": {}
+        "Ability2": {
+            "Interactions": [
+                {
+                    "Type": "ChangeStat",
+                    "StatModifiers": {
+                        "Mana": 1
+                    }
+                }
+            ]
+        }
     },
     "InteractionVars": {
         "Staff_Cast_Summon_Charged": {

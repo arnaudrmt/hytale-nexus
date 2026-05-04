@@ -13,7 +13,16 @@
         "Compatible": true
     },
     "Interactions": {
-        "Ability2": {}
+        "Ability2": {
+            "Interactions": [
+                {
+                    "Type": "ChangeStat",
+                    "StatModifiers": {
+                        "Mana": 1
+                    }
+                }
+            ]
+        }
     },
     "InteractionVars": {
         "Swing_Left_Damage": {

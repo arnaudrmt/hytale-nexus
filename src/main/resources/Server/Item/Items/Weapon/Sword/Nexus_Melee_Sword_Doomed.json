@@ -8,7 +8,16 @@
     "Icon": "Icons/ItemsGenerated/Weapon_Sword_Doomed.png",
     "Quality": "Rare",
     "Interactions": {
-        "Ability2": {}
+        "Ability2": {
+            "Interactions": [
+                {
+                    "Type": "ChangeStat",
+                    "StatModifiers": {
+                        "Mana": 1
+                    }
+                }
+            ]
+        }
     },
     "ItemLevel": 30,
     "MaxDurability": 75,
