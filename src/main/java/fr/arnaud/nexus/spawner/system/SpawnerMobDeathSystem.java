@@ -35,7 +35,7 @@ public class SpawnerMobDeathSystem extends DeathSystems.OnDeathSystem {
         SpawnerTagComponent tag = store.getComponent(ref, SpawnerTagComponent.getComponentType());
         if (tag == null) return;
 
-        Nexus.getInstance().getSpawnerRegistry().onMobDied(tag.getSpawnerId(), tag.getWaveIndex());
+        Nexus.getInstance().getSpawnerManager().onMobDied(tag.getSpawnerId(), tag.getWaveIndex());
 
         Damage deathInfo = component.getDeathInfo();
         if (deathInfo == null) return;

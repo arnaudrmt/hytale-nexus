@@ -70,7 +70,7 @@ public final class PlayerInputListener {
         LevelProgressComponent progress = store.getComponent(ref, LevelProgressComponent.getComponentType());
 
         if (progress == null) return false;
-        return Nexus.getInstance().getSpawnerRegistry().tryOpenChest(blockCenter, ref, store, progress);
+        return Nexus.getInstance().getSpawnerManager().tryOpenChest(blockCenter, ref, store, progress);
     }
 
     private static void resolveTarget(Ref<EntityStore> ref, Store<EntityStore> store,

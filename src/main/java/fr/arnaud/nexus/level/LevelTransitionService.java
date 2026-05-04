@@ -2,12 +2,14 @@ package fr.arnaud.nexus.level;
 
 import com.hypixel.hytale.builtin.instances.InstancesPlugin;
 import com.hypixel.hytale.component.CommandBuffer;
+import com.hypixel.hytale.component.Holder;
 import com.hypixel.hytale.component.Ref;
 import com.hypixel.hytale.math.vector.Transform;
 import com.hypixel.hytale.math.vector.Vector3d;
 import com.hypixel.hytale.math.vector.Vector3f;
 import com.hypixel.hytale.protocol.packets.interface_.NotificationStyle;
 import com.hypixel.hytale.server.core.Message;
+import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import com.hypixel.hytale.server.core.util.NotificationUtil;
@@ -36,11 +38,6 @@ public final class LevelTransitionService {
             cmd.run(s -> s.putComponent(playerRef, RunSessionComponent.getComponentType(), session));
         }
 
-        cmd.run(s -> {
-            LevelProgressComponent progress = new LevelProgressComponent();
-            cmd.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
-        });
-
         String activeLevelId = Nexus.getInstance().getLevelWorldService()
                                     .getCurrentLevelWorld().getName()
                                     .substring(LevelWorldService.LEVEL_WORLD_KEY_PREFIX.length());
@@ -61,7 +58,18 @@ public final class LevelTransitionService {
                 store
             );
         });
+
         loadNextLevel(playerRef, currentWorld, nextLevelId);
+    }
+
+    public void onPlayerAddedToLevelWorld(@NonNullDecl AddPlayerToWorldEvent event) {
+        if (!event.getWorld().getName().startsWith(LevelWorldService.LEVEL_WORLD_KEY_PREFIX)) return;
+
+        Holder<EntityStore> holder = event.getHolder();
+        if (holder.getComponent(LevelTransitionMarker.getComponentType()) == null) return;
+
+        holder.removeComponent(LevelTransitionMarker.getComponentType());
+        holder.putComponent(LevelProgressComponent.getComponentType(), new LevelProgressComponent());
     }
 
     private void loadNextLevel(Ref<EntityStore> playerRef,
@@ -90,14 +98,20 @@ public final class LevelTransitionService {
 
             Nexus.getInstance().getLevelWorldService().activateLevel(nextWorld, levelId);
 
-            currentWorld.execute(() ->
+            currentWorld.execute(() -> {
+                currentWorld.getEntityStore().getStore().putComponent(
+                    playerRef,
+                    LevelTransitionMarker.getComponentType(),
+                    new LevelTransitionMarker()
+                );
+
                 InstancesPlugin.teleportPlayerToLoadingInstance(
                     playerRef,
                     playerRef.getStore(),
-                    CompletableFuture.completedFuture(nextWorld),
+                    nextWorldFuture,
                     spawnTransform
-                )
-            );
+                );
+            });
         });
     }
 

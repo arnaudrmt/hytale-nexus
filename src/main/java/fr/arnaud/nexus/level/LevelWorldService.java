@@ -70,7 +70,7 @@ public final class LevelWorldService {
         currentLevelWorld = world;
         activeLevelConfig = config;
 
-        Nexus.getInstance().getSpawnerRegistry().onLevelLoaded(world, config);
+        Nexus.getInstance().getSpawnerManager().onLevelLoaded(world, config);
 
         world.execute(() -> {
             Message primary = Message.translation(config.key_name());
