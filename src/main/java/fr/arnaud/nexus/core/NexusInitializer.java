@@ -10,6 +10,7 @@ import com.hypixel.hytale.component.system.EntityEventSystem;
 import com.hypixel.hytale.server.core.HytaleServer;
 import com.hypixel.hytale.server.core.asset.type.gameplay.DeathConfig;
 import com.hypixel.hytale.server.core.entity.entities.Player;
+import com.hypixel.hytale.server.core.event.events.player.AddPlayerToWorldEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseButtonEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerMouseMotionEvent;
 import com.hypixel.hytale.server.core.event.events.player.PlayerReadyEvent;
@@ -45,6 +46,7 @@ import fr.arnaud.nexus.item.weapon.system.WeaponSwapSystem;
 import fr.arnaud.nexus.item.weapon.system.WeaponUsageGuard;
 import fr.arnaud.nexus.level.LevelProgressComponent;
 import fr.arnaud.nexus.level.LevelRegistry;
+import fr.arnaud.nexus.level.LevelTransitionMarker;
 import fr.arnaud.nexus.session.PlayerSessionTracker;
 import fr.arnaud.nexus.session.RunCompletedEvent;
 import fr.arnaud.nexus.session.RunCompletedHandler;
@@ -84,6 +86,9 @@ public final class NexusInitializer {
 
     private void registerComponents() {
         var registry = plugin.getEntityStoreRegistry();
+
+        // World
+        LevelTransitionMarker.setComponentType(registry.registerComponent(LevelTransitionMarker.class, LevelTransitionMarker::new));
 
         // Inventory
         registry.registerComponent(InventoryComponent.Storage.class, InventoryComponent.Storage::new);
@@ -168,27 +173,28 @@ public final class NexusInitializer {
     }
 
     private void registerListeners() {
-        var events = plugin.getEventRegistry();
+        var eventRegistry = plugin.getEventRegistry();
 
         // World
-        events.registerGlobal(StartWorldEvent.class, plugin.getLevelWorldService()::handleWorldStart);
+        eventRegistry.registerGlobal(StartWorldEvent.class, plugin.getLevelWorldService()::handleWorldStart);
+        eventRegistry.registerGlobal(AddPlayerToWorldEvent.class, plugin.getLevelTransitionService()::onPlayerAddedToLevelWorld);
 
         // Session
-        events.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);
+        eventRegistry.registerGlobal(PlayerReadyEvent.class, PlayerSessionListener::onPlayerReady);
         HytaleServer.get().getEventBus().registerGlobal(RunCompletedEvent.class, new RunCompletedHandler());
 
         // Player
-        events.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getPlayerStatsManager()::onAssetsLoaded);
+        eventRegistry.register(LoadedAssetsEvent.class, EntityStatType.class, plugin.getPlayerStatsManager()::onAssetsLoaded);
 
         // Inventory
         plugin.getInventoryPacketInterceptor().register();
 
         // Input
-        events.registerGlobal(PlayerMouseButtonEvent.class, plugin.getPlayerInputListener()::onMouseButton);
-        events.registerGlobal(PlayerMouseMotionEvent.class, plugin.getPlayerMouseMotionListener()::onMouseMotion);
+        eventRegistry.registerGlobal(PlayerMouseButtonEvent.class, plugin.getPlayerInputListener()::onMouseButton);
+        eventRegistry.registerGlobal(PlayerMouseMotionEvent.class, plugin.getPlayerMouseMotionListener()::onMouseMotion);
 
         // UI
-        events.registerGlobal(PlayerReadyEvent.class, e -> {
+        eventRegistry.registerGlobal(PlayerReadyEvent.class, e -> {
             Player player = e.getPlayer();
             plugin.getNexusHudSystem().onPlayerReady(player, () -> {
                 plugin.getWaveBarSystem().onPlayerReady(player);
@@ -197,7 +203,7 @@ public final class NexusInitializer {
         });
 
         // Tutorial
-        events.registerGlobal(PlayerMouseButtonEvent.class, e -> plugin.getTutorialInterceptor().onMouseButton(e));
+        eventRegistry.registerGlobal(PlayerMouseButtonEvent.class, e -> plugin.getTutorialInterceptor().onMouseButton(e));
     }
 
     private void registerCommands() {

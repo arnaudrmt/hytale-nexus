@@ -34,14 +34,7 @@ public final class SpawnerProximitySystem extends EntityTickingSystem<EntityStor
         Ref<EntityStore> playerRef = chunk.getReferenceTo(index);
         LevelProgressComponent progress = chunk.getComponent(index, LevelProgressComponent.getComponentType());
 
-        // FIXME: Resetting progress when activatedSpawnerIndices is non-empty is counter-intuitive
-        // but removing this block causes mobs to stop spawning after a level transition. Investigate.
-        if (progress != null && !progress.activatedSpawnerIndices.isEmpty()) {
-            progress = new LevelProgressComponent();
-            commandBuffer.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
-        }
-
         Vector3d position = transform.getPosition();
-        Nexus.getInstance().getSpawnerRegistry().tick(dt, position, progress, commandBuffer, playerRef);
+        Nexus.getInstance().getSpawnerManager().tick(dt, position, progress, commandBuffer, playerRef);
     }
 }

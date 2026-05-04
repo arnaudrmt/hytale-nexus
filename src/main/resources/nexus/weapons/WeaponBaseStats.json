@@ -1,9 +1,9 @@
 {
     "Qualities": [
         {
-            "_comment": "Common - ~276 total essence to L10",
+            "_comment": "Common: ~138 total essence to L10",
             "Quality": 1,
-            "LevelCostBase": 20,
+            "LevelCostBase": 10,
             "LevelCostRate": 1.07,
             "DamageMultiplierBase": 1.10,
             "DamageMultiplierPerLevel": 0.02,
@@ -15,9 +15,9 @@
             "MovementSpeedCap": 0
         },
         {
-            "_comment": "Uncommon - ~818 total essence to L10",
+            "_comment": "Uncommon: ~409 total essence to L10",
             "Quality": 2,
-            "LevelCostBase": 62,
+            "LevelCostBase": 31,
             "LevelCostRate": 1.06,
             "DamageMultiplierBase": 1.25,
             "DamageMultiplierPerLevel": 0.025,
@@ -29,9 +29,9 @@
             "MovementSpeedCap": 4
         },
         {
-            "_comment": "Rare - ~3 055 total essence to L10. Level 2+ only drop.",
+            "_comment": "Rare: ~1 528 total essence to L10. Level 2+ only drop.",
             "Quality": 3,
-            "LevelCostBase": 158,
+            "LevelCostBase": 79,
             "LevelCostRate": 1.14,
             "DamageMultiplierBase": 1.45,
             "DamageMultiplierPerLevel": 0.035,
@@ -43,9 +43,9 @@
             "MovementSpeedCap": 6
         },
         {
-            "_comment": "Epic - ~8 164 total essence to L10. Rarest drop, max power.",
+            "_comment": "Epic: ~4 082 total essence to L10. Rarest drop, max power.",
             "Quality": 4,
-            "LevelCostBase": 258,
+            "LevelCostBase": 129,
             "LevelCostRate": 1.24,
             "DamageMultiplierBase": 1.60,
             "DamageMultiplierPerLevel": 0.045,
@@ -57,9 +57,9 @@
             "MovementSpeedCap": 7
         },
         {
-            "_comment": "Legendary - ~27 956 total essence to L10. Prestige tier, extreme late game.",
+            "_comment": "Legendary: ~13978 total essence to L10. Prestige tier, extreme late game.",
             "Quality": 5,
-            "LevelCostBase": 800,
+            "LevelCostBase": 400,
             "LevelCostRate": 1.26,
             "DamageMultiplierBase": 1.80,
             "DamageMultiplierPerLevel": 0.055,

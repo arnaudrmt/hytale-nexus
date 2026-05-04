@@ -68,7 +68,7 @@ public final class Nexus extends JavaPlugin {
     private final WeaponGenerator weaponGenerator = new WeaponGenerator();
     private final WeaponUpgradeService weaponUpgradeService = new WeaponUpgradeService(playerStatsManager);
     private final WeaponEquipSystem weaponEquipSystem = new WeaponEquipSystem();
-    private final WeaponUsageGuard weaponAbilityGuard = new WeaponUsageGuard();
+    private final WeaponUsageGuard weaponUsageGuard = new WeaponUsageGuard();
 
     // Tutorial
     private final TutorialInterceptor tutorialInterceptor = new TutorialInterceptor();
@@ -148,7 +148,7 @@ public final class Nexus extends JavaPlugin {
         return runStartService;
     }
 
-    public SpawnerManager getSpawnerRegistry() {
+    public SpawnerManager getSpawnerManager() {
         return spawnerManager;
     }
 
@@ -168,8 +168,8 @@ public final class Nexus extends JavaPlugin {
         return weaponUpgradeService;
     }
 
-    public WeaponUsageGuard getWeaponAbilityGuard() {
-        return weaponAbilityGuard;
+    public WeaponUsageGuard getWeaponUsageGuard() {
+        return weaponUsageGuard;
     }
 
     public TutorialInterceptor getTutorialInterceptor() {

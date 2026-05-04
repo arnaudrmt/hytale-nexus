@@ -10,6 +10,7 @@ import com.hypixel.hytale.server.core.inventory.InventoryComponent;
 import com.hypixel.hytale.server.core.inventory.ItemStack;
 import com.hypixel.hytale.server.core.io.adapter.PacketAdapters;
 import com.hypixel.hytale.server.core.universe.PlayerRef;
+import com.hypixel.hytale.server.core.universe.world.World;
 import com.hypixel.hytale.server.core.universe.world.storage.EntityStore;
 import fr.arnaud.nexus.item.weapon.component.PlayerWeaponStateComponent;
 import fr.arnaud.nexus.item.weapon.data.WeaponTag;
@@ -36,10 +37,14 @@ public final class WeaponSwapSystem {
             if (chain.interactionType != InteractionType.Ability2) continue;
 
             Ref<EntityStore> ref = playerRef.getReference();
-            if (ref == null || !ref.isValid()) return false;
+            if (ref == null) return false;
 
             Store<EntityStore> store = ref.getStore();
-            store.getExternalData().getWorld().execute(() -> performWeaponSwap(ref, store));
+            World world = store.getExternalData().getWorld();
+            world.execute(() -> {
+                if (!ref.isValid()) return;
+                performWeaponSwap(ref, store);
+            });
 
             return false;
         }

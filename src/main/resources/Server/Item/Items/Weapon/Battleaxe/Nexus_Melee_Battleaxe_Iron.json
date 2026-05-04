@@ -9,7 +9,16 @@
     "Quality": "Uncommon",
     "ItemLevel": 20,
     "Interactions": {
-        "Ability2": {}
+        "Ability2": {
+            "Interactions": [
+                {
+                    "Type": "ChangeStat",
+                    "StatModifiers": {
+                        "Mana": 1
+                    }
+                }
+            ]
+        }
     },
     "Recipe": {
         "TimeSeconds": 3.5,

@@ -11,7 +11,16 @@
     "MaxDurability": 60,
     "DurabilityLossOnHit": 0,
     "Interactions": {
-        "Ability2": {}
+        "Ability2": {
+            "Interactions": [
+                {
+                    "Type": "ChangeStat",
+                    "StatModifiers": {
+                        "Mana": 1
+                    }
+                }
+            ]
+        }
     },
     "InteractionVars": {
         "Swing_Down_Damage": {

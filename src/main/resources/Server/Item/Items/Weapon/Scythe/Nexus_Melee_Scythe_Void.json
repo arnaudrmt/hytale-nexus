@@ -14,7 +14,16 @@
     "Interactions": {
         "Primary": "Battleaxe_Scythe_Void_Attack",
         "Secondary": "Spear_Block",
-        "Ability2": {}
+        "Ability2": {
+            "Interactions": [
+                {
+                    "Type": "ChangeStat",
+                    "StatModifiers": {
+                        "Mana": 1
+                    }
+                }
+            ]
+        }
     },
     "InteractionVars": {
         "Spear_Block_Damage": "Spear_Block_Damage",

@@ -7,7 +7,16 @@
     "Texture": "Items/Weapons/Dagger/Mithril_Texture.png",
     "Icon": "Icons/ItemsGenerated/Weapon_Daggers_Mithril.png",
     "Interactions": {
-        "Ability2": {}
+        "Ability2": {
+            "Interactions": [
+                {
+                    "Type": "ChangeStat",
+                    "StatModifiers": {
+                        "Mana": 1
+                    }
+                }
+            ]
+        }
     },
     "Recipe": {
         "TimeSeconds": 5,

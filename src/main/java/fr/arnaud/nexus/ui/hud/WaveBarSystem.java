@@ -113,7 +113,7 @@ public final class WaveBarSystem extends EntityTickingSystem<EntityStore> {
         SpawnerState nearest = null;
         double bestDistSq = TRIGGER_RADIUS_SQ;
 
-        for (SpawnerState state : Nexus.getInstance().getSpawnerRegistry().getSpawnerStates()) {
+        for (SpawnerState state : Nexus.getInstance().getSpawnerManager().getSpawnerStates()) {
             if (!state.isTriggered()) continue;
             if (state.isComplete() && state.getId() != completingSpawnerId) continue;
 

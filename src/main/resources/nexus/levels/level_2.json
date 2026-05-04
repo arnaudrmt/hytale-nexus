@@ -920,7 +920,7 @@
                     "maxEssence": 110
                 },
                 {
-                    "mobId": "Skeleton_Sand",
+                    "mobId": "Dungeon_Skeleton_Sand_Assassin",
                     "minCount": 5,
                     "maxCount": 6,
                     "spawnRate": 0.8,
@@ -1188,7 +1188,7 @@
                     "maxEssence": 105
                 },
                 {
-                    "mobId": "Skeleton_Sand",
+                    "mobId": "Dungeon_Skeleton_Sand_Assassin",
                     "minCount": 5,
                     "maxCount": 6,
                     "spawnRate": 0.8,
@@ -1541,7 +1541,7 @@
                     "maxEssence": 110
                 },
                 {
-                    "mobId": "Skeleton_Sand",
+                    "mobId": "Dungeon_Skeleton_Sand_Assassin",
                     "minCount": 5,
                     "maxCount": 6,
                     "spawnRate": 0.7,

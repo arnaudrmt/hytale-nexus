@@ -54,27 +54,40 @@ public final class ChestManager {
         this.progressWriter = progressWriter;
     }
 
-    public void onLevelLoaded(LevelConfig config, LevelProgressComponent progress) {
+    public void onLevelLoaded(LevelConfig config) {
         standaloneChests.clear();
         int id = 0;
         for (LevelConfig.StandaloneChest chestConfig : config.standaloneChests()) {
-            StandaloneChestState state = new StandaloneChestState(id, chestConfig);
+            standaloneChests.add(new StandaloneChestState(id++, chestConfig));
+        }
+    }
 
-            List<String> savedLoot = progress.pendingStandaloneChestLoot.get(id);
-            if (savedLoot != null && !savedLoot.isEmpty()) {
+    public void restoreFromProgress(LevelProgressComponent progress) {
+        for (StandaloneChestState state : standaloneChests) {
+            if (progress.openedStandaloneChestIndices.contains(state.getId())) {
                 state.markTriggered();
                 state.markChestSpawned();
-                state.setPendingLoot(new ArrayList<>(savedLoot));
-                state.setChestPosition(new Vector3d(
-                    chestConfig.position().x(),
-                    chestConfig.position().y(),
-                    chestConfig.position().z()
-                ));
+                continue;
             }
 
-            standaloneChests.add(state);
-            id++;
+            List<String> savedLoot = progress.pendingStandaloneChestLoot.get(state.getId());
+            if (savedLoot == null || savedLoot.isEmpty()) continue;
+
+            LevelConfig.StandaloneChest chestConfig = state.getConfig();
+            state.markTriggered();
+            state.markChestSpawned();
+            state.setPendingLoot(new ArrayList<>(savedLoot));
+            state.setChestPosition(new Vector3d(
+                chestConfig.position().x(),
+                chestConfig.position().y(),
+                chestConfig.position().z()
+            ));
+            placeChestInWorld(state.getChestPosition());
         }
+    }
+
+    public void placeRestoredSpawnerChest(Vector3d chestPos) {
+        placeChestInWorld(chestPos);
     }
 
     public void reset() {
@@ -93,10 +106,8 @@ public final class ChestManager {
         LevelConfig.LootChest lootChest = spawnerState.getConfig().lootChest();
         if (lootChest == null) return;
 
-        List<String> rolledItems;
-
-        // If we have persisted loot from before a restart, reuse it so the items don't change.
         List<String> savedLoot = progress.pendingSpawnerChestLoot.get(spawnerState.getId());
+        List<String> rolledItems;
         if (savedLoot != null && !savedLoot.isEmpty()) {
             rolledItems = new ArrayList<>(savedLoot);
         } else {
@@ -196,9 +207,9 @@ public final class ChestManager {
                                 Store<EntityStore> store, List<SpawnerState> spawnerStates,
                                 LevelProgressComponent progress) {
         if (tryOpenFromCandidates(clickedBlockCenter, playerRef, store,
-            buildSpawnerChestCandidates(spawnerStates, progress))) return true;
+            buildSpawnerChestCandidates(spawnerStates, progress, playerRef, store))) return true;
         return tryOpenFromCandidates(clickedBlockCenter, playerRef, store,
-            buildStandaloneChestCandidates(progress));
+            buildStandaloneChestCandidates(progress, playerRef, store));
     }
 
     private boolean tryOpenFromCandidates(Vector3d clicked, Ref<EntityStore> playerRef,
@@ -206,11 +217,9 @@ public final class ChestManager {
         for (ChestCandidate candidate : candidates) {
             if (!isSameBlock(clicked, candidate.position())) continue;
 
-            List<String> loot = candidate.loot();
             candidate.clearAction().run();
-
             playChestOpenSound(playerRef, store);
-            grantLoot(loot, candidate.position(), playerRef, store);
+            grantLoot(candidate.loot(), candidate.position(), playerRef, store);
             removeChestBlock(candidate.position());
             return true;
         }
@@ -218,40 +227,46 @@ public final class ChestManager {
     }
 
     private List<ChestCandidate> buildSpawnerChestCandidates(List<SpawnerState> states,
-                                                             LevelProgressComponent progress) {
+                                                             LevelProgressComponent progress,
+                                                             Ref<EntityStore> playerRef,
+                                                             Store<EntityStore> store) {
         List<ChestCandidate> candidates = new ArrayList<>();
         for (SpawnerState state : states) {
-            if (state.hasPendingChestLoot() && state.getChestPosition() != null) {
-                int spawnerIndex = state.getId();
-                candidates.add(new ChestCandidate(
-                    state.getChestPosition(),
-                    state.getPendingChestLoot(),
-                    () -> {
-                        state.clearPendingChestLoot();
-                        progress.clearSpawnerChestLoot(spawnerIndex);
-                        progressWriter.accept(progress);
-                    }
-                ));
-            }
+            if (!state.hasPendingChestLoot() || state.getChestPosition() == null) continue;
+
+            int spawnerIndex = state.getId();
+            candidates.add(new ChestCandidate(
+                state.getChestPosition(),
+                state.getPendingChestLoot(),
+                () -> {
+                    state.clearPendingChestLoot();
+                    progress.clearSpawnerChestLoot(spawnerIndex);
+                    store.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
+                    Nexus.getInstance().getSpawnerManager().onChestOpened(spawnerIndex);
+                }
+            ));
         }
         return candidates;
     }
 
-    private List<ChestCandidate> buildStandaloneChestCandidates(LevelProgressComponent progress) {
+    private List<ChestCandidate> buildStandaloneChestCandidates(LevelProgressComponent progress,
+                                                                Ref<EntityStore> playerRef,
+                                                                Store<EntityStore> store) {
         List<ChestCandidate> candidates = new ArrayList<>();
         for (StandaloneChestState state : standaloneChests) {
-            if (state.hasPendingLoot() && state.getChestPosition() != null) {
-                int chestIndex = state.getId();
-                candidates.add(new ChestCandidate(
-                    state.getChestPosition(),
-                    state.getPendingLoot(),
-                    () -> {
-                        state.clearPendingLoot();
-                        progress.clearStandaloneChestLoot(chestIndex);
-                        progressWriter.accept(progress);
-                    }
-                ));
-            }
+            if (!state.hasPendingLoot() || state.getChestPosition() == null) continue;
+
+            int chestIndex = state.getId();
+            candidates.add(new ChestCandidate(
+                state.getChestPosition(),
+                state.getPendingLoot(),
+                () -> {
+                    state.clearPendingLoot();
+                    progress.clearStandaloneChestLoot(chestIndex);
+                    progress.recordStandaloneChestOpened(chestIndex);
+                    store.putComponent(playerRef, LevelProgressComponent.getComponentType(), progress);
+                }
+            ));
         }
         return candidates;
     }

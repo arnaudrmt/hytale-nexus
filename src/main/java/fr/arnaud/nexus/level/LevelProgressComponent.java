@@ -18,6 +18,7 @@ public class LevelProgressComponent implements Component<EntityStore> {
 
     public List<Integer> activatedSpawnerIndices = new ArrayList<>();
     public List<Integer> clearedSpawnerIndices = new ArrayList<>();
+    public List<Integer> openedStandaloneChestIndices = new ArrayList<>();
 
     public Map<Integer, List<String>> pendingSpawnerChestLoot = new HashMap<>();
     public Map<Integer, List<String>> pendingStandaloneChestLoot = new HashMap<>();
@@ -50,6 +51,11 @@ public class LevelProgressComponent implements Component<EntityStore> {
             new KeyedCodec<>("ClearedSpawners", new ArrayCodec<>(Codec.INTEGER, Integer[]::new)),
             (c, v) -> c.clearedSpawnerIndices = v != null ? new ArrayList<>(Arrays.asList(v)) : new ArrayList<>(),
             c -> c.clearedSpawnerIndices.toArray(new Integer[0])
+        )
+        .add().append(
+            new KeyedCodec<>("OpenedStandaloneChests", new ArrayCodec<>(Codec.INTEGER, Integer[]::new)),
+            (c, v) -> c.openedStandaloneChestIndices = v != null ? new ArrayList<>(Arrays.asList(v)) : new ArrayList<>(),
+            c -> c.openedStandaloneChestIndices.toArray(new Integer[0])
         )
         .add().append(
             new KeyedCodec<>("SpawnerChestKeys", new ArrayCodec<>(Codec.INTEGER, Integer[]::new)),
@@ -91,6 +97,16 @@ public class LevelProgressComponent implements Component<EntityStore> {
     public void recordSpawnerActivated(int spawnerIndex) {
         if (!activatedSpawnerIndices.contains(spawnerIndex))
             activatedSpawnerIndices.add(spawnerIndex);
+    }
+
+    public void recordSpawnerCleared(int spawnerIndex) {
+        if (!clearedSpawnerIndices.contains(spawnerIndex))
+            clearedSpawnerIndices.add(spawnerIndex);
+    }
+
+    public void recordStandaloneChestOpened(int chestIndex) {
+        if (!openedStandaloneChestIndices.contains(chestIndex))
+            openedStandaloneChestIndices.add(chestIndex);
     }
 
     public void recordSpawnerChestLoot(int spawnerIndex, List<String> items) {
@@ -174,6 +190,7 @@ public class LevelProgressComponent implements Component<EntityStore> {
         LevelProgressComponent clone = new LevelProgressComponent();
         clone.activatedSpawnerIndices.addAll(this.activatedSpawnerIndices);
         clone.clearedSpawnerIndices.addAll(this.clearedSpawnerIndices);
+        clone.openedStandaloneChestIndices.addAll(this.openedStandaloneChestIndices);
         clone.lastCheckpointPosition = this.lastCheckpointPosition;
         this.pendingSpawnerChestLoot.forEach((k, v) ->
             clone.pendingSpawnerChestLoot.put(k, new ArrayList<>(v)));
